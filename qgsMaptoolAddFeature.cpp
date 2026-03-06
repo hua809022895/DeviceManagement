@@ -1,0 +1,96 @@
+/***qgsmaptooladdfeature.cpp
+ ***************************************************************************/
+#include "stdafx.h"
+#include "qgsMaptoolAddFeature.h"
+#include "qgsadvanceddigitizingdockwidget.h"
+#include "qgsapplication.h"
+#include "qgsAttributeDialog.h"
+#include "qgsexception.h"
+#include "qgscurvepolygon.h"
+#include "qgsfields.h"
+#include "qgsgeometry.h"
+#include "qgslinestring.h"
+#include "qgsmultipoint.h"
+#include "qgsmapcanvas.h"
+#include "qgsmapmouseevent.h"
+#include "qgspolygon.h"
+#include "qgsproject.h"
+#include "qgsvectordataprovider.h"
+#include "qgsvectorlayer.h"
+#include "qgslogger.h"
+#include "qgsFeatureAction.h"
+//#include "qgisapp.h"
+#include "qgsexpressioncontextutils.h"
+#include "qgsrubberband.h"
+#include "mainWindow.h"
+
+#include <QSettings>
+
+QgsMapToolAddFeature::QgsMapToolAddFeature( QgsMapCanvas *canvas, CaptureMode mode,QgsAdvancedDigitizingDockWidget* mDock )
+  : QgsMapToolDigitizeFeature(canvas, mDock, mode ), mCheckGeometryType(true)
+{
+	setLayer(canvas->currentLayer());
+	mToolName = tr("Add feature");
+//  connect( MainWindow::instance(), &MainWindow::newProject, this, &QgsMapToolAddFeature::stopCapturing );
+//  connect( MainWindow::instance(), &MainWindow::projectRead, this, &QgsMapToolAddFeature::stopCapturing );
+}
+
+bool QgsMapToolAddFeature::addFeature(QgsVectorLayer *vlayer, const QgsFeature &f, bool showModal)
+{
+	QgsFeature feat(f);
+	QgsExpressionContextScope *scope = QgsExpressionContextUtils::mapToolCaptureScope(snappingMatches());
+	QgsFeatureAction *action = new QgsFeatureAction(tr("add feature"), feat, vlayer, QString(), -1, this);
+	
+	if (QgsRubberBand *rb = takeRubberBand())
+		connect(action, &QgsFeatureAction::addFeatureFinished, rb, &QgsRubberBand::deleteLater);
+	
+	bool res = action->addFeature(QgsAttributeMap(), showModal, scope);
+	if (showModal)
+		delete action;
+	return res;
+}
+
+void QgsMapToolAddFeature::digitized( const QgsFeature &f )
+{
+  QgsVectorLayer *vlayer = currentVectorLayer();
+  bool res = addFeature( vlayer, f, false );
+
+  if ( res )
+  {
+    //add points to other features to keep topology up-to-date
+    bool topologicalEditing = QgsProject::instance()->topologicalEditing();
+    QgsProject::AvoidIntersectionsMode avoidIntersectionsMode = QgsProject::instance()->avoidIntersectionsMode();
+    if ( topologicalEditing && avoidIntersectionsMode == QgsProject::AvoidIntersectionsMode::AvoidIntersectionsLayers &&
+         ( mode() == CaptureLine || mode() == CapturePolygon ) )
+    {
+
+      //use always topological editing for avoidIntersection.
+      //Otherwise, no way to guarantee the geometries don't have a small gap in between.
+      const QList<QgsVectorLayer *> intersectionLayers = QgsProject::instance()->avoidIntersectionsLayers();
+
+      if ( !intersectionLayers.isEmpty() ) //try to add topological points also to background layers
+      {
+        for ( QgsVectorLayer *vl : intersectionLayers )
+        {
+          //can only add topological points if background layer is editable...
+          if ( vl->geometryType() == QgsWkbTypes::PolygonGeometry && vl->isEditable() )
+          {
+            vl->addTopologicalPoints( f.geometry() );
+          }
+        }
+      }
+    }
+    if ( topologicalEditing )
+    {
+      QList<QgsPointLocator::Match> sm = snappingMatches();
+      for ( int i = 0; i < sm.size() ; ++i )
+      {
+        if ( sm.at( i ).layer() )
+        {
+          sm.at( i ).layer()->addTopologicalPoints( f.geometry().vertexAt( i ) );
+        }
+      }
+      vlayer->addTopologicalPoints( f.geometry() );
+    }
+  }
+}

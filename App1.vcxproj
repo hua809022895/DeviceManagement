@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B12702AD-ABFB-343A-A199-8E24837244A3}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>App9</ProjectName>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' or !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./;D:\BACKUP\qgis-3.16\include;D:\BACKUP\OSGeo4W\include;$(QTDIR)\include;C:\Program Files\Python38\include;$(IncludePath)</IncludePath>
+    <ExecutablePath>;</ExecutablePath>
+    <LibraryPath>./lib;D:\BACKUP\qgis-3.16\lib;D:\BACKUP\OSGeo4W\lib;$(QTDIR)\lib;C:\Program Files\Python38\libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>./;D:\BACKUP\qgis-3.16\include;D:\BACKUP\OSGeo4W\include;$(QTDIR)\include\qtCore;$(QTDIR)\include\qtNetwork;$(QTDIR)\include\qtGui;$(QTDIR)\include\qtSql;$(QTDIR)\include;Clipper2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\BACKUP\qgis-3.16\lib;D:\BACKUP\OSGeo4W\lib;$(QTDIR)\lib;Clipper2\lib;./lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <QtInstall>5.12.4</QtInstall>
+    <QtModules>core;xml;sql;opengl;network;gui;svg;xmlpatterns;uitools;widgets;qml;winextras;quick;3dquick;scxml;charts;networkauth</QtModules>
+  </PropertyGroup>
+  <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <QtModules>core;xml;sql;opengl;network;gui;svg;xmlpatterns;uitools;widgets;qml;webchannel;websockets;winextras;quick;3dcore;3danimation;3dextras;3dinput;3dlogic;3drender;3dquick;openglextensions;scxml;webengine;webenginewidgets;networkauth;webview</QtModules>
+    <QtInstall>5.12.4</QtInstall>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DLL;USINGZ;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./;$(QTDIR)\include/QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <DisableSpecificWarnings>4005;4091;4819;4312;4311</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;qgis_analysis.lib;qgis_core.lib;qgis_gui.lib;qgis_app.lib;qgis_native.lib;proj.lib;tiff.lib;gdal_i.lib;Clipper2_64.lib;Qt5Xlsxd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>.</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <InitFuncName>%(Filename)</InitFuncName>
+      <Compression>default</Compression>
+      <NoCompression>true</NoCompression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;QT_DLL;QT_NO_DEBUG;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;qgis_analysis.lib;qgis_core.lib;qgis_gui.lib;qgis_app.lib;qgis_native.lib;proj.lib;Qt5Xlsx.lib;tiff.lib;python38.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <QtMoc>
+      <ExecutionDescription>Moc'ing %(Identity)...</ExecutionDescription>
+      <DynamicSource>output</DynamicSource>
+      <QtMocDir>.</QtMocDir>
+      <QtMocFileName>moc_%(Filename).cpp</QtMocFileName>
+    </QtMoc>
+    <QtRcc>
+      <InitFuncName>%(Filename)</InitFuncName>
+      <Compression>default</Compression>
+      <NoCompression>true</NoCompression>
+      <ExecutionDescription>Rcc'ing %(Identity)...</ExecutionDescription>
+      <QtRccDir>.</QtRccDir>
+      <QtRccFileName>qrc_%(Filename).cpp</QtRccFileName>
+    </QtRcc>
+    <QtUic>
+      <ExecutionDescription>Uic'ing %(Identity)...</ExecutionDescription>
+      <QtUicDir>.</QtUicDir>
+      <QtUicFileName>ui_%(Filename).h</QtUicFileName>
+    </QtUic>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="addPolygonTool.cpp" />
+    <ClCompile Include="Clipper2\include\clipper.engine.cpp" />
+    <ClCompile Include="Clipper2\include\clipper.offset.cpp" />
+    <ClCompile Include="Clipper2\include\clipper.rectclip.cpp" />
+    <ClCompile Include="comm.cpp" />
+    <ClCompile Include="dataBackDlg.cpp" />
+    <ClCompile Include="dataConversion.cpp" />
+    <ClCompile Include="ddsThread.cpp" />
+    <ClCompile Include="dialogSendGrid.cpp" />
+    <ClCompile Include="Dialog_AirList.cpp" />
+    <ClCompile Include="Dlg3Dtest.cpp" />
+    <ClCompile Include="DlgAddEquipment.cpp" />
+    <ClCompile Include="DlgAddTaskArea.cpp" />
+    <ClCompile Include="DlgAreaRadarList.cpp" />
+    <ClCompile Include="DlgMapManager.cpp" />
+    <ClCompile Include="DlgEquipment.cpp" />
+    <ClCompile Include="DlgModifyEquipment.cpp" />
+    <ClCompile Include="DlgModifyTaskArea.cpp" />
+    <ClCompile Include="DlgTaskGuihua.cpp" />
+    <ClCompile Include="DlgTuili.cpp" />
+    <ClCompile Include="FixPlaneThread.cpp" />
+    <ClCompile Include="global.cpp" />
+    <ClCompile Include="gridDialog.cpp" />
+    <ClCompile Include="informationDetailDialog.cpp" />
+    <ClCompile Include="jpgAnnotation.cpp" />
+    <ClCompile Include="layerTreeViewMenuProvider.cpp" />
+    <ClCompile Include="LineThread.cpp" />
+    <ClCompile Include="lookDialog.cpp" />
+    <ClCompile Include="lookDlg.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="mainWin.cpp" />
+    <ClCompile Include="mainWindow.cpp" />
+    <ClCompile Include="mainWinRadar.cpp" />
+    <ClCompile Include="mainWinTaskArea.cpp" />
+    <ClCompile Include="marketCircleDialog.cpp" />
+    <ClCompile Include="marketPointDialog.cpp" />
+    <ClCompile Include="mavlink5Thread.cpp" />
+    <ClCompile Include="modifyBoundance.cpp" />
+    <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="qDialogTarget.cpp" />
+    <ClCompile Include="qgsAnnotation2.cpp" />
+    <ClCompile Include="qgsAnnotationA.cpp" />
+    <ClCompile Include="qgsAnnotationLayer.cpp" />
+    <ClCompile Include="qgsAnnotationMarkerItem2.cpp" />
+    <ClCompile Include="qgsAnnotationMarkerItem3.cpp" />
+    <ClCompile Include="qgsAnnotationWidget.cpp" />
+    <ClCompile Include="qgsAttributeDialog.cpp" />
+    <ClCompile Include="qgsDistanceArea.cpp" />
+    <ClCompile Include="qgsFeatureAction.cpp" />
+    <ClCompile Include="qgsGuiVectorLayerTools.cpp" />
+    <ClCompile Include="qgsLineAnnotation.cpp" />
+    <ClCompile Include="qgsMapcanvasAnnotationItem2.cpp" />
+    <ClCompile Include="qgsmapCanvasZjr.cpp" />
+    <ClCompile Include="qgsMaptoolAddCircle.cpp" />
+    <ClCompile Include="qgsMaptoolAddFeature.cpp" />
+    <ClCompile Include="qgsMaptoolAddTarget.cpp" />
+    <ClCompile Include="qgsMaptoolAnnotation.cpp" />
+    <ClCompile Include="qgsMaptoolCircle2Points.cpp" />
+    <ClCompile Include="qgsMaptoolJpgAnnotation.cpp" />
+    <ClCompile Include="qgsMaptoolMoveFeature.cpp" />
+    <ClCompile Include="qgsMapToolRotateFeature.cpp" />
+    <ClCompile Include="qgsMaptoolSelect.cpp" />
+    <ClCompile Include="qgsMaptoolSelectionHandler.cpp" />
+    <ClCompile Include="qgsMaptoolSelectUtils.cpp" />
+    <ClCompile Include="qgsMaptoolSvgAnnotation.cpp" />
+    <ClCompile Include="qgsMeasureDialog.cpp" />
+    <ClCompile Include="qgsMeasureTool.cpp" />
+    <ClCompile Include="qgsTextAnnotationA.cpp" />
+    <ClCompile Include="qSetLayerDialog.cpp" />
+    <ClCompile Include="QsetRadarDlg.cpp" />
+    <ClCompile Include="qUdpThread .cpp" />
+    <ClCompile Include="recMavlinkThread.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TransitThread.cpp" />
+    <ClCompile Include="TuiliThread.cpp" />
+    <ClCompile Include="VertexTool\qgsLockedFeature.cpp" />
+    <ClCompile Include="VertexTool\qgsVertexEditor.cpp" />
+    <ClCompile Include="VertexTool\qgsVertexTool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Clipper2\include\clipper.core.h" />
+    <ClInclude Include="Clipper2\include\clipper.engine.h" />
+    <ClInclude Include="Clipper2\include\clipper.export.h" />
+    <ClInclude Include="Clipper2\include\clipper.h" />
+    <ClInclude Include="Clipper2\include\clipper.minkowski.h" />
+    <ClInclude Include="Clipper2\include\clipper.offset.h" />
+    <ClInclude Include="Clipper2\include\clipper.rectclip.h" />
+    <ClInclude Include="Clipper2\include\clipper.version.h" />
+    <QtMoc Include="TuiliThread.h" />
+    <QtMoc Include="DlgMapManager.h" />
+    <QtMoc Include="DlgEquipment.h" />
+    <QtMoc Include="DlgAddEquipment.h" />
+    <QtMoc Include="DlgModifyEquipment.h" />
+    <QtMoc Include="DlgTaskGuihua.h" />
+    <QtMoc Include="DlgTuili.h" />
+    <QtMoc Include="qgsTextAnnotationA.h" />
+    <QtMoc Include="qgsAnnotationA.h" />
+    <QtMoc Include="Dlg3Dtest.h" />
+    <ClInclude Include="TaskAreaTip.h" />
+    <QtMoc Include="FixPlaneThread.h" />
+    <QtMoc Include="qgsMapcanvasAnnotationItem2.h" />
+    <QtMoc Include="LineThread.h" />
+    <QtMoc Include="qgsLineAnnotation.h" />
+    <QtMoc Include="qgsAnnotation2.h" />
+    <QtMoc Include="TransitThread.h" />
+    <QtMoc Include="VertexTool\qgsVertexTool.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="VertexTool\qgsVertexEditor.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="VertexTool\qgsLockedFeature.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./VertexTool/%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="addPolygonTool.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <ClInclude Include="Biaopai.h" />
+    <ClInclude Include="comm.h" />
+    <QtMoc Include="dataBackDlg.h" />
+    <ClInclude Include="dataConversion.h" />
+    <QtMoc Include="dialogSendGrid.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="ddsThread.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="Dialog_AirList.h" />
+    <QtMoc Include="DlgAddTaskArea.h" />
+    <QtMoc Include="DlgModifyTaskArea.h" />
+    <QtMoc Include="DlgAreaRadarList.h" />
+    <ClInclude Include="global.h" />
+    <QtMoc Include="gridDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="informationDetailDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="jpgAnnotation.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="layerTreeViewMenuProvider.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="lookDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="mainWindow.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DynamicSource>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DynamicSource>
+    </QtMoc>
+    <QtMoc Include="marketCircleDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="marketPointDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="modifyBoundance.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qDialogTarget.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="mavlink5Thread.h" />
+    <ClInclude Include="mavlink\air\air.h" />
+    <ClInclude Include="mavlink\air\mavlink.h" />
+    <ClInclude Include="mavlink\air\mavlink_msg_airinfo.h" />
+    <ClInclude Include="mavlink\air\mavlink_msg_planeInfo.h" />
+    <ClInclude Include="mavlink\air\testsuite.h" />
+    <ClInclude Include="mavlink\air\version.h" />
+    <ClInclude Include="mavlink\checksum.h" />
+    <ClInclude Include="mavlink\mavlink_conversions.h" />
+    <ClInclude Include="mavlink\mavlink_helpers.h" />
+    <ClInclude Include="mavlink\mavlink_types.h" />
+    <ClInclude Include="mavlink\protocol.h" />
+    <QtMoc Include="qgsAnnotationLayer.h" />
+    <QtMoc Include="qgsAnnotationMarkerItem2.h" />
+    <QtMoc Include="qgsAnnotationWidget.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsAttributeDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsFeatureAction.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsGuiVectorLayerTools.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddCircle.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddFeature.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddTarget.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAnnotation.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolCircle2points.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolJpgAnnotation.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolMoveFeature.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolSelect.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolSelectionHandler.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <ClInclude Include="Polygon.h" />
+    <ClInclude Include="polygon2.h" />
+    <ClInclude Include="qgsDistanceArea.h" />
+    <QtMoc Include="qgsmapCanvasZjr.h" />
+    <QtMoc Include="qgsMapToolRotateFeature.h" />
+    <ClInclude Include="qgsMapToolSelectUtils.h" />
+    <QtMoc Include="qgsMaptoolSvgAnnotation.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMeasureDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qgsMeasureTool.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="qSetLayerDialog.h">
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+      <ForceInclude Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h;./%(Filename)%(Extension)</ForceInclude>
+    </QtMoc>
+    <QtMoc Include="recMavlinkThread.h" />
+    <QtMoc Include="qUdpThread.h" />
+    <QtMoc Include="QsetRadarDlg.h" />
+    <ClInclude Include="RadarTip.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="App1.qrc">
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="dataBackDialog.ui" />
+    <QtUic Include="dialogSendGrid.ui">
+    </QtUic>
+    <QtUic Include="Dialog_AirList.ui" />
+    <QtUic Include="Dlg3Dtest.ui">
+      <FileType>Document</FileType>
+    </QtUic>
+    <QtUic Include="DlgAddEquipment.ui" />
+    <QtUic Include="DlgAddTaskArea.ui" />
+    <QtUic Include="DlgAreaRadarList.ui" />
+    <QtUic Include="DlgEquipment.ui" />
+    <QtUic Include="DlgModifyEquipment.ui" />
+    <QtUic Include="DlgModifyTaskArea.ui" />
+    <QtUic Include="DlgTaskGuihua.ui" />
+    <QtUic Include="DlgTuili.ui" />
+    <QtUic Include="SetRadarDlg.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="gridDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="informationDetailDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="lookDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="marketCircleDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="marketPointDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qDialogTarget.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qgsAnnotationWidgetBase.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qgsFormAnnotationDialogBase.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qgsMeasureBase.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qgsSymbolSelectorDialogBase.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qSetLayerDialog.ui">
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="mainWindow.ui">
+    </QtUic>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>mLayoutItemPolyline.svg</file>
+        <file>mLayoutItemPolygon.svg</file>
+        <file>mIconPointLayer.svg</file>
+        <file>mActionPan.svg</file>
+        <file>mActionCircle2Points.svg</file>
+    </qresource>
+</RCC>

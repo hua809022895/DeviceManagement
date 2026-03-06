@@ -1,0 +1,452 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="addPolygonTool.cpp" />
+    <ClCompile Include="comm.cpp" />
+    <ClCompile Include="dataConversion.cpp" />
+    <ClCompile Include="ddsThread.cpp" />
+    <ClCompile Include="FixPlaneThread.cpp" />
+    <ClCompile Include="global.cpp" />
+    <ClCompile Include="jpgAnnotation.cpp" />
+    <ClCompile Include="layerTreeViewMenuProvider.cpp" />
+    <ClCompile Include="LineThread.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="mavlink5Thread.cpp" />
+    <ClCompile Include="modifyBoundance.cpp" />
+    <ClCompile Include="Polygon.cpp" />
+    <ClCompile Include="qgsAnnotation2.cpp" />
+    <ClCompile Include="qgsAnnotationA.cpp" />
+    <ClCompile Include="qgsAnnotationLayer.cpp" />
+    <ClCompile Include="qgsAnnotationMarkerItem2.cpp" />
+    <ClCompile Include="qgsAnnotationMarkerItem3.cpp" />
+    <ClCompile Include="qgsAnnotationWidget.cpp" />
+    <ClCompile Include="qgsAttributeDialog.cpp" />
+    <ClCompile Include="qgsDistanceArea.cpp" />
+    <ClCompile Include="qgsFeatureAction.cpp" />
+    <ClCompile Include="qgsGuiVectorLayerTools.cpp" />
+    <ClCompile Include="qgsLineAnnotation.cpp" />
+    <ClCompile Include="qgsMapcanvasAnnotationItem2.cpp" />
+    <ClCompile Include="qgsmapCanvasZjr.cpp" />
+    <ClCompile Include="qgsTextAnnotationA.cpp" />
+    <ClCompile Include="qUdpThread .cpp" />
+    <ClCompile Include="recMavlinkThread.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="TransitThread.cpp" />
+    <ClCompile Include="TuiliThread.cpp" />
+    <ClCompile Include="VertexTool\qgsLockedFeature.cpp" />
+    <ClCompile Include="VertexTool\qgsVertexEditor.cpp" />
+    <ClCompile Include="VertexTool\qgsVertexTool.cpp" />
+    <ClCompile Include="dataBackDlg.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialog_AirList.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="dialogSendGrid.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="Dlg3Dtest.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgAddEquipment.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgAddTaskArea.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgAreaRadarList.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgEquipment.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgModifyEquipment.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgModifyTaskArea.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgTaskGuihua.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgTuili.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="informationDetailDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="gridDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="lookDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="lookDlg.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="mainWindow.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="mainWinRadar.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="mainWinTaskArea.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="mainWin.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="marketCircleDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="marketPointDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="qDialogTarget.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="QsetRadarDlg.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="qSetLayerDialog.cpp">
+      <Filter>From</Filter>
+    </ClCompile>
+    <ClCompile Include="Clipper2\include\clipper.engine.cpp">
+      <Filter>Clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="Clipper2\include\clipper.offset.cpp">
+      <Filter>Clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="Clipper2\include\clipper.rectclip.cpp">
+      <Filter>Clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolAddCircle.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolAddFeature.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolAddTarget.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolAnnotation.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolCircle2Points.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolJpgAnnotation.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolMoveFeature.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMapToolRotateFeature.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolSelect.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolSelectionHandler.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolSelectUtils.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMaptoolSvgAnnotation.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMeasureDialog.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+    <ClCompile Include="qgsMeasureTool.cpp">
+      <Filter>Maptool</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TaskAreaTip.h" />
+    <ClInclude Include="Biaopai.h" />
+    <ClInclude Include="comm.h" />
+    <ClInclude Include="dataConversion.h" />
+    <ClInclude Include="global.h" />
+    <ClInclude Include="mavlink\air\air.h" />
+    <ClInclude Include="mavlink\air\testsuite.h" />
+    <ClInclude Include="mavlink\air\version.h" />
+    <ClInclude Include="mavlink\checksum.h" />
+    <ClInclude Include="mavlink\protocol.h" />
+    <ClInclude Include="Polygon.h" />
+    <ClInclude Include="polygon2.h" />
+    <ClInclude Include="qgsDistanceArea.h" />
+    <ClInclude Include="RadarTip.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Clipper2\include\clipper.version.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.core.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.engine.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.export.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.minkowski.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.offset.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper2\include\clipper.rectclip.h">
+      <Filter>Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\air\mavlink.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\mavlink_conversions.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\mavlink_helpers.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\air\mavlink_msg_airinfo.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\air\mavlink_msg_planeInfo.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="mavlink\mavlink_types.h">
+      <Filter>Mavlink</Filter>
+    </ClInclude>
+    <ClInclude Include="qgsMapToolSelectUtils.h">
+      <Filter>Maptool</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="App1.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="TuiliThread.h" />
+    <QtMoc Include="qgsTextAnnotationA.h" />
+    <QtMoc Include="qgsAnnotationA.h" />
+    <QtMoc Include="FixPlaneThread.h" />
+    <QtMoc Include="qgsMapcanvasAnnotationItem2.h" />
+    <QtMoc Include="LineThread.h" />
+    <QtMoc Include="qgsLineAnnotation.h" />
+    <QtMoc Include="qgsAnnotation2.h" />
+    <QtMoc Include="TransitThread.h" />
+    <QtMoc Include="VertexTool\qgsVertexTool.h" />
+    <QtMoc Include="VertexTool\qgsVertexEditor.h" />
+    <QtMoc Include="VertexTool\qgsLockedFeature.h" />
+    <QtMoc Include="addPolygonTool.h" />
+    <QtMoc Include="ddsThread.h" />
+    <QtMoc Include="jpgAnnotation.h" />
+    <QtMoc Include="layerTreeViewMenuProvider.h" />
+    <QtMoc Include="modifyBoundance.h" />
+    <QtMoc Include="mavlink5Thread.h" />
+    <QtMoc Include="qgsAnnotationLayer.h" />
+    <QtMoc Include="qgsAnnotationMarkerItem2.h" />
+    <QtMoc Include="qgsAnnotationWidget.h" />
+    <QtMoc Include="qgsAttributeDialog.h" />
+    <QtMoc Include="qgsFeatureAction.h" />
+    <QtMoc Include="qgsGuiVectorLayerTools.h" />
+    <QtMoc Include="qgsmapCanvasZjr.h" />
+    <QtMoc Include="recMavlinkThread.h" />
+    <QtMoc Include="qUdpThread.h" />
+    <QtMoc Include="dataBackDlg.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="Dialog_AirList.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="dialogSendGrid.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="Dlg3Dtest.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgAddEquipment.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgAddTaskArea.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgAreaRadarList.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgEquipment.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgModifyEquipment.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgModifyTaskArea.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgTaskGuihua.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="DlgTuili.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="informationDetailDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="gridDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="lookDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="mainWindow.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="marketCircleDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="marketPointDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="qDialogTarget.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="QsetRadarDlg.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="qSetLayerDialog.h">
+      <Filter>From</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddCircle.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddFeature.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAddTarget.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolAnnotation.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolCircle2points.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolJpgAnnotation.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolMoveFeature.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMapToolRotateFeature.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolSelect.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolSelectionHandler.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMaptoolSvgAnnotation.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMeasureDialog.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+    <QtMoc Include="qgsMeasureTool.h">
+      <Filter>Maptool</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="App1.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="qgsAnnotationWidgetBase.ui" />
+    <QtUic Include="qgsFormAnnotationDialogBase.ui" />
+    <QtUic Include="dataBackDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="Dialog_AirList.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="dialogSendGrid.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="Dlg3Dtest.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgAddEquipment.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgAddTaskArea.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgAreaRadarList.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgEquipment.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgModifyEquipment.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgModifyTaskArea.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgTaskGuihua.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="DlgTuili.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="informationDetailDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="gridDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="lookDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="mainWindow.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="marketCircleDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="marketPointDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="qDialogTarget.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="SetRadarDlg.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="qSetLayerDialog.ui">
+      <Filter>From</Filter>
+    </QtUic>
+    <QtUic Include="qgsMeasureBase.ui">
+      <Filter>Maptool</Filter>
+    </QtUic>
+    <QtUic Include="qgsSymbolSelectorDialogBase.ui">
+      <Filter>Maptool</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="From">
+      <UniqueIdentifier>{acaacbf0-01e1-4ac7-a629-db333289ff48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Clipper">
+      <UniqueIdentifier>{30e2d882-547d-4d2c-941d-1002395d75b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mavlink">
+      <UniqueIdentifier>{f3ed7e9d-b90c-42b6-a865-c37ac42940ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maptool">
+      <UniqueIdentifier>{bc466d42-55c9-4a55-8575-f4c2bf10a3c5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,124 @@
+#include "stdafx.h"
+#include "dialog_AirList.h"
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <qgsProject.h>
+#include "comm.h"
+
+Dialog_AirList::Dialog_AirList(QWidget *parent): QDialog(parent)
+{
+	ui.setupUi(this);
+
+	connect(ui.ok_Button, &QAbstractButton::clicked, this, &Dialog_AirList::on_queryBtn_click);	//ɸѡ���ť
+	connect(ui.pushExitBtn, &QAbstractButton::clicked, this, &Dialog_AirList::on_exitBtn_click);	//��λ���ť
+	
+	//�������˻�����ؼ�
+	int i = 0;
+	ui.mAirTable->setColumnCount(3);
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("时间")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("雷达ID")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("无人机ID")));
+	
+	ui.mAirTable->setColumnWidth(0, 210);
+	ui.mAirTable->setColumnWidth(1, 90);
+	ui.mAirTable->setColumnWidth(2, 90);
+	ui.mAirTable->verticalHeader()->setVisible(false);
+	ui.mAirTable->setSelectionBehavior(QAbstractItemView::SelectRows); //����ѡ����Ϊ������Ϊ��λ
+	ui.mAirTable->setSelectionMode(QAbstractItemView::SingleSelection); //����ѡ��ģʽ��ѡ����
+
+	ui.comboBox->addItem(QString::fromLocal8Bit("全部"));
+	QgsFeature feat;
+	QStringList sortedOptions;
+
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures();
+		while (fit.nextFeature(feat))
+		{
+			QString		sID = feat.attribute(0).toString();
+			sortedOptions << sID;
+		}
+	}
+
+	sortedOptions.sort();
+	foreach(const QString &option, sortedOptions) {
+		ui.comboBox->addItem(option);
+	}
+
+	this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+	//central->addWidget(ui.mAirTable, 2, 0, 1, 1, Qt::AlignBottom);
+	//MainWindow *pDlg = (MainWindow*)this->parentWidget();
+	//m_pModel = new QStandardItemModel();
+	//ui.listView->setModel(m_pModel);
+}
+
+Dialog_AirList::~Dialog_AirList()
+{}
+
+//���ӵ�����ؼ���
+void Dialog_AirList::insert(QString airID,QString radarID)
+{
+	QDateTime time = QDateTime::currentDateTime();
+	QString st = time.toString("yyyy-MM-dd hh:mm:ss.zzz");
+	if (m_devID > 0)
+	{
+		if (m_devID == radarID.toInt())
+		{
+			int row = ui.mAirTable->rowCount();
+			ui.mAirTable->insertRow(row);
+			//��ǰʱ��
+			ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));	//ID��
+			ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignTop);
+			//QString s = QString("%1").arg(QString::number(p->planeX.toDouble(), 'f', 5));
+			ui.mAirTable->setItem(row, 1, new QTableWidgetItem(radarID));
+			ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
+		}
+	}
+	else
+	{
+		int row = ui.mAirTable->rowCount();
+		ui.mAirTable->insertRow(row);
+		
+		ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));	////��ǰʱ��
+		ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignTop);
+		//QString s = QString("%1").arg(QString::number(p->planeX.toDouble(), 'f', 5));
+		ui.mAirTable->setItem(row, 1, new QTableWidgetItem(radarID));
+		ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
+	}
+
+	ui.mAirTable->scrollToBottom();
+}
+//�˳�
+void Dialog_AirList::on_exitBtn_click()
+{
+	//m_pMavThread->terminate();
+	MainWindow *pDlg = (MainWindow*)this->parentWidget();
+	//this->hide();
+}
+
+void Dialog_AirList::on_queryBtn_click()
+{
+	ui.mAirTable->sortItems(1, Qt::AscendingOrder);//���״��豸id����
+													 											   
+	//�����б���ֻ��ʾָ���״��豸id�ļ�¼ if()
+	m_devID = ui.comboBox->currentText().toInt();
+
+	if (m_devID==0)
+	{
+		//QMessageBox::information(this, QString::fromLocal8Bit("��ʾ"), QString::fromLocal8Bit("��������ȷ�� �״��豸id     ��"));
+		return;
+	}
+
+loop1:
+	for (int i=0; i<ui.mAirTable->rowCount(); i++)
+	{		
+		QTableWidgetItem *pitem = ui.mAirTable->item(i, 1);
+		if (m_devID != pitem->text().toInt())
+		{
+			ui.mAirTable->removeRow(i);
+			goto loop1;
+		}
+	}
+}

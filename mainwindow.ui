@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1336</width>
+    <height>852</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>族群任务指控系统</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="mTableWidgetMarkAttribute">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>161</width>
+      <height>491</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="mPlaneWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>690</y>
+      <width>1181</width>
+      <height>51</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="mTableWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>495</y>
+      <width>161</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1336</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>设置</string>
+    </property>
+    <addaction name="mActionLoadShp"/>
+    <addaction name="mActionSetLayers"/>
+    <addaction name="mActionStartStop"/>
+    <addaction name="mActionRefreshGJ"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>工具</string>
+    </property>
+    <addaction name="mActionMoveView"/>
+    <addaction name="mActionMeaureLength1"/>
+    <addaction name="mActionMeasureArea1"/>
+    <addaction name="mActionDTback"/>
+    <addaction name="mAction3D"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>其他</string>
+    </property>
+    <addaction name="mActionAirCount"/>
+    <addaction name="mActionLook"/>
+    <addaction name="mActionTaskSelect"/>
+    <addaction name="mActionMiddle"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QStatusBar" name="mStatusbar"/>
+  <widget class="QToolBar" name="mToolBarDraw">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>24</width>
+     <height>24</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="mActionMoveView"/>
+   <addaction name="mActionMeaureLength1"/>
+   <addaction name="mActionMeasureArea1"/>
+   <addaction name="mActionDTback"/>
+   <addaction name="mAction3D"/>
+  </widget>
+  <widget class="QToolBar" name="mToolBarSetting">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="mActionConnect"/>
+   <addaction name="mActionEquipment"/>
+   <addaction name="mActionLook"/>
+  </widget>
+  <widget class="QToolBar" name="mToolBarSchedule">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="mActionAirCount"/>
+   <addaction name="mActionTaskSelect"/>
+   <addaction name="mActionTuili"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="toolBar_3">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionRadarGo"/>
+   <addaction name="mActionSelectRadarLayer"/>
+   <addaction name="mActionMoveRadarDev"/>
+   <addaction name="mActionDelRadarDev"/>
+   <addaction name="mActionFixRadar"/>
+   <addaction name="mActionOutfitMove"/>
+   <addaction name="mActionRadarTestAirList"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_4">
+   <property name="windowTitle">
+    <string>toolBar_4</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="mActionSelTaskLayer"/>
+   <addaction name="mActionSelTaskArea"/>
+   <addaction name="mActionFixTaskArea"/>
+   <addaction name="mActionMoveTaskArea"/>
+   <addaction name="mActionDelTaskArea"/>
+   <addaction name="mActionRadarNo"/>
+   <addaction name="mActionRadarOverList"/>
+   <addaction name="mActionTaskGuihua"/>
+  </widget>
+  <action name="mActionLoadShp">
+   <property name="text">
+    <string>加载Shp</string>
+   </property>
+  </action>
+  <action name="mActionLoadRaster">
+   <property name="text">
+    <string>加载Raster</string>
+   </property>
+  </action>
+  <action name="mActionDrawPoint">
+   <property name="text">
+    <string>添加修改目标点</string>
+   </property>
+   <property name="toolTip">
+    <string>添加或修改目标点</string>
+   </property>
+  </action>
+  <action name="mActionDrawLine">
+   <property name="text">
+    <string>添加线标注</string>
+   </property>
+   <property name="toolTip">
+    <string>线标注</string>
+   </property>
+  </action>
+  <action name="mActionDrawPolygon">
+   <property name="text">
+    <string>添加面标注</string>
+   </property>
+   <property name="toolTip">
+    <string>面标注</string>
+   </property>
+  </action>
+  <action name="mActionSaveLayer">
+   <property name="text">
+    <string>保存</string>
+   </property>
+  </action>
+  <action name="mActionMoveView">
+   <property name="text">
+    <string>平移视点</string>
+   </property>
+   <property name="toolTip">
+    <string>平移视点</string>
+   </property>
+  </action>
+  <action name="mActionSelectElementDrawed">
+   <property name="text">
+    <string>选择目标</string>
+   </property>
+  </action>
+  <action name="mActionVertext">
+   <property name="text">
+    <string>编辑面</string>
+   </property>
+   <property name="toolTip">
+    <string>编辑面标注</string>
+   </property>
+  </action>
+  <action name="mActionToggleEditing">
+   <property name="text">
+    <string>开始编辑</string>
+   </property>
+  </action>
+  <action name="mActionDeleteSelected">
+   <property name="text">
+    <string>删除标注</string>
+   </property>
+   <property name="toolTip">
+    <string>删除标注</string>
+   </property>
+  </action>
+  <action name="mActionMoveFeature">
+   <property name="text">
+    <string>移动标注</string>
+   </property>
+   <property name="toolTip">
+    <string>移动标注</string>
+   </property>
+  </action>
+  <action name="mActionSetFeature">
+   <property name="text">
+    <string>设置标注</string>
+   </property>
+   <property name="toolTip">
+    <string>设置标注</string>
+   </property>
+  </action>
+  <action name="mActionEditingLine">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>编辑线</string>
+   </property>
+   <property name="toolTip">
+    <string>编辑线标注</string>
+   </property>
+  </action>
+  <action name="mActionEditStyle">
+   <property name="text">
+    <string>设置风格</string>
+   </property>
+  </action>
+  <action name="mActionEditPoint">
+   <property name="text">
+    <string>编辑点</string>
+   </property>
+   <property name="toolTip">
+    <string>编辑点标注</string>
+   </property>
+  </action>
+  <action name="mActionAirCount">
+   <property name="text">
+    <string>获取飞机信息</string>
+   </property>
+  </action>
+  <action name="mActionAbundance">
+   <property name="text">
+    <string>发送情报丰度</string>
+   </property>
+  </action>
+  <action name="mActionGlobalPlan">
+   <property name="text">
+    <string>全局规划</string>
+   </property>
+  </action>
+  <action name="mActionHistoryTask">
+   <property name="text">
+    <string>打开已发送任务</string>
+   </property>
+  </action>
+  <action name="mActionInitalAbundance">
+   <property name="text">
+    <string>战场设置</string>
+   </property>
+  </action>
+  <action name="mActionSelectPoint">
+   <property name="text">
+    <string>选择目标点</string>
+   </property>
+  </action>
+  <action name="mActionSelectLine">
+   <property name="text">
+    <string>选择线</string>
+   </property>
+  </action>
+  <action name="mActionSelectPolygon">
+   <property name="text">
+    <string>选择面</string>
+   </property>
+  </action>
+  <action name="mActionSetLayers">
+   <property name="text">
+    <string>设置图层</string>
+   </property>
+  </action>
+  <action name="mActionCreateGrid">
+   <property name="text">
+    <string>网格化</string>
+   </property>
+  </action>
+  <action name="mActionLook">
+   <property name="text">
+    <string>数据导出</string>
+   </property>
+  </action>
+  <action name="mActionCircle2point">
+   <property name="text">
+    <string>圆标注</string>
+   </property>
+   <property name="toolTip">
+    <string>圆标注</string>
+   </property>
+  </action>
+  <action name="mActionMeaureLength1">
+   <property name="text">
+    <string>测量长度</string>
+   </property>
+  </action>
+  <action name="mActionMeasureArea">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>测量面积</string>
+   </property>
+  </action>
+  <action name="mActiontesttest">
+   <property name="text">
+    <string>testtest</string>
+   </property>
+  </action>
+  <action name="mActionSelectPicture">
+   <property name="text">
+    <string>选择图</string>
+   </property>
+  </action>
+  <action name="mActionHidePictureTable">
+   <property name="text">
+    <string>隐藏/显示图片栈</string>
+   </property>
+   <property name="iconText">
+    <string>隐藏/显示图片栈</string>
+   </property>
+   <property name="toolTip">
+    <string>隐藏/显示图片栈</string>
+   </property>
+  </action>
+  <action name="mActionTaskSelect">
+   <property name="text">
+    <string>重新计数</string>
+   </property>
+   <property name="iconText">
+    <string>重新计数</string>
+   </property>
+   <property name="toolTip">
+    <string>任务重新计数</string>
+   </property>
+  </action>
+  <action name="mActionHideTarge">
+   <property name="text">
+    <string>隐藏目标</string>
+   </property>
+  </action>
+  <action name="mActionHideBigPicture">
+   <property name="text">
+    <string>隐藏/显示大图</string>
+   </property>
+  </action>
+  <action name="mActionMeasureArea1">
+   <property name="text">
+    <string>测量面积</string>
+   </property>
+  </action>
+  <action name="mActionCircle">
+   <property name="text">
+    <string>添加圆标注</string>
+   </property>
+   <property name="toolTip">
+    <string>圆标注</string>
+   </property>
+  </action>
+  <action name="mActionHideSmallJpg">
+   <property name="text">
+    <string>隐藏/显示小图</string>
+   </property>
+  </action>
+  <action name="mActionMiddle">
+   <property name="text">
+    <string>地图居中</string>
+   </property>
+  </action>
+  <action name="mActionDTback">
+   <property name="text">
+    <string>数据回放</string>
+   </property>
+  </action>
+  <action name="mActionHideTable">
+   <property name="text">
+    <string>隐藏/显示实时表格</string>
+   </property>
+  </action>
+  <action name="mActionStartStop">
+   <property name="text">
+    <string>启动/停止接收</string>
+   </property>
+  </action>
+  <action name="mActionRefreshGJ">
+   <property name="text">
+    <string>刷新轨迹线</string>
+   </property>
+  </action>
+  <action name="actionRadarGo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>雷达投影</string>
+   </property>
+   <property name="toolTip">
+    <string>雷达投影</string>
+   </property>
+  </action>
+  <action name="mActionSelectRadarLayer">
+   <property name="text">
+    <string>装备图层</string>
+   </property>
+   <property name="toolTip">
+    <string>选择装备图层</string>
+   </property>
+  </action>
+  <action name="mActionSelectRadarDev">
+   <property name="text">
+    <string>选雷达</string>
+   </property>
+   <property name="toolTip">
+    <string>选中雷达</string>
+   </property>
+  </action>
+  <action name="mActionMoveRadarDev">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>移动装备</string>
+   </property>
+   <property name="toolTip">
+    <string>移动装备</string>
+   </property>
+  </action>
+  <action name="mActionDelRadarDev">
+   <property name="text">
+    <string>删除装备</string>
+   </property>
+   <property name="toolTip">
+    <string>删除装备设备</string>
+   </property>
+  </action>
+  <action name="mActionFixRadar">
+   <property name="text">
+    <string>修改装备参数</string>
+   </property>
+   <property name="toolTip">
+    <string>修改装备参数</string>
+   </property>
+  </action>
+  <action name="mActionOutfitMove">
+   <property name="text">
+    <string>移动装备</string>
+   </property>
+   <property name="toolTip">
+    <string>移动装备</string>
+   </property>
+  </action>
+  <action name="mActionAddTaskRect">
+   <property name="text">
+    <string>添加任务区域</string>
+   </property>
+   <property name="toolTip">
+    <string>添加无人机任务区域</string>
+   </property>
+  </action>
+  <action name="mActionRadarTestAirList">
+   <property name="text">
+    <string>装备探测列表</string>
+   </property>
+   <property name="toolTip">
+    <string>装备探测无人机列表</string>
+   </property>
+  </action>
+  <action name="mActionSelTaskArea">
+   <property name="text">
+    <string>选任务区域</string>
+   </property>
+   <property name="toolTip">
+    <string>选无人机任务区域</string>
+   </property>
+  </action>
+  <action name="mActionFixTaskArea">
+   <property name="text">
+    <string>修改任务区域</string>
+   </property>
+   <property name="toolTip">
+    <string>修改无人机任务区域</string>
+   </property>
+  </action>
+  <action name="mActionMoveTaskArea">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>移动任务区域</string>
+   </property>
+   <property name="toolTip">
+    <string>移动任务区域</string>
+   </property>
+  </action>
+  <action name="mActionDelTaskArea">
+   <property name="text">
+    <string>删除任务区域</string>
+   </property>
+   <property name="toolTip">
+    <string>删除任务区域</string>
+   </property>
+  </action>
+  <action name="mActionSelTaskLayer">
+   <property name="text">
+    <string>任务图层</string>
+   </property>
+   <property name="toolTip">
+    <string>选择无人机任务图层</string>
+   </property>
+  </action>
+  <action name="mActionRadarNo">
+   <property name="text">
+    <string>装备已覆盖</string>
+   </property>
+   <property name="toolTip">
+    <string>装备已覆盖区域</string>
+   </property>
+  </action>
+  <action name="mActionRadarOverList">
+   <property name="text">
+    <string>装备覆盖列表</string>
+   </property>
+   <property name="toolTip">
+    <string>装备覆盖列表</string>
+   </property>
+  </action>
+  <action name="mActionConnect">
+   <property name="text">
+    <string>连接</string>
+   </property>
+   <property name="toolTip">
+    <string>配置UDP接收端口并连接</string>
+   </property>
+  </action>
+  <action name="mActionEquipment">
+   <property name="text">
+    <string>装备库管理</string>
+   </property>
+   <property name="toolTip">
+    <string>装备库管理</string>
+   </property>
+  </action>
+  <action name="mActionTaskGuihua">
+   <property name="text">
+    <string>任务规划</string>
+   </property>
+   <property name="toolTip">
+    <string>任务规划</string>
+   </property>
+  </action>
+  <action name="mActionTuili">
+   <property name="text">
+    <string>集群推理</string>
+   </property>
+   <property name="toolTip">
+    <string>无人机集群推理</string>
+   </property>
+  </action>
+  <action name="mAction3D">
+   <property name="text">
+    <string>2D3D窗口切换</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

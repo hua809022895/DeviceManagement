@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QgsAnnotationWidgetBase</class>
+ <widget class="QWidget" name="QgsAnnotationWidgetBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>377</width>
+    <height>361</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" colspan="2">
+    <widget class="QLineEdit" name="mlineEditXY"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="mCheckBoxFourAngle">
+     <property name="text">
+      <string>四角固定经纬度</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>宽度缩放比例</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="mMapPositionFixedCheckBox">
+     <property name="text">
+      <string>中心固定经纬度</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="mLineEditAngle"/>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="lmLineEditScaleY"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>高度缩放比例</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="mMapMarketlabel_5">
+     <property name="text">
+      <string>旋转角(度)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="mLineEditScaleX"/>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="mLineEditLeftTop"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="mLineEditRightTop"/>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLineEdit" name="mLineEditLeftDown"/>
+   </item>
+   <item row="10" column="1">
+    <widget class="QLineEdit" name="mLineEditRightDown"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>左上</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>右上</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>左下</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>右下</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>mMapPositionFixedCheckBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
