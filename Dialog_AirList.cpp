@@ -19,7 +19,7 @@ Dialog_AirList::Dialog_AirList(QWidget *parent): QDialog(parent)
 	int i = 0;
 	ui.mAirTable->setColumnCount(3);
 	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("时间")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("雷达ID")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("装备")));
 	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("无人机ID")));
 
 	// 列宽自适应：时间列拉伸填满，ID列按内容自适应
@@ -39,21 +39,23 @@ Dialog_AirList::Dialog_AirList(QWidget *parent): QDialog(parent)
 
 	ui.comboBox->addItem(QString::fromLocal8Bit("全部"));
 	QgsFeature feat;
-	QStringList sortedOptions;
 
+	// 读取设备类型名称列表（光学|雷达|遥测|微波…）
+	QString mPath = QCoreApplication::applicationDirPath();
+	QSettings cfg(mPath + "/config.ini", QSettings::IniFormat);
+	QStringList typeNames = cfg.value("DeviceType/list").toString().split("|");
+
+	// 按类别排列：逐类型层遍历，每层内按 ID 数值升序，类型之间保持原始顺序
 	for (int i = 0; i < gRadarLayerList.size(); i++)
 	{
+		QString typeName = (i < typeNames.size()) ? typeNames[i] : QString::number(i);
 		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures();
+		QList<int> ids;
 		while (fit.nextFeature(feat))
-		{
-			QString		sID = feat.attribute(0).toString();
-			sortedOptions << sID;
-		}
-	}
-
-	sortedOptions.sort();
-	foreach(const QString &option, sortedOptions) {
-		ui.comboBox->addItem(option);
+			ids << feat.attribute(0).toInt();
+		std::sort(ids.begin(), ids.end());
+		for (int id : ids)
+			ui.comboBox->addItem(QString("%1 (%2)").arg(id).arg(typeName));
 	}
 
 	this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
@@ -62,38 +64,48 @@ Dialog_AirList::Dialog_AirList(QWidget *parent): QDialog(parent)
 Dialog_AirList::~Dialog_AirList()
 {}
 
+// 查找雷达设备对应的类型名，返回 "ID (类型名)" 格式字符串
+static QString radarDisplayName(const QString &radarID)
+{
+	int rid = radarID.toInt();
+	QString mPath = QCoreApplication::applicationDirPath();
+	QSettings cfg(mPath + "/config.ini", QSettings::IniFormat);
+	QStringList typeNames = cfg.value("DeviceType/list").toString().split("|");
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures(
+			QString("\"electircid\"=%1").arg(rid));
+		QgsFeature f;
+		if (fit.nextFeature(f))
+		{
+			QString typeName = (i < typeNames.size()) ? typeNames[i] : QString::number(i);
+			return QString("%1 (%2)").arg(rid).arg(typeName);
+		}
+	}
+	return radarID;  // 找不到类型则原样显示
+}
+
 // 添加到列表控件中
 void Dialog_AirList::insert(QString airID,QString radarID)
 {
 	QDateTime time = QDateTime::currentDateTime();
 	QString st = time.toString("yyyy-MM-dd hh:mm:ss.zzz");
+	QString radarDisplay = radarDisplayName(radarID);
+
 	if (m_devID > 0)
 	{
-		if (m_devID == radarID.toInt())
-		{
-			int row = ui.mAirTable->rowCount();
-			ui.mAirTable->insertRow(row);
-			// 当前时间
-			ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));
-			ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-			ui.mAirTable->setItem(row, 1, new QTableWidgetItem(radarID));
-			ui.mAirTable->item(row, 1)->setTextAlignment(Qt::AlignCenter);
-			ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
-			ui.mAirTable->item(row, 2)->setTextAlignment(Qt::AlignCenter);
-		}
+		if (m_devID != radarID.toInt())
+			return;
 	}
-	else
-	{
-		int row = ui.mAirTable->rowCount();
-		ui.mAirTable->insertRow(row);
 
-		ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));	// 当前时间
-		ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-		ui.mAirTable->setItem(row, 1, new QTableWidgetItem(radarID));
-		ui.mAirTable->item(row, 1)->setTextAlignment(Qt::AlignCenter);
-		ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
-		ui.mAirTable->item(row, 2)->setTextAlignment(Qt::AlignCenter);
-	}
+	int row = ui.mAirTable->rowCount();
+	ui.mAirTable->insertRow(row);
+	ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));
+	ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+	ui.mAirTable->setItem(row, 1, new QTableWidgetItem(radarDisplay));
+	ui.mAirTable->item(row, 1)->setTextAlignment(Qt::AlignCenter);
+	ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
+	ui.mAirTable->item(row, 2)->setTextAlignment(Qt::AlignCenter);
 
 	ui.mAirTable->scrollToBottom();
 }

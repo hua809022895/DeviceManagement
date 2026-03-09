@@ -21,7 +21,7 @@ public:
 		m_pTextAnnotation->setMapPosition(QgsPointXY(116, 40));
 		m_pTextAnnotation->setFrameSize(QSize(35, 15));
 		m_pTextAnnotation->setAirSymbol();
-		m_pItem = new QgsMapCanvasAnnotationItem((QgsTextAnnotation*)m_pTextAnnotation, _canvas);
+		m_pItem = new QgsMapCanvasAnnotationItem(m_pTextAnnotation, _canvas);
 	}
 
 	~biaopai()

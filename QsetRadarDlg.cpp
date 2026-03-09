@@ -134,8 +134,21 @@ void QsetRadarDlg::on_saveBtn_click()	//���ñ���
 		g_pRadarTyLayer->commitChanges();
 	}
 
-	//this->parentWidget();
+	// 保存装载无人机机号到 radar_mount.ini
+	{
+		int radarId = ui.textEdit_1->text().toInt();
+		QString uavId = ui.textEdit_12->text().trimmed();
+		QString mPath2 = QCoreApplication::applicationDirPath();
+		QSettings mountCfg(mPath2 + "/radar_mount.ini", QSettings::IniFormat);
+		QString mountKey = QString("RadarMount/radar_%1").arg(radarId);
+		if (uavId.isEmpty() || uavId == "0")
+			mountCfg.remove(mountKey);
+		else
+			mountCfg.setValue(mountKey, uavId);
+	}
+
 	MainWindow *pWin = (MainWindow*)gMainWindow;
+	pWin->loadRadarUavMount();   // 重新加载装载关系到内存
 	pWin->ShowRadarTip();
 
 	this->close();

@@ -118,6 +118,8 @@ public:
     bool                            m_leafletReady = false;     //Leaflet页面是否加载完成
 
     void    refreshRadarCombox();       //刷新雷达组合框控件
+    void    loadRadarUavMount();        //从 radar_mount.ini 加载探测设备与无人机的装载关系
+    void    updateMountedRadarProjection(int radarId, const QgsFeature& radarFeat, QgsPointXY newPt); //实时更新装载设备的探测范围投影
 	void	ReadIniFile();				//读取ini配置文件	
     void	gridLayerMarker();			//渲染表格图层风格
     void	planeLayerMarker(QgsVectorLayer *);        //渲染飞机图层风格
@@ -173,10 +175,12 @@ public:
 	bool		 m_bTrackEnabled  = false;	//是否开启实时轨迹记录
 	bool		 m_bAirLayerDirty = false;	//有新飞机位置数据待渲染，避免无变化时100ms持续触发全图层重绘
 	QString		 m_basemapPath;				//当前底图文件绝对路径（供地图管理对话框标记高亮）
+	QgsRectangle m_tifExtent;				//TIF底图的地理范围（加载后持久保存，切换在线地图时恢复）
 	DlgMapManager *m_pDlgMapManager = nullptr;//地图管理对话框（常驻，非模态）
 	QAction		*m_pActMapManager = nullptr;//工具栏"地图管理"按钮
 	QAction		*m_pActTrack      = nullptr;//轨迹记录开关按钮（checkable）
 	QAction		*m_pActClearTrack = nullptr;//清除轨迹按钮
+	QHash<int, QString> m_radarUavMount;	//探测设备装载关系: radarId → uavId（空串=静止）
 public slots://定义信号槽,回调函数
 
     void showMousePoint(const QgsPointXY &p);         //鼠标光标回调函数

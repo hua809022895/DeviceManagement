@@ -61,6 +61,8 @@ public:
     QHBoxLayout *hboxLayout6;
     QLineEdit *textEdit_11;
     QLabel *label_6;
+    QLabel *label_uav;
+    QLineEdit *textEdit_12;
     QSpacerItem *spacerItem;
     QHBoxLayout *buttonRow;
     QSpacerItem *spacerItem1;
@@ -71,7 +73,7 @@ public:
     {
         if (Form->objectName().isEmpty())
             Form->setObjectName(QString::fromUtf8("Form"));
-        Form->resize(360, 420);
+        Form->resize(360, 455);
         Form->setMinimumSize(QSize(280, 360));
         QFont font;
         font.setFamily(QString::fromUtf8("\345\256\213\344\275\223"));
@@ -257,6 +259,16 @@ public:
 
         formLayout->setLayout(9, QFormLayout::FieldRole, hboxLayout6);
 
+        label_uav = new QLabel(Form);
+        label_uav->setObjectName(QString::fromUtf8("label_uav"));
+
+        formLayout->setWidget(10, QFormLayout::LabelRole, label_uav);
+
+        textEdit_12 = new QLineEdit(Form);
+        textEdit_12->setObjectName(QString::fromUtf8("textEdit_12"));
+
+        formLayout->setWidget(10, QFormLayout::FieldRole, textEdit_12);
+
 
         mainLayout->addLayout(formLayout);
 
@@ -310,6 +322,8 @@ public:
         label_17->setText(QApplication::translate("Form", "\345\272\246", nullptr));
         label_5->setText(QApplication::translate("Form", "\346\216\242\346\265\213\350\267\235\347\246\273", nullptr));
         label_6->setText(QApplication::translate("Form", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_uav->setText(QApplication::translate("Form", "\350\243\205\350\275\275\346\227\240\344\272\272\346\234\272\346\234\272\345\217\267", nullptr));
+        textEdit_12->setPlaceholderText(QApplication::translate("Form", "\347\251\272\346\210\2260=\351\235\231\346\255\242\357\274\214\345\241\253\346\234\272\345\217\267\351\232\217\346\227\240\344\272\272\346\234\272\347\247\273\345\212\250", nullptr));
         pushButton_2->setText(QApplication::translate("Form", "\347\241\256\345\256\232", nullptr));
         pushButton_3->setText(QApplication::translate("Form", "\351\200\200\345\207\272", nullptr));
     } // retranslateUi

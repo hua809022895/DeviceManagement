@@ -214,7 +214,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	restoreState(settings.value("Widget/windowState").toByteArray());*/
 
 	//设置图层，可以动态隐藏，显示
-	new QgsLayerTreeMapCanvasBridge(QgsProject::instance()->layerTreeRoot(), pcanvas, this);
+	m_layerTreeCanvasBridge = new QgsLayerTreeMapCanvasBridge(QgsProject::instance()->layerTreeRoot(), pcanvas, this);
+	// 禁止 bridge 在第一个"有效CRS图层"加入时自动重置 canvas CRS 和 extent。
+	// 切换在线瓦片图层（WMS/XYZ）时，bridge 会将 canvas CRS 改为 EPSG:3857、范围扩展为全球，
+	// 导致 loadOnlineTileMap 的范围恢复失效。关闭此选项后 bridge 仅更新图层列表，不动 CRS/extent。
+	m_layerTreeCanvasBridge->setAutoSetupOnFirstLayer(false);
 	
 	//初始化时，设置某些图层是否显示
 	QgsLayerTree *qgsroot = QgsProject::instance()->layerTreeRoot();
@@ -324,8 +328,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		g_pRadarPtLayer->deleteFeature(feat.id());
 	g_pRadarPtLayer->commitChanges();
 
-	ShowRadarTip();		//刷新雷达提示
-	ShowTaskAreaTip();	//刷新任务区域提示
+	loadRadarUavMount();    // 加载探测设备与无人机的装载关系
+	ShowRadarTip();		    //刷新雷达提示
+	ShowTaskAreaTip();	    //刷新任务区域提示
 
 	// 启动无人机图层定时刷新（100ms=10fps），替代 per-message triggerRepaint
 	if (!m_pAirLayerTimer)
@@ -2310,6 +2315,7 @@ void MainWindow::addRasterlayers()
 	
     m_layers.append(g_pRasterLayer);
     m_basemapPath = fx;   // 记录当前底图路径，供地图管理对话框标记高亮
+    m_tifExtent   = g_pRasterLayer->extent();  // 持久保存TIF范围
     m_mapCanvas->setLayers(m_layers);
     QgsProject::instance()->addMapLayer(g_pRasterLayer);
 }
@@ -2364,9 +2370,10 @@ void MainWindow::switchBaseMap(const QString& filePath, const QString& layerName
     }
     g_pRasterLayer = newLayer;
     m_basemapPath  = filePath;
+    m_tifExtent    = g_pRasterLayer->extent();   // 持久保存TIF范围，供切换在线地图时恢复
 
-    // 4. 插回原位（保底图在最底层），更新画布
-    m_layers.insert(qMax(idx, 0), g_pRasterLayer);
+    // 4. 将 TIF 底图追加到末尾（最后 = 渲染最底层/背景），矢量图层保持在前面（前景），装备图标可见。
+    m_layers.append(g_pRasterLayer);
     QgsProject::instance()->addMapLayer(g_pRasterLayer);
     m_mapCanvas->setLayers(m_layers);
 
@@ -2377,35 +2384,46 @@ void MainWindow::switchBaseMap(const QString& filePath, const QString& layerName
         m_mapCanvas->setDestinationCrs(tifCrs);
     m_mapCanvas->setExtent(g_pRasterLayer->extent());
     m_mapCanvas->refresh();
+
+    // addMapLayer 触发 bridge->deferredSetCanvasLayers（singleShot(0)），
+    // bridge 把新 TIF 插入图层树顶部 → setLayers 时 TIF 在最上层 → 遮挡装备图标。
+    // 在 bridge 回调之后再次执行 setLayers(m_layers) 恢复正确顺序（TIF 在底部）。
+    QTimer::singleShot(0, this, [this]() {
+        m_mapCanvas->setLayers(m_layers);
+    });
 }
 
 // 加载在线瓦片地图为底图（由地图管理对话框触发）
 void MainWindow::loadOnlineTileMap(const QString& url, const QString& layerName)
 {
-    // 保存当前视图范围（中国区域，94-125°E，27-41°N）
-    QgsRectangle savedExtent = m_mapCanvas->extent();
+    // ── Step 1: 确定目标范围（优先使用持久保存的 TIF 范围） ─────────────────────
+    // m_tifExtent 在 switchBaseMap() 加载 TIF 时保存，不随在线地图切换而清空。
+    // 若未加载过 TIF，则回退到当前 canvas 范围。
+    QgsRectangle targetExtent;
+    if (!m_tifExtent.isEmpty()) {
+        targetExtent = m_tifExtent;
+    } else if (g_pRasterLayer && !m_basemapPath.isEmpty()) {
+        targetExtent = g_pRasterLayer->extent();
+        m_tifExtent  = targetExtent;
+    } else {
+        targetExtent = m_mapCanvas->extent();
+    }
 
-    // 冻结画布：阻止任何渲染线程启动，避免 setLayers/setExtent 触发跨线程 QBuffer 事件
-    m_mapCanvas->freeze(true);
-
-    // 禁用所有 bridge 自动初始化（代码中有3处：217/1151/1176行）
-    const auto bridges = findChildren<QgsLayerTreeMapCanvasBridge*>();
-    for (auto* b : bridges)
-        b->setAutoSetupOnFirstLayer(false);
-
-    // 加载新在线瓦片图层
+    // ── Step 2: 加载 WMS/XYZ 图层 ────────────────────────────────────────────────
+    // 注意：不在此处调用 setDestinationCrs()！
+    // setDestinationCrs() 会把当前范围从"无效CRS"重投影到新CRS；由于无效CRS无法解析，
+    // QGIS fallback 为整个投影的全球范围，导致范围扩展为全球。
+    // CRS 设置推迟到 Step 5（timer）中，在 setLayers()+setExtent() 之后调用，确保不干扰范围。
     QgsRasterLayer* pLayer = new QgsRasterLayer(url, layerName, "wms");
     if (!pLayer->isValid()) {
-        m_mapCanvas->freeze(false);
         QMessageBox::warning(this,
             QString::fromLocal8Bit("错误"),
-            QString::fromLocal8Bit("在线地图加载失败，请检查网络连接"));
+            QString::fromLocal8Bit("在线地图加载失败:\n") + url);
         delete pLayer;
         return;
     }
-    QgsProject::instance()->addMapLayer(pLayer);
 
-    // 移除旧底图
+    // ── Step 3: 替换底图图层 ──────────────────────────────────────────────────────
     int idx = g_pRasterLayer ? m_layers.indexOf(g_pRasterLayer) : -1;
     if (idx >= 0)
         m_layers.removeAt(idx);
@@ -2413,52 +2431,47 @@ void MainWindow::loadOnlineTileMap(const QString& url, const QString& layerName)
         QgsProject::instance()->removeMapLayer(g_pRasterLayer->id());
         g_pRasterLayer = nullptr;
     }
-
+    QgsProject::instance()->addMapLayer(pLayer);
     g_pRasterLayer = pLayer;
     m_basemapPath  = QString();
-
     m_layers.insert(qMax(idx, 0), g_pRasterLayer);
     m_mapCanvas->setLayers(m_layers);
 
-    // 不在 freeze 块内设置 CRS/范围——让 bridge 的延迟回调先执行。
-    // freeze(false) → refresh() → 将 singleShot(1ms, refreshMap) 排入队列。
-    m_mapCanvas->freeze(false);
-
-    // 事件队列执行顺序（在 loadOnlineTileMap 返回后，事件循环恢复时）：
-    //   1. bridge 的 singleShot(0) [addMapLayer 时已排队] → deferredSetCanvasLayers()
-    //      仅调用 setLayers()（mHasFirstLayer=true，不触发自动缩放）
-    //   2. 我们的 singleShot(0) [此处排队] → 在所有 bridge 回调之后、refreshMap(1ms) 之前执行
-    //      setDestinationCrs(EPSG:4326)：使 PROJ 能正确将度数坐标转换到 EPSG:3857，
-    //        获取中国区域 XYZ 瓦片（而非之前因自定义 WKT 轴序错误导致的俄罗斯区域）
-    //      setExtent(savedExtent)：即使 setDestinationCrs 内部重投影给出错误范围，
-    //        此调用立即覆盖为保存的中国区域
-    //      两者均调用 refresh()，因 mRefreshScheduled=true 提前返回（只更新 mSettings）
-    //   3. singleShot(1ms) refreshMap 触发，读取 mSettings: CRS=EPSG:4326, extent=中国 ✓
-    // 延迟300ms执行CRS修复：等待所有QGIS内部初始化（bridge回调、WMS层初始化）完成后，
-    // 再统一设置CRS、图层、范围，避免QGIS的deferred回调（如layerCrsChange→zoomToFullExtent）
-    // 在我们的setExtent(savedExtent)之后覆盖范围导致显示全球视图。
-    QTimer::singleShot(300, this, [this, savedExtent]() {
-        // freeze防止setCrs/setLayers触发的中间刷新（layerCrsChange→zoomToFullExtent会设置全球范围）
-        m_mapCanvas->freeze(true);
+    // ── Step 4: bridge singleShot(0) 回调完成后统一恢复 CRS、图层顺序、范围 ────
+    // • bridge 的 setCanvasLayers() 会按图层树顺序调用 setLayers()：
+    //   新加入的 WMS 图层位于树顶部（z序最高），覆盖装备/飞机矢量图层 → 图标不可见。
+    //   因此 timer 中必须再次调用 setLayers(m_layers) 恢复正确顺序（WMS 在底部）。
+    // • setDestinationCrs() 放在 setExtent() 之前调用：
+    //   内部会将当前范围从旧CRS重投影到新CRS（可能扩展为全球），
+    //   随后 setExtent(China) 立即覆盖，最终范围正确。
+    QTimer::singleShot(50, this, [this, targetExtent]() {
+        // 1. 设置 canvas CRS 为 lon-first WGS84，使 WMS provider 正确把 canvas 范围转换到 EPSG:3857。
+        //    问题：setDestinationCrs() 内部用 authid 做相等判断。
+        //    无效 TIF CRS（authid=""）和 createFromProj 得到的 CRS（无 authid=""）比较 ""=="" → no-op，CRS 从未改变。
+        //    解法：绕过 setDestinationCrs()，直接操作底层 QgsMapSettings，强制写入新 CRS。
         QgsCoordinateReferenceSystem crsWgs84;
-        if (crsWgs84.createFromProj("+proj=longlat +datum=WGS84 +no_defs")
-                && crsWgs84.isValid()) {
-            // const_cast绕过setDestinationCrs()的authid ""=="" no-op检查
+        if (crsWgs84.createFromProj("+proj=longlat +datum=WGS84 +no_defs") && crsWgs84.isValid()) {
             QgsMapSettings &ms = const_cast<QgsMapSettings &>(m_mapCanvas->mapSettings());
             ms.setDestinationCrs(crsWgs84);
-            // setCrs()使图层CRS==画布CRS → 恒等变换（坐标不偏移，116°E不再变成109°E）
-            // setCrs()发射crsChanged() → 渲染器重置 → SVG图标重新显示
-            for (QgsMapLayer *layer : m_layers) {
-                if (layer && layer != g_pRasterLayer) {
-                    layer->setCrs(crsWgs84);
-                }
-            }
-            // 重新设置layers使canvas重建坐标变换缓存（读取新的图层CRS）
-            m_mapCanvas->setLayers(m_layers);
+            qDebug() << "[OnlineMap] CRS set via mapSettings, authid=" << crsWgs84.authid()
+                     << "valid=" << crsWgs84.isValid();
+        } else {
+            qDebug() << "[OnlineMap] WARNING: crsWgs84 invalid, CRS not updated";
         }
-        m_mapCanvas->setExtent(savedExtent);
-        // freeze(false)内部调用refresh()，以正确的CRS/图层/范围触发渲染
-        m_mapCanvas->freeze(false);
+        // 2. 恢复图层顺序：WMS 在 m_layers 末尾（最后 = 渲染底层/背景），矢量装备图层在前（前景可见）
+        m_mapCanvas->setLayers(m_layers);
+        qDebug() << "[OnlineMap] setLayers count=" << m_layers.count()
+                 << "extentBefore=" << m_mapCanvas->extent().toString();
+        // 3. 恢复中国范围（targetExtent 来自 TIF，单位为度）
+        if (!targetExtent.isEmpty()) {
+            m_mapCanvas->setExtent(targetExtent);
+            qDebug() << "[OnlineMap] setExtent to" << targetExtent.toString()
+                     << "extentAfter=" << m_mapCanvas->extent().toString();
+        }
+        // 4. 重建装备标签（mapPosition 在新CRS下重新锚定）
+        ShowRadarTip();
+        m_mapCanvas->clearCache();
+        m_mapCanvas->refresh();
     });
 }
 
@@ -2747,7 +2760,28 @@ void MainWindow::registerPlane(tag_PlaneMessage *p)
 	// 主线程事件队列得以快速清空，鼠标/缩放等 UI 事件不再被高频消息阻塞。
 	if (m_latestPlaneData.contains(p->ID))
 	{
-		m_latestPlaneData[p->ID] = *p;
+		if (p->planeX.isEmpty())
+		{
+			// msg199：仅含群控模式/同步时间字段，不含坐标 — 只更新模式字段，保留位置数据
+			auto &existing = m_latestPlaneData[p->ID];
+			existing.qkCmdMode  = p->qkCmdMode;
+			existing.qkRunMode  = p->qkRunMode;
+			existing.fkRunMode  = p->fkRunMode;
+			existing.fkSysStatus= p->fkSysStatus;
+			existing.jqtbTime   = p->jqtbTime;
+		}
+		else
+		{
+			// msg195：含完整位置/传感器数据，全量更新
+			m_latestPlaneData[p->ID] = *p;
+		}
+		delete p;
+		return;
+	}
+
+	// 首次收到此飞机消息：msg199 无位置数据，等待 msg195 再注册
+	if (p->planeX.isEmpty())
+	{
 		delete p;
 		return;
 	}
@@ -2822,6 +2856,56 @@ void MainWindow::processAllPlaneUpdates()
 			}
 		}
 
+		// 同步装载于该无人机的探测设备位置
+		if (!m_radarUavMount.isEmpty())
+		{
+			QgsPointXY uavPt(p->planeX.toDouble(), p->planeY.toDouble());
+			// 装载设备高度 = 无人机实时飞行高度（优先海拔高度，fallback相对高度）
+			double uavAlt = p->hZ.toDouble();
+			if (uavAlt <= 0) uavAlt = p->xZ.toDouble();
+
+			for (auto mit = m_radarUavMount.begin(); mit != m_radarUavMount.end(); ++mit)
+			{
+				if (mit.value() != p->ID)
+					continue;
+
+				int radarId = mit.key();
+				// 更新雷达设备图层中的几何位置和高度属性
+				for (int i = 0; i < gRadarLayerList.size(); i++)
+				{
+					QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures(
+						QString("\"electircid\"=%1").arg(radarId));
+					QgsFeature f;
+					if (!fit.nextFeature(f))
+						continue;
+
+					if (!gRadarLayerList[i]->isEditable())
+						gRadarLayerList[i]->startEditing();
+					// 更新位置
+					QgsGeometry newGeom = QgsGeometry::fromPointXY(uavPt);
+					gRadarLayerList[i]->changeGeometry(f.id(), newGeom);
+					// 更新高度（attribute[4]）为无人机实时高度
+					if (uavAlt > 0)
+						gRadarLayerList[i]->changeAttributeValue(f.id(), 4, (int)uavAlt);
+					gRadarLayerList[i]->triggerRepaint();
+
+					// 实时刷新探测范围投影（500ms 节流）
+					if (doPoly)
+						updateMountedRadarProjection(radarId, f, uavPt);
+					break;  // 同一设备只在一个图层中存在
+				}
+				// 更新 RadarTip 标签位置
+				for (RadarTip *r : m_radarTipList)
+				{
+					if (r->m_id == radarId)
+					{
+						r->setPos(uavPt);
+						break;
+					}
+				}
+			}
+		}
+
 		// 表格更新（200ms 节流）
 		if (doTable)
 		{
@@ -2839,7 +2923,8 @@ void MainWindow::processAllPlaneUpdates()
 			{
 				foreach(int r, list) {
 					g_RadarTrackList.append(QgsPointXY(p->planeX.toDouble(), p->planeY.toDouble()));
-					m_pDlgAirList->insert(p->ID, QString("%1").arg(r));
+					if (m_pDlgAirList)
+						m_pDlgAirList->insert(p->ID, QString("%1").arg(r));
 				}
 			}
 			else
@@ -3279,6 +3364,13 @@ void MainWindow::setActionSvg()
         connect(m_pActMapManager, &QAction::triggered, this, &MainWindow::showMapManager);
         ui->toolBar_2->addAction(m_pActMapManager);
     }
+
+    // 恢复工具栏文字：图标+文字显示
+    ui->toolBar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    ui->toolBar_2->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    ui->toolBar_3->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    ui->toolBar_4->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    ui->mToolBarSchedule->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
     qDebug()<<"setActionSvg()  ----------------------";
 }

@@ -799,6 +799,14 @@ void MainWindow::fixRadarDevice()
 	m_pSetRadarDlg->ui.textEdit_10->setText(shWidth);
 	m_pSetRadarDlg->ui.textEdit_11->setText(length);
 
+	// 显示当前装载无人机机号（若已装载）
+	{
+		QString mPath2 = QCoreApplication::applicationDirPath();
+		QSettings mountCfg(mPath2 + "/radar_mount.ini", QSettings::IniFormat);
+		QString uavId = mountCfg.value(QString("RadarMount/radar_%1").arg(ID)).toString();
+		m_pSetRadarDlg->ui.textEdit_12->setText(uavId);
+	}
+
 	m_pSetRadarDlg->show();
 	m_pSetRadarDlg->activateWindow();
 }
@@ -818,33 +826,73 @@ void MainWindow::RadarTestAirList()
 void MainWindow::refreshRadarCombox()       //ˢ���״���Ͽ�ؼ�
 {
 	if (m_pRaderLayerBox == nullptr)
-	{
-		QMessageBox::information(this, "SUCCESS", QString::fromLocal8Bit("已将探测设备从地图上移除成功！"));
-		this->close();
 		return;
-	}
-	while (m_pRaderLayerBox->count()>0)
-	{
-		m_pRaderLayerBox->removeItem(0);
-	}
+
+	// 下拉框只显示4种设备类型名，选中后切换当前图层
+	m_pRaderLayerBox->clear();
 
 	QString mPath = QCoreApplication::applicationDirPath();
 	QSettings settings(mPath + "/config.ini", QSettings::IniFormat);
-	QString slist = settings.value("DeviceType/list").toString();
-	QStringList list = slist.split("|");
+	QStringList list = settings.value("DeviceType/list").toString().split("|");
+	m_pRaderLayerBox->addItems(list);
+}
 
-	for (int i = 0; i < gRadarLayerList.size(); i++)
+// 实时更新装载设备的探测范围投影（删除旧扇形 → 生成新扇形），由 processAllPlaneUpdates 每 500ms 调用一次
+void MainWindow::updateMountedRadarProjection(int radarId, const QgsFeature& radarFeat, QgsPointXY newPt)
+{
+	if (!g_pRadarTyLayer)
+		return;
+
+	if (!g_pRadarTyLayer->isEditable())
+		g_pRadarTyLayer->startEditing();
+
+	// 删除此设备的旧投影（attribute[0] 存储设备 ID）
+	QgsFeature feat;
+	QgsFeatureIterator fit = g_pRadarTyLayer->getFeatures();
+	while (fit.nextFeature(feat))
 	{
-		QgsFeature feat;
-		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures();
-		while (fit.nextFeature(feat))
-		{
-			QString		ID = feat.attribute(0).toString();
-			int			type = feat.attribute(3).toInt();	//����
-
-			QString str = list[type] + ID;
-			m_pRaderLayerBox->addItem(str);
-		}
+		if (feat.attribute(0).toInt() == radarId)
+			g_pRadarTyLayer->deleteFeature(feat.id());
 	}
-	
+
+	// 从雷达特征读取探测参数（这些参数不随位移变化）
+	QString tAngle     = radarFeat.attribute(6).toString();   // 探测范围角度
+	QString sAzimuth   = radarFeat.attribute(7).toString();   // 方位角θ
+	QString sElevation = radarFeat.attribute(8).toString();   // 俯仰角α
+	QString length     = radarFeat.attribute(11).toString();  // 探测距离(米)
+
+	// 生成新位置的探测锥投影多边形
+	QList<QgsPointXY> pts = GetTYPolygon(newPt,
+		sAzimuth.toFloat(), tAngle.toInt(),
+		sElevation.toFloat(), length.toInt());
+
+	if (!pts.isEmpty())
+	{
+		QgsPolygonXY pxy = QgsPolygonXY() << pts.toVector();
+		QgsGeometry  geom = QgsGeometry::fromPolygonXY(pxy);
+		QgsFeature   nf;
+		nf.setGeometry(geom);
+		nf.setAttributes(QgsAttributes() << QString::number(radarId));
+		g_pRadarTyLayer->addFeature(nf);
+	}
+
+	g_pRadarTyLayer->triggerRepaint();
+}
+
+// 从 radar_mount.ini 加载探测设备与无人机的装载关系到 m_radarUavMount
+void MainWindow::loadRadarUavMount()
+{
+	m_radarUavMount.clear();
+	QString mPath = QCoreApplication::applicationDirPath();
+	QSettings cfg(mPath + "/radar_mount.ini", QSettings::IniFormat);
+	cfg.beginGroup("RadarMount");
+	for (const QString &key : cfg.childKeys())
+	{
+		// key 格式: "radar_ID"，值为无人机机号
+		int radarId = key.mid(6).toInt();   // 去掉前缀 "radar_"
+		QString uavId = cfg.value(key).toString().trimmed();
+		if (!uavId.isEmpty() && uavId != "0")
+			m_radarUavMount[radarId] = uavId;
+	}
+	cfg.endGroup();
 }
