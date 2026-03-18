@@ -2903,6 +2903,10 @@ void MainWindow::processAllPlaneUpdates()
 	if (m_latestPlaneData.isEmpty())
 		return;
 	bool isDrawingNow = m_mapCanvas && m_mapCanvas->isDrawing();
+	// QGIS 图层写入仅在 QGIS 视图（mode=0）且 canvas 空闲时执行。
+	// 在 Leaflet(1)/3D(2) 视图中跳过 QGIS 写入，避免 FixPlane→updateFeature→canvas 重绘
+	// 与 WebView 渲染争抢 CPU，消除在线/3D 地图滚轮操作卡顿。
+	bool doQgis = !isDrawingNow && (m_mapViewMode == 0);
 
 	DWORD now = GetTickCount();
 	bool doTable = !isDrawingNow && (now - s_lastModifyTableTick >= 200);
@@ -2911,7 +2915,7 @@ void MainWindow::processAllPlaneUpdates()
 	if (doPoly)  s_lastIsRadarPolyTick  = now;
 
 	// 批量注册新飞机：一次性写入 QGIS，替代每架飞机独立 commitChanges（80架从40s降到<1s）
-	if (!isDrawingNow && !m_pendingNewPlanes.isEmpty() && g_pAirLayer)
+	if (doQgis && !m_pendingNewPlanes.isEmpty() && g_pAirLayer)
 	{
 		g_pAirLayer->startEditing();
 		for (const auto &plane : m_pendingNewPlanes)
@@ -2974,8 +2978,8 @@ void MainWindow::processAllPlaneUpdates()
 	{
 		tag_PlaneMessage *p = &it.value();
 
-		// 修改无人机图层位置（QGIS 写入，canvas 绘制时跳过）
-		if (!isDrawingNow) emit FixPlaneMsg(p);
+		// 修改无人机图层位置（QGIS 写入，仅 QGIS 视图且 canvas 空闲时执行）
+		if (doQgis) emit FixPlaneMsg(p);
 
 		// 同步飞机位置到 Leaflet 2D 地图（累积到批量字符串）
 		if (has2D)
@@ -3003,9 +3007,9 @@ void MainWindow::processAllPlaneUpdates()
 				.arg(p->Yaw.toDouble(), 0, 'f', 1);
 		}
 
-		// QGIS canvas 标牌位置（canvas 绘制时跳过：setMapPosition→updatePosition 访问 canvas
-		// 共享 QVector，在渲染线程持有副本时从主线程调用触发 isDetached 断言）
-		if (!isDrawingNow)
+		// QGIS canvas 标牌位置（仅 QGIS 视图且空闲时：setMapPosition→updatePosition 访问
+		// canvas 共享 QVector，在渲染线程持有副本时触发 isDetached 断言）
+		if (doQgis)
 		{
 			int pid = p->ID.toInt();
 			for (int i = 0; i < m_planeIDvec.count(); i++)
@@ -3028,13 +3032,13 @@ void MainWindow::processAllPlaneUpdates()
 
 			for (auto mit = m_radarUavMount.begin(); mit != m_radarUavMount.end(); ++mit)
 			{
-				if (mit.value() != p->ID)
+				if (mit.value().toInt() != p->ID.toInt())
 					continue;
 
 				int radarId = mit.key();
 
-				// QGIS 图层写入 + RadarTip（canvas 绘制时跳过，避免 QVector 线程断言）
-				if (!isDrawingNow)
+				// QGIS 图层写入 + RadarTip（仅 QGIS 视图且空闲时）
+				if (doQgis)
 				{
 					// RadarTip 标签（QgsMapCanvasAnnotationItem 内部访问 canvas QVector，需空闲）
 					for (RadarTip *r : m_radarTipList)
