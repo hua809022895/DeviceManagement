@@ -587,7 +587,10 @@ void MainWindow::onAirLayerRefreshTimer()
 // GPS 100ms 更新一次，此处在每帧（~60fps）对图标位置做线性插值，消除跳帧卡顿
 void MainWindow::onInterpTimer()
 {
+	// toCanvasCoordinates() 访问 canvas 内部 QVector；渲染线程持有共享副本时
+	// 主线程写操作会触发 isDetached() 断言崩溃 → 仅在 canvas 空闲时执行
 	if (m_planeIDvec.isEmpty()) return;
+	if (m_mapCanvas && m_mapCanvas->isDrawing()) return;
 	qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
 	for (biaopai* pPai : m_planeIDvec)
 		pPai->interpolate(nowMs);
