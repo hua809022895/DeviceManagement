@@ -13,11 +13,14 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QGridLayout>
+#include <QSplitter>
+#include <QVBoxLayout>
 #include <QFileDialog>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QTextcodec.h>
 #include <QtWebView/QtWebView>
+#include <QWebEngineProfile>
 
 #include <qgsTransaction.h>
 #include <qgsTransactionGroup.h>
@@ -174,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	
 	//m_mapCanvas->setCurrentLayer(g_pLineLayer);
 	mToolSelect			= new QgsMapToolSelect(pcanvas);
+	mToolRadarPick		= new QgsMapToolEmitPoint(pcanvas);
+	connect(mToolRadarPick, &QgsMapToolEmitPoint::canvasClicked, this, &MainWindow::onRadarPick);
 
 	mDock = new QgsAdvancedDigitizingDockWidget(pcanvas);
 	mDock->setMaximumWidth(50);
@@ -341,8 +346,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	}
 	m_pAirLayerTimer->start();
 
+	// 启动飞机图标插值定时器（16ms≈60fps），使 QGIS canvas 飞机图标平滑移动
+	if (!m_pInterpTimer)
+	{
+		m_pInterpTimer = new QTimer(this);
+		m_pInterpTimer->setInterval(16);
+		connect(m_pInterpTimer, &QTimer::timeout, this, &MainWindow::onInterpTimer);
+	}
+	m_pInterpTimer->start();
+
 	// 初始化Leaflet 2D地图（后台加载，不阻塞启动）
 	initLeafletMap();
+	// 三维地图懒加载：首次切换到三维模式时再初始化（避免hidden状态下WebGL canvas 0×0问题）
 
 	//设置画布的extent(范围)
 	QgsRectangle rect;
@@ -481,6 +496,7 @@ MainWindow::~MainWindow()
 {
     if (mDock ) delete mDock;
     if (mToolSelect ) delete mToolSelect;
+    if (mToolRadarPick) delete mToolRadarPick;
     if (mMapToolVertext) delete mMapToolVertext;
     if (mMapToolAddline ) delete mMapToolAddline;
     if (mMapToolAddPolygon ) delete mMapToolAddPolygon;
@@ -628,25 +644,76 @@ void MainWindow::setMapCanvas()
     m_mapCanvas->setVisible(true);
     m_mapCanvas->enableAntiAliasing(true);
 
-	//创建一个3D地图窗口
+	// ===== 磁盘缓存：所有 WebEngineView 共用 defaultProfile =====
+	// HTTP 缓存 + IndexedDB 持久化存储均放在软件目录下，便于整体拷贝至其他设备
+	{
+		QString cacheDir = QCoreApplication::applicationDirPath() + "/map_cache";
+		QDir().mkpath(cacheDir);
+		QWebEngineProfile* prof = QWebEngineProfile::defaultProfile();
+		prof->setHttpCacheType(QWebEngineProfile::DiskHttpCache);
+		prof->setCachePath(cacheDir + "/http");                      // HTTP 瓦片缓存
+		prof->setPersistentStoragePath(cacheDir + "/storage");       // IndexedDB 持久化（3D卫星+DEM）
+		prof->setHttpCacheMaximumSize(512 * 1024 * 1024); // 512 MB
+		prof->setHttpUserAgent(prof->httpUserAgent() + " MapCache/1.0");
+	}
+
+	//创建三维地图窗口（Three.js 3D卫星影像）
 	m_pWebEngineView = new QWebEngineView(ui->centralwidget);
 	m_pWebEngineView->setAutoFillBackground(true);
-
-	QString s = "file:///" + mPath + "/3D/index.html";
-	//m_pWebEngineView->setUrl(QUrl(QString::fromUtf8("file:///D:/SRTM/huayin-tmp/index.html")));
-	m_pWebEngineView->setUrl(QUrl(s));
 	m_pWebEngineView->hide();
+	// 允许本地HTML加载CDN上的CesiumJS库
+	m_pWebEngineView->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
+	connect(m_pWebEngineView, &QWebEngineView::loadFinished, this, [this](bool ok) {
+		m_3dReady = ok;
+		if (ok) sync3DAll(); // 页面加载完成后推送初始数据
+	});
+	// 3D status bar: parse title "SB:lng,lat|z=10|h=50000|e=320"
+	connect(m_pWebEngineView, &QWebEngineView::titleChanged, this, [this](const QString &title) {
+		if (m_mapViewMode != 2 || !title.startsWith("SB:")) return;
+		// Split by '|': coord, z=zoom, h=camHeight, e=elevation
+		QStringList parts = title.mid(3).split('|');
+		if (parts.size() < 4) return;
+		QString coord = parts[0];
+		QString zPart = parts[1].mid(2);   // skip "z="
+		QString hPart = parts[2].mid(2);   // skip "h="
+		QString ePart = parts[3].mid(2);   // skip "e="
+		m_lblCoordinate->setText(coord);
+		char buf[160];
+		sprintf(buf, "\xe7\xbc\xa9\xe6\x94\xbe\xe7\xba\xa7\xe5\x88\xab=%s  \xe6\xb5\xb7\xe6\x8b\x94=%sm  \xe7\x9b\xb8\xe6\x9c\xba=%sm",
+			zPart.toUtf8().constData(), ePart.toUtf8().constData(), hPart.toUtf8().constData());
+		m_lblSelectTargetCount->setText(QString::fromUtf8(buf));
+	});
 
 	//创建Leaflet 2D地图窗口（GPU加速，缩放流畅，替代QGIS canvas用于2D显示）
 	m_p2DMapView = new QWebEngineView(ui->centralwidget);
 	m_p2DMapView->setAutoFillBackground(true);
 	m_p2DMapView->hide();
 
-    QGridLayout* central = new QGridLayout(ui->centralwidget);
-    central->addWidget(m_pInfoBar,					0,0,1,1);
-    central->addWidget((QWidget*)m_mapCanvas,		1,0,1,1);
-	central->addWidget(m_p2DMapView,				1,0,1,1);	// Leaflet 2D，与QGIS canvas同格，切换时show/hide
-	central->addWidget((QWidget*)m_pWebEngineView,	2,0,1,1);
+	// 地图区容器（infobar + 三种地图视图叠放）
+	QWidget* mapArea = new QWidget(ui->centralwidget);
+	QGridLayout* mapGrid = new QGridLayout(mapArea);
+	mapGrid->setContentsMargins(0, 0, 0, 0);
+	mapGrid->setSpacing(0);
+	mapGrid->addWidget(m_pInfoBar,                 0, 0);
+	mapGrid->addWidget((QWidget*)m_mapCanvas,      1, 0);
+	mapGrid->addWidget(m_p2DMapView,               1, 0);  // 与QGIS canvas同格，切换时show/hide
+	mapGrid->addWidget((QWidget*)m_pWebEngineView, 1, 0);  // 3D视图，与QGIS canvas同格，切换时show/hide
+	mapGrid->setRowStretch(1, 1);
+
+	// 可调节分割器：上部地图区 / 下部无人机数据表
+	QSplitter* mapTableSplitter = new QSplitter(Qt::Vertical, ui->centralwidget);
+	mapTableSplitter->setHandleWidth(5);
+	mapTableSplitter->setChildrenCollapsible(false);
+	mapTableSplitter->addWidget(mapArea);
+	mapTableSplitter->addWidget(ui->mPlaneWidget);
+	mapTableSplitter->setStretchFactor(0, 1);
+	mapTableSplitter->setStretchFactor(1, 0);
+	mapTableSplitter->setSizes({700, 100});
+
+	QVBoxLayout* central = new QVBoxLayout(ui->centralwidget);
+	central->setContentsMargins(0, 0, 0, 0);
+	central->setSpacing(0);
+	central->addWidget(mapTableSplitter);
 
 	//设置无人机表格控件
 	int i = 0;
@@ -683,7 +750,7 @@ void MainWindow::setMapCanvas()
 	ui->mPlaneWidget->setSelectionBehavior(QAbstractItemView::SelectRows); //设置选择行为，以行为单位
 	ui->mPlaneWidget->setSelectionMode(QAbstractItemView::SingleSelection); //设置选择模式，选择单行
 
-	central->addWidget(ui->mPlaneWidget, 2, 0, 1, 1,Qt::AlignBottom);
+	// mPlaneWidget already added to mapTableSplitter above
 
 	//QString mapdir = QCoreApplication::applicationDirPath();
 
@@ -711,6 +778,17 @@ void MainWindow::setMapCanvas()
 
 	LoadVectorlayers(mPath + "/shpAndTif/areaDesigned.shp",	&g_pPolygonLayer);		//加载多边形面图层
 	LoadVectorlayers(mPath + "/shpAndTif/AirTaskArea.shp",		&g_pAirTaskPolyLayer);	//加载无人机任务区域，多边形面图层
+	// 任务区域变更后实时同步到在线地图和三维视图
+	if (g_pAirTaskPolyLayer) {
+		connect(g_pAirTaskPolyLayer, &QgsVectorLayer::committedFeaturesAdded,
+			this, [this](const QString &, const QgsFeatureList &){ syncLeafletAll(); sync3DAll(); });
+		connect(g_pAirTaskPolyLayer, &QgsVectorLayer::committedFeaturesRemoved,
+			this, [this](const QString &, const QgsFeatureIds &){ syncLeafletAll(); sync3DAll(); });
+		connect(g_pAirTaskPolyLayer, &QgsVectorLayer::committedGeometriesChanges,
+			this, [this](const QString &, const QgsGeometryMap &){ syncLeafletAll(); sync3DAll(); });
+		connect(g_pAirTaskPolyLayer, &QgsVectorLayer::committedAttributeValuesChanges,
+			this, [this](const QString &, const QgsChangedAttributesMap &){ syncLeafletAll(); sync3DAll(); });
+	}
 	LoadVectorlayers(mPath + "/shpAndTif/lineDesigned.shp",	&g_pLineLayer);			//加载线图层
 	LoadVectorlayers(mPath + "/shpAndTif/electromagnetism.shp",&m_electroMagnetism);
 	LoadVectorlayers(mPath + "/shpAndTif/eletroPoint.shp",		&g_pSmallJpgLayer);		//加载小图片图层
@@ -726,10 +804,20 @@ void MainWindow::setMapCanvas()
 
 	for (int i = 0; i < list.size(); i++)
 	{
-		if (i == 0) LoadVectorlayers(mPath + "/radar1.shp", &gRadarLayerList[0]);		//雷达设备图层
-		if (i == 1) LoadVectorlayers(mPath + "/radar2.shp", &gRadarLayerList[1]);		//雷达设备图层
-		if (i == 2) LoadVectorlayers(mPath + "/radar3.shp", &gRadarLayerList[2]);		//雷达设备图层
-		if (i == 3) LoadVectorlayers(mPath + "/radar4.shp", &gRadarLayerList[3]);		//雷达设备图层
+		if (i == 0) LoadVectorlayers(mPath + "/radar1.shp", &gRadarLayerList[0]);
+		if (i == 1) LoadVectorlayers(mPath + "/radar2.shp", &gRadarLayerList[1]);
+		if (i == 2) LoadVectorlayers(mPath + "/radar3.shp", &gRadarLayerList[2]);
+		if (i == 3) LoadVectorlayers(mPath + "/radar4.shp", &gRadarLayerList[3]);
+		// 装备变更后实时同步到在线地图和三维视图
+		QgsVectorLayer *rl = gRadarLayerList.size() > i ? gRadarLayerList[i] : nullptr;
+		if (rl) {
+			connect(rl, &QgsVectorLayer::committedFeaturesAdded,
+				this, [this](const QString &, const QgsFeatureList &){ syncLeafletAll(); sync3DAll(); });
+			connect(rl, &QgsVectorLayer::committedFeaturesRemoved,
+				this, [this](const QString &, const QgsFeatureIds &){ syncLeafletAll(); sync3DAll(); });
+			connect(rl, &QgsVectorLayer::committedAttributeValuesChanges,
+				this, [this](const QString &, const QgsChangedAttributesMap &){ syncLeafletAll(); sync3DAll(); });
+		}
 	}
 		
 	LoadVectorlayers(mPath + "/radarTrack.shp", &g_pRadarPtLayer);						//雷达覆盖无人机轨迹图层
@@ -745,15 +833,7 @@ void MainWindow::setMapCanvas()
 	LoadVectorlayers(mPath + QString::fromLocal8Bit("/道路1.shp"), &g_pRoadLayer);
 #endif
 
-	// 下拉框只显示4种设备类型名，选中后切换当前图层
-	if (list.size() > 0)
-	{
-		m_pRaderLayerBox = new QComboBox();
-		m_pRaderLayerBox->setMaximumWidth(100);
-		m_pRaderLayerBox->addItems(list);
-		ui->toolBar_3->addWidget(m_pRaderLayerBox);
-		QObject::connect(m_pRaderLayerBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(selectRadarDevice(QString)));
-	}
+	// 下拉框已移除，点击"装备图层"按钮即可选择各类装备
 
     //addJpgAnnotationToLayer();														//创建一个jpg图片大图图层
 
@@ -1431,6 +1511,7 @@ void MainWindow::connectUDP()
 	if (m_pRecThread != nullptr)
 	{
 		if (m_pAirLayerTimer) m_pAirLayerTimer->stop();
+		if (m_pInterpTimer)   m_pInterpTimer->stop();
 
 		// 删除所有标牌，从画布场景同步移除
 		for (biaopai *pPai : m_planeIDvec)
@@ -1438,6 +1519,7 @@ void MainWindow::connectUDP()
 		m_planeIDvec.clear();
 		m_planeVector.clear();
 		m_latestPlaneData.clear();
+		m_pendingNewPlanes.clear();	// 丢弃断开前尚未提交的新飞机队列
 
 		// 断开并销毁所有 FixPlaneThread，防止 stale m_cachedFid 在重连后污染新 feature
 		for (FixPlaneThread *pThread : m_planeThreadVec)
@@ -1484,6 +1566,7 @@ void MainWindow::connectUDP()
 		ui->mActionConnect->setIcon(QIcon(":/images/themes/default/mActionWms.svg"));
 
 		if (m_pAirLayerTimer) m_pAirLayerTimer->start();
+		if (m_pInterpTimer)   m_pInterpTimer->start();
 		return;
 	}
 
@@ -2372,24 +2455,35 @@ void MainWindow::switchBaseMap(const QString& filePath, const QString& layerName
     m_basemapPath  = filePath;
     m_tifExtent    = g_pRasterLayer->extent();   // 持久保存TIF范围，供切换在线地图时恢复
 
-    // 4. 将 TIF 底图追加到末尾（最后 = 渲染最底层/背景），矢量图层保持在前面（前景），装备图标可见。
+    // 4. 将 TIF 底图追加到末尾（最后 = 渲染最底层/背景），矢量图层保持在前面（前景）。
+    // 关键修复：addToLegend=false —— 不将 TIF 加入图层树。
+    //   • bridge 只监听图层树变化。若 TIF 不在树中，bridge 就不会因 addMapLayer 触发
+    //     deferredSetCanvasLayers，也就不会把 TIF 插入图层树顶部（前景），遮挡装备图标。
+    //   • removeMapLayer 仅对"曾在树中"的图层触发 bridge 回调（第一次切换时初始 TIF
+    //     是通过 addToLegend=true 加入的，所以会触发一次 bridge 回调；后续切换不再触发）。
+    //   • 我们的 singleShot(0) 排在 bridge 的 singleShot(0) 之后执行（FIFO），
+    //     始终最后重置图层顺序、CRS、范围和装备标签，确保装备图标可见。
     m_layers.append(g_pRasterLayer);
-    QgsProject::instance()->addMapLayer(g_pRasterLayer);
-    m_mapCanvas->setLayers(m_layers);
+    QgsProject::instance()->addMapLayer(g_pRasterLayer, false);  // 不加入图层树！
 
-    // 恢复画布 CRS 为 TIF 图层自身的 CRS（通常是 EPSG:4326），
-    // 防止之前加载在线瓦片留下 EPSG:3857 画布 CRS。
-    QgsCoordinateReferenceSystem tifCrs = g_pRasterLayer->crs();
-    if (tifCrs.isValid())
-        m_mapCanvas->setDestinationCrs(tifCrs);
-    m_mapCanvas->setExtent(g_pRasterLayer->extent());
-    m_mapCanvas->refresh();
-
-    // addMapLayer 触发 bridge->deferredSetCanvasLayers（singleShot(0)），
-    // bridge 把新 TIF 插入图层树顶部 → setLayers 时 TIF 在最上层 → 遮挡装备图标。
-    // 在 bridge 回调之后再次执行 setLayers(m_layers) 恢复正确顺序（TIF 在底部）。
-    QTimer::singleShot(0, this, [this]() {
+    QgsCoordinateReferenceSystem tifCrs    = g_pRasterLayer->crs();
+    QgsRectangle                 tifExtent = g_pRasterLayer->extent();
+    QTimer::singleShot(0, this, [this, tifExtent]() {
+        // 恢复正确图层顺序（TIF 在末尾 = 背景）
         m_mapCanvas->setLayers(m_layers);
+        // 注意：不调用 setDestinationCrs()，镜像启动时的行为。
+        // 启动时 canvas CRS 始终为无效（invalid），setDestinationCrs 从未被调用，
+        // annotation 的 mapPositionCrs 也是无效 CRS（未显式设置）。
+        // 当两者都是 invalid 时，QGIS updatePosition() 跳过坐标变换，直接以
+        // WGS84 度数定位，恰好与 canvas extent（也是WGS84度数）对应，标签正确显示。
+        // 若调用 setDestinationCrs(validCRS)，canvas CRS 变为有效而 annotation CRS
+        // 仍是 invalid，两者不等 → QGIS 尝试构造 QgsCoordinateTransform(invalid, valid)
+        // → 变换失败或产生错误坐标 → 标签偏移到屏幕外不可见。
+        ShowRadarTip();
+        ShowTaskAreaTip();
+        m_mapCanvas->setExtent(tifExtent);
+        m_mapCanvas->clearCache();
+        m_mapCanvas->refresh();
     });
 }
 
@@ -2480,13 +2574,16 @@ void MainWindow::showMapManager()
 {
     if (!m_pDlgMapManager) {
         m_pDlgMapManager = new DlgMapManager(
-            (QgsMapCanvas*)m_mapCanvas, m_basemapPath, this);
+            (QgsMapCanvas*)m_mapCanvas, m_basemapPath,
+            m_p2DMapView, m_pWebEngineView, this);
         connect(m_pDlgMapManager, &DlgMapManager::switchBaseMapRequested,
                 this, &MainWindow::switchBaseMap);
         connect(m_pDlgMapManager, &DlgMapManager::loadOnlineMapRequested,
                 this, &MainWindow::loadOnlineTileMap);
         connect(m_pDlgMapManager, &DlgMapManager::loadShpRequested,
                 this, &MainWindow::addVectorlayers);
+        connect(m_pDlgMapManager, &DlgMapManager::switchMapModeRequested,
+                this, &MainWindow::switchMapViewMode);
     }
     m_pDlgMapManager->setCurrentBasemap(m_basemapPath);
     m_pDlgMapManager->show();
@@ -2772,8 +2869,14 @@ void MainWindow::registerPlane(tag_PlaneMessage *p)
 		}
 		else
 		{
-			// msg195：含完整位置/传感器数据，全量更新
-			m_latestPlaneData[p->ID] = *p;
+			// msg195：含完整位置/传感器数据，全量更新；保留 msg199 写入的字段，避免覆盖
+			auto &ex = m_latestPlaneData[p->ID];
+			p->qkCmdMode   = ex.qkCmdMode;
+			p->qkRunMode   = ex.qkRunMode;
+			p->fkRunMode   = ex.fkRunMode;
+			p->fkSysStatus = ex.fkSysStatus;
+			p->jqtbTime    = ex.jqtbTime;
+			ex = *p;
 		}
 		delete p;
 		return;
@@ -2786,29 +2889,10 @@ void MainWindow::registerPlane(tag_PlaneMessage *p)
 		return;
 	}
 
-	// 首次收到此飞机消息：立即注册（低频，不影响性能）
-	if (addPlaneLayer(*p))
-	{
-		m_planeVector.append(*p);
-		m_latestPlaneData[p->ID] = *p;		// 同时写入缓冲，后续消息走快速路径
-		m_PlaneNumEditer->setText(QString(QString::fromLocal8Bit("收到飞机数量: %1")).arg(m_planeVector.count()));
-
-		biaopai *pPai = new biaopai((QgsMapCanvas*)m_mapCanvas);
-		m_planeIDvec.append(pPai);
-		pPai->setString(p->ID);
-		pPai->setPos(QgsPointXY(p->planeX.toDouble(), p->planeY.toDouble()));
-
-		insertToTable(p);
-		if (m_pDlgTuili)
-		{
-			m_pDlgTuili->insertToTable(p);
-			if (m_pDlgTuili->m_pTuiliThread)
-			{
-				m_pDlgTuili->m_pTuiliThread->m_planeVec.append(*p);
-				m_pDlgTuili->m_pTuiliThread->m_iPlaneCount = m_planeVector.count();
-			}
-		}
-	}
+	// 首次收到此飞机消息：写入缓冲并加入待注册队列，
+	// 实际 QGIS 写入由 processAllPlaneUpdates() 批量完成（一次 commitChanges）
+	m_latestPlaneData[p->ID] = *p;
+	m_pendingNewPlanes.append(*p);
 	delete p;
 }
 
@@ -2827,6 +2911,66 @@ void MainWindow::processAllPlaneUpdates()
 	if (doTable) s_lastModifyTableTick = now;
 	if (doPoly)  s_lastIsRadarPolyTick  = now;
 
+	// 批量注册新飞机：一次性写入 QGIS，替代每架飞机独立 commitChanges（80架从40s降到<1s）
+	if (!m_pendingNewPlanes.isEmpty() && g_pAirLayer)
+	{
+		g_pAirLayer->startEditing();
+		for (const auto &plane : m_pendingNewPlanes)
+		{
+			QgsGeometry geometry = QgsGeometry::fromPointXY(
+				QgsPointXY(plane.planeX.toDouble(), plane.planeY.toDouble()));
+			if (!geometry.isGeosValid())
+				continue;
+			QgsFeature ftpt;
+			ftpt.setGeometry(geometry);
+			ftpt.setAttributes(QgsAttributes()
+				<< plane.ID.toInt() << plane.planeY << plane.planeX
+				<< QString::number(0) << plane.Yaw);
+			g_pAirLayer->addFeature(ftpt);
+
+			// 为每架新飞机创建位置更新线程和标牌
+			FixPlaneThread *pPlaneThread = new FixPlaneThread();
+			connect(this, &MainWindow::FixPlaneMsg, pPlaneThread, &FixPlaneThread::FixPlane);
+			pPlaneThread->m_id = plane.ID.toInt();
+			pPlaneThread->start();
+			m_planeThreadVec.append(pPlaneThread);
+
+			m_planeVector.append(plane);
+
+			biaopai *pPai = new biaopai((QgsMapCanvas*)m_mapCanvas);
+			m_planeIDvec.append(pPai);
+			pPai->setString(plane.ID);
+			pPai->setPos(QgsPointXY(plane.planeX.toDouble(), plane.planeY.toDouble()));
+			// Leaflet 激活时隐藏，避免与 Leaflet marker 双重显示并产生渲染速度差异
+			if (m_leafletReady) pPai->setVisible(false);
+
+			tag_PlaneMessage *pp = const_cast<tag_PlaneMessage*>(&plane);
+			insertToTable(pp);
+			if (m_pDlgTuili)
+			{
+				m_pDlgTuili->insertToTable(pp);
+				if (m_pDlgTuili->m_pTuiliThread)
+				{
+					m_pDlgTuili->m_pTuiliThread->m_planeVec.append(plane);
+					m_pDlgTuili->m_pTuiliThread->m_iPlaneCount = m_planeVector.count();
+				}
+			}
+		}
+		g_pAirLayer->commitChanges();	// 一次提交，无论多少架飞机
+		g_pAirLayer->triggerRepaint();
+		m_PlaneNumEditer->setText(
+			QString(QString::fromLocal8Bit("收到飞机数量: %1")).arg(m_planeVector.count()));
+		m_pendingNewPlanes.clear();
+	}
+
+	// 批量 JS 字符串：整个循环只产生 1 次 IPC 调用（替代每架飞机独立调用）
+	bool has2D = m_leafletReady && m_p2DMapView;
+	bool has3D = m_3dReady && m_pWebEngineView;
+	QString batch2D, batch3D;
+
+	if (doTable)
+		ui->mPlaneWidget->setUpdatesEnabled(false);
+
 	for (auto it = m_latestPlaneData.begin(); it != m_latestPlaneData.end(); ++it)
 	{
 		tag_PlaneMessage *p = &it.value();
@@ -2834,25 +2978,44 @@ void MainWindow::processAllPlaneUpdates()
 		// 修改无人机图层位置（FixPlane 内部已有 50ms 限速，直接调用即可）
 		emit FixPlaneMsg(p);
 
-		// 同步飞机位置到 Leaflet 2D 地图
-		if (m_mapViewMode == 1 && m_leafletReady && m_p2DMapView)
+		// 同步飞机位置到 Leaflet 2D 地图（累积到批量字符串）
+		if (has2D)
 		{
-			QString js = QString("updatePlane('%1',%2,%3,'%1',%4)")
+			double pAlt = p->hZ.toDouble();
+			if (pAlt <= 0) pAlt = p->xZ.toDouble();
+			batch2D += QString("updatePlane('%1',%2,%3,'\\u65e0\\u4eba\\u673a#%1',%4,%5);")
 				.arg(p->ID)
 				.arg(p->planeY.toDouble(), 0, 'f', 7)
 				.arg(p->planeX.toDouble(), 0, 'f', 7)
-				.arg(p->Yaw.toDouble(),    0, 'f', 1);
-			m_p2DMapView->page()->runJavaScript(js);
+				.arg(p->Yaw.toDouble(),    0, 'f', 1)
+				.arg(pAlt, 0, 'f', 0);
 		}
 
-		// 更新标题标牌图元位置
-		int pid = p->ID.toInt();
-		for (int i = 0; i < m_planeIDvec.count(); i++)
+		// 同步飞机位置到 3D 视图（累积到批量字符串）
+		if (has3D)
 		{
-			if (m_planeIDvec[i]->m_id == pid)
+			double alt = p->hZ.toDouble();
+			if (alt <= 0) alt = p->xZ.toDouble();
+			batch3D += QString("if(typeof updatePlane3D==='function')updatePlane3D('%1',%2,%3,%4,%5);")
+				.arg(p->ID)
+				.arg(p->planeX.toDouble(), 0, 'f', 7)
+				.arg(p->planeY.toDouble(), 0, 'f', 7)
+				.arg(alt, 0, 'f', 1)
+				.arg(p->Yaw.toDouble(), 0, 'f', 1);
+		}
+
+		// 始终更新 QGIS canvas 标牌位置（biaopai 在 Leaflet 激活时已 setVisible(false)，
+		// 更新内部坐标不产生视觉冲突，且保证切回 QGIS 2D 视图时立即显示正确位置）
+		{
+			int pid = p->ID.toInt();
+			for (int i = 0; i < m_planeIDvec.count(); i++)
 			{
-				m_planeIDvec[i]->setPos(QgsPointXY(p->planeX.toDouble(), p->planeY.toDouble()));
-				break;
+				if (m_planeIDvec[i]->m_id == pid)
+				{
+					m_planeIDvec[i]->setPos(QgsPointXY(p->planeX.toDouble(), p->planeY.toDouble()));
+					m_planeIDvec[i]->setYaw(p->Yaw.toDouble());
+					break;
+				}
 			}
 		}
 
@@ -2887,7 +3050,8 @@ void MainWindow::processAllPlaneUpdates()
 					// 更新高度（attribute[4]）为无人机实时高度
 					if (uavAlt > 0)
 						gRadarLayerList[i]->changeAttributeValue(f.id(), 4, (int)uavAlt);
-					gRadarLayerList[i]->triggerRepaint();
+					// 不在此处 triggerRepaint：RadarTip 通过 setPos（QgsMapCanvasItem 路径）已完成
+					// 视觉更新，无需每100ms触发全画布（含TIF底图）重绘，避免2D画布卡顿。
 
 					// 实时刷新探测范围投影（500ms 节流）
 					if (doPoly)
@@ -2903,6 +3067,27 @@ void MainWindow::processAllPlaneUpdates()
 						break;
 					}
 				}
+			}
+		}
+
+		// 同步挂载设备位置到 Leaflet 2D 地图和 3D 视图（每帧更新，与无人机图标同步）
+		if (!m_radarUavMount.isEmpty())
+		{
+			double uavLon = p->planeX.toDouble();
+			double uavLat = p->planeY.toDouble();
+			double uavAlt2 = p->hZ.toDouble();
+			if (uavAlt2 <= 0) uavAlt2 = p->xZ.toDouble();
+
+			for (auto mit = m_radarUavMount.begin(); mit != m_radarUavMount.end(); ++mit)
+			{
+				if (mit.value() != p->ID) continue;
+				int rid = mit.key();
+				if (has2D)
+					batch2D += QString("if(typeof moveRadar==='function')moveRadar(%1,%2,%3);")
+						.arg(rid).arg(uavLat, 0, 'f', 7).arg(uavLon, 0, 'f', 7);
+				if (has3D)
+					batch3D += QString("if(typeof moveRadar3D==='function')moveRadar3D(%1,%2,%3,%4);")
+						.arg(rid).arg(uavLon, 0, 'f', 7).arg(uavLat, 0, 'f', 7).arg(uavAlt2, 0, 'f', 1);
 			}
 		}
 
@@ -2926,12 +3111,29 @@ void MainWindow::processAllPlaneUpdates()
 					if (m_pDlgAirList)
 						m_pDlgAirList->insert(p->ID, QString("%1").arg(r));
 				}
+				// 被探测到：Leaflet 航线变红
+				if (has2D)
+					batch2D += QString("if(typeof setPlaneDetected==='function')setPlaneDetected('%1');").arg(p->ID);
 			}
 			else
+			{
 				g_PlaneList.append(QgsPointXY(p->planeX.toDouble(), p->planeY.toDouble()));
+				// 未被探测：恢复橙色航线
+				if (has2D)
+					batch2D += QString("if(typeof setPlaneNormal==='function')setPlaneNormal('%1');").arg(p->ID);
+			}
 			g_planeMutex.unlock();
 		}
 	}
+
+	if (doTable)
+		ui->mPlaneWidget->setUpdatesEnabled(true);
+
+	// 批量执行：整批飞机只产生 1 次 IPC 调用（从 80 次降为 1 次）
+	if (has2D && !batch2D.isEmpty())
+		m_p2DMapView->page()->runJavaScript(batch2D);
+	if (has3D && !batch3D.isEmpty())
+		m_pWebEngineView->page()->runJavaScript(batch3D);
 }
 
 //初始化接收电磁信息socket

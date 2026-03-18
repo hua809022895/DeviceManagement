@@ -14,6 +14,7 @@ class DlgMapManager;   // forward declaration — avoids circular include
 #include <QTableWidgetItem>
 #include <QImage>
 #include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngineWidgets/QWebEngineSettings>
 
 #include <qgsRasterlayer.h>
 #include <qgsApplication.h>
@@ -33,6 +34,7 @@ class DlgMapManager;   // forward declaration — avoids circular include
 #include <qgsAttributeEditorContext.h>
 #include <qgsVectorLayerref.h>
 #include <qgsMaptoolExtent.h>
+#include <qgsmaptoolemitpoint.h>
 #include <qgsRulebasedRenderer.h>
 #include <qgsAnnotationMarkerItem.h>
 #include <qgsMarkerSymbolLayer.h>
@@ -116,10 +118,19 @@ public:
     QWebEngineView                  *m_p2DMapView = nullptr;    //Leaflet 2D地图窗口
     int                             m_mapViewMode = 0;          //0=QGIS 1=Leaflet2D 2=3D
     bool                            m_leafletReady = false;     //Leaflet页面是否加载完成
+    bool                            m_3dReady    = false;       //3D页面是否加载完成
+    bool                            m_3dInitDone = false;       //init3DView()是否已调用
 
     void    refreshRadarCombox();       //刷新雷达组合框控件
     void    loadRadarUavMount();        //从 radar_mount.ini 加载探测设备与无人机的装载关系
     void    updateMountedRadarProjection(int radarId, const QgsFeature& radarFeat, QgsPointXY newPt); //实时更新装载设备的探测范围投影
+    void    init3DView();               //生成并加载三维场景HTML
+    void    syncLeafletAll();           //推送当前探测设备+任务区域到Leaflet视图
+    void    sync3DAll();                //推送当前探测设备+任务区域到3D视图
+    QString buildRadarsFullJson();      //构建探测设备完整JSON数组
+    QString buildTaskAreaJson();        //构建任务区域多边形JSON数组
+    QString buildPlanesJson();          //构建当前所有无人机快照JSON数组
+    int     findSelectedRadarLayerIndex(); //查找有选中要素的装备图层索引
 	void	ReadIniFile();				//读取ini配置文件	
     void	gridLayerMarker();			//渲染表格图层风格
     void	planeLayerMarker(QgsVectorLayer *);        //渲染飞机图层风格
@@ -133,7 +144,7 @@ public:
 	void	insertToTable(tag_PlaneMessage *p);//添加无人机到表格控件中
 	void	ModifyTable(tag_PlaneMessage *p);	//实时修改表格无人机数据
     static void chanegeDialogLabel( QgsAttributeDialog *dialog, QString ltstring = "" );
-	QList<QgsPointXY>	GetTYPolygon(QgsPointXY devPt,float sAngle, float tAngle,float pitch,int length);
+	QList<QgsPointXY>	GetTYPolygon(QgsPointXY devPt,float sAngle, float tAngle,float elevation,int length, float vBeam = 0, float devHeight = 0);
 	void	ShowRadarTip();				//显示雷达设备名称
 	void	ShowTaskAreaTip();			//显示任务区域名称
 	QList	<int>	isRadarPolygon(tag_PlaneMessage p);	//判断当前点是否在雷达扇形区域内，返回值大于0表示在扇形区域内，并返回雷达设备id
@@ -154,6 +165,7 @@ public:
 	QVector<biaopai*>				m_planeIDvec;		//接收到的实时的mavlink类型无人机消息列表
 	QVector<FixPlaneThread*>		m_planeThreadVec;	//各飞机对应的位置更新线程（断开时统一清理，防止stale fid污染）
 	QHash<QString, tag_PlaneMessage> m_latestPlaneData;	//各飞机最新位置缓冲（由registerPlane写入，由定时器批量处理）
+	QVector<tag_PlaneMessage>        m_pendingNewPlanes;	//待批量注册的新飞机（在processAllPlaneUpdates中一次性提交到QGIS）
     QList <QgsMapLayer*>            m_layers;			//全局图层列表
 	//QgsVectorLayer					*m_pPlaneGjLayer;	//无人机轨迹图层
 
@@ -172,6 +184,7 @@ public:
 	//uint64_t	m_PtCount = 0;		//累计接收到的点个数
 	QTimer		*m_pTimer1=nullptr;		//定时器，刷新雷达设备移动轨迹
 	QTimer		*m_pAirLayerTimer=nullptr;	//定时器，每100ms统一刷新一次无人机图层（替代per-message triggerRepaint）
+	QTimer		*m_pInterpTimer=nullptr;	//定时器，16ms插值飞机图标位置（使 QGIS canvas 飞机图标平滑移动）
 	bool		 m_bTrackEnabled  = false;	//是否开启实时轨迹记录
 	bool		 m_bAirLayerDirty = false;	//有新飞机位置数据待渲染，避免无变化时100ms持续触发全图层重绘
 	QString		 m_basemapPath;				//当前底图文件绝对路径（供地图管理对话框标记高亮）
@@ -194,6 +207,7 @@ public slots://定义信号槽,回调函数
 
 	void RadarTouying();			//是否显示雷达投影，初始不显示
 	void selectRadarLayer();		//选择雷达图层
+	void onRadarPick(const QgsPointXY &pt, Qt::MouseButton btn); //多图层装备点选
 	void selectRadarDevice(QString s);		//选中雷达
 	void moveRadarDevice();			//移动雷达
 	void deleteRadarDevice();		//删除雷达
@@ -201,6 +215,7 @@ public slots://定义信号槽,回调函数
 	void OutfitMove();				//装备移动
 	void timer1_timeout();			//雷达设备移动时，定时器过程函数
 	void onAirLayerRefreshTimer();	//无人机图层定时刷新（100ms/次，10fps），替代per-message triggerRepaint
+	void onInterpTimer();			//16ms 插值定时器：平滑更新所有 PlaneIconItem 屏幕位置
 	void processAllPlaneUpdates();	//批量处理 m_latestPlaneData 中缓冲的飞机位置（canvas空闲时调用）
 	void RadarTestAirList();		//雷达探测无人机列表
 
@@ -360,6 +375,7 @@ private:
     QDockWidget             *m_layerTreeDock;
     QgsMapToolPan           *mToolPan			= nullptr;      //地图面板平移工具
     QgsMapToolSelect        *mToolSelect		= nullptr;      //选择图元工具
+    QgsMapToolEmitPoint     *mToolRadarPick	= nullptr;      //多图层装备点选工具
 
     QgsVertexTool           *mMapToolVertext	= nullptr;      //图元编辑工具
 	QgsMapToolAddTarget     *mMapToolAddTarget = nullptr;		//添加目标点工具

@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "mainWindow.h"
 #include "ui_mainwindow.h"
+#include "Biaopai.h"
+#include <qgsNullSymbolRenderer.h>
 
 #include <iostream>
 #include <fstream>
@@ -13,6 +15,7 @@
 //namespace fs = std::filesystem;
 
 #include <QComboBox>
+#include <QDateTime>
 #include <QLineEdit>
 #include <QGridLayout>
 #include <QFileDialog>
@@ -85,7 +88,7 @@ void MainWindow::RadarTouying()
 				//����ÿ���״�ͼԪ��Ϣ������һ���µ�ͶӰͼԪ
 				QString ID = feat.attribute(0).toString();
 				//QString sAngle	= feat.attribute(5).toString();//��ʼ��λ�Ƕ�
-				QString tAngle = feat.attribute(6).toString();//ͶӰ�Ƕ�
+				QString tAngle = feat.attribute(9).toString();//ˮƽ��������
 				QString sAzimuth = feat.attribute(7).toString();//��ʼ��λ�Ǧ�
 				QString sElevation = feat.attribute(8).toString();//�����Ǧ�
 				QString svWidth = feat.attribute(9).toString();//ˮƽ��������
@@ -94,7 +97,7 @@ void MainWindow::RadarTouying()
 
 				//�����豸��Ϣ�Զ�����ͶӰ�����ȫ����
 				QList<QgsPointXY> PointSet;
-				PointSet = GetTYPolygon(devPt, sAzimuth.toFloat(), tAngle.toInt(), sElevation.toFloat(), length.toInt());
+				PointSet = GetTYPolygon(devPt, sAzimuth.toFloat(), tAngle.toInt(), sElevation.toFloat(), length.toInt(), shWidth.toFloat(), feat.attribute(4).toFloat());
 
 				QgsPolygonXY pxy = QgsPolygonXY() << PointSet.toVector();
 				QgsGeometry	Geometry = QgsGeometry::fromPolygonXY(pxy);//���ݶ���εĵ���Ϣ���ɼ���ͼ�ζ���
@@ -118,17 +121,102 @@ void MainWindow::RadarTouying()
 	}
 	g_pRadarTyLayer->triggerRepaint();
 }
-//������ʼ�Ƕȣ�̽��Ƕȣ�̽����룬����̽��������������꼯��
-QList<QgsPointXY> MainWindow::GetTYPolygon(QgsPointXY devPt, float sAngle, float tAngle, float pitch, int length)
+//根据方位角、水平波束宽度、俯仰角、垂直波束宽度、探测距离，生成地面投影多边形
+QList<QgsPointXY> MainWindow::GetTYPolygon(QgsPointXY devPt, float sAngle, float tAngle, float elevation, int length, float vBeam, float devHeight)
 {
 	QList<QgsPointXY> pset;
-	pset.append(devPt);
 
-	for (int i = 0; i < tAngle; i ++)
+	// 向下俯视（elevation < 0）且有设备高度：基于高度的地面投影
+	if (elevation < 0 && devHeight > 0 && vBeam > 0)
 	{
-		QgsPoint xy = GetResult(devPt.x(), devPt.y(), sAngle + i,pitch, length * 1000);
-		pset.append(QgsPointXY(xy.x(), xy.y()));
+		double nLen = length * 1000.0;
+		double hMm = devHeight * 1000.0;
+		double vbh2 = vBeam / 2.0;
+		double elevRad = elevation * M_PI_PRE_DEGREE;
+		double azCRad = (sAngle + tAngle / 2.0) * M_PI_PRE_DEGREE;
+		double kx = -cos(azCRad), kz = sin(azCRad);
+		double cosT = cos(elevRad), sinT = sin(elevRad);
+
+		auto projectPt = [&](double azDeg, double eLocalDeg) -> QgsPointXY {
+			double a = azDeg * M_PI_PRE_DEGREE;
+			double el = eLocalDeg * M_PI_PRE_DEGREE;
+			double ce = cos(el), se = sin(el);
+			double px = ce * sin(a), py = se, pz = ce * cos(a);
+			double kdp = kx * px + kz * pz;
+			double rx = px * cosT + (-kz * py) * sinT + kx * kdp * (1 - cosT);
+			double ry = py * cosT + (kz * px - kx * pz) * sinT;
+			double rz = pz * cosT + (kx * py) * sinT + kz * kdp * (1 - cosT);
+			double t;
+			if (ry < -0.001)
+				t = qMin(hMm / fabs(ry), nLen);
+			else
+				t = nLen;
+			return QgsPointXY(
+				devPt.x() + t * rx / MM_PER_LONGITUDE_BYLAT(devPt.y()),
+				devPt.y() + t * rz / MM_PER_LATITUDE);
+		};
+
+		int N = qMax((int)tAngle, 1);
+		int M = qMax((int)vBeam / 3, 2);
+		for (int i = 0; i <= N; i++)
+			pset.append(projectPt(sAngle + (double)i, -vbh2));
+		for (int j = 1; j < M; j++)
+			pset.append(projectPt(sAngle + tAngle, -vbh2 + vBeam * j / M));
+		for (int i = N; i >= 0; i--)
+			pset.append(projectPt(sAngle + (double)i, vbh2));
+		for (int j = M - 1; j > 0; j--)
+			pset.append(projectPt(sAngle, -vbh2 + vBeam * j / M));
+		return pset;
 	}
+
+	float effPitch = (vBeam > 0) ? qMax(0.0f, elevation - vBeam / 2.0f) : elevation;
+	bool crossZenith = (vBeam > 0) && (elevation + vBeam / 2.0f > 90.0f);
+
+	if (!crossZenith)
+	{
+		// 波束不过天顶：扇形投影，使用波束下边缘角度做地面距离
+		pset.append(devPt);
+		for (int i = 0; i <= (int)tAngle; i++)
+		{
+			QgsPoint xy = GetResult(devPt.x(), devPt.y(), sAngle + i, effPitch, length * 1000);
+			pset.append(QgsPointXY(xy.x(), xy.y()));
+		}
+		return pset;
+	}
+
+	// 波束越过天顶：3D旋转投影产生四边形
+	double nLen = length * 1000.0;
+	double vbh2 = vBeam / 2.0 * M_PI_PRE_DEGREE;
+	double elevRad = elevation * M_PI_PRE_DEGREE;
+	double azCRad = (sAngle + tAngle / 2.0) * M_PI_PRE_DEGREE;
+	double kx = -cos(azCRad), kz = sin(azCRad);
+	double cosT = cos(elevRad), sinT = sin(elevRad);
+
+	auto projectPt = [&](double azDeg, double eLocal) -> QgsPointXY {
+		double a = azDeg * M_PI_PRE_DEGREE;
+		double ce = cos(eLocal), se = sin(eLocal);
+		double px = nLen * ce * sin(a);
+		double py = nLen * se;
+		double pz = nLen * ce * cos(a);
+		double kcpx = -kz * py, kcpz = kx * py;
+		double kdp = kx * px + kz * pz;
+		double rx = px * cosT + kcpx * sinT + kx * kdp * (1 - cosT);
+		double rz = pz * cosT + kcpz * sinT + kz * kdp * (1 - cosT);
+		return QgsPointXY(
+			devPt.x() + rx / MM_PER_LONGITUDE_BYLAT(devPt.y()),
+			devPt.y() + rz / MM_PER_LATITUDE);
+	};
+
+	int N = qMax((int)tAngle, 1);
+	int M = qMax((int)vBeam / 3, 2);
+	for (int i = 0; i <= N; i++)
+		pset.append(projectPt(sAngle + (double)i, -vbh2));
+	for (int j = 1; j < M; j++)
+		pset.append(projectPt(sAngle + tAngle, -vbh2 + vBeam * M_PI_PRE_DEGREE * j / M));
+	for (int i = N; i >= 0; i--)
+		pset.append(projectPt(sAngle + (double)i, vbh2));
+	for (int j = M - 1; j > 0; j--)
+		pset.append(projectPt(sAngle, -vbh2 + vBeam * M_PI_PRE_DEGREE * j / M));
 
 	return pset;
 }
@@ -149,6 +237,7 @@ void MainWindow::ShowRadarTip()
 
 	for (int i = 0; i < gRadarLayerList.size(); i++)
 	{
+		if (!gRadarLayerList[i]) continue;
 		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures();
 		while (fit.nextFeature(feat))
 		{
@@ -245,55 +334,68 @@ QList <int> MainWindow::isRadarPolygon(tag_PlaneMessage p)
 	return list;
 }
 
-QList <int> MainWindow::isRadarInPoly(tag_PlaneMessage p)	//�жϵ�ǰ���Ƿ����״����������ڣ�����ֵ����0��ʾ�����������ڣ��������״��豸id
+QList <int> MainWindow::isRadarInPoly(tag_PlaneMessage p)
 {
-	//�����״�ͼ����ȫ���״�ͼԪ
 	QgsFeature		f;
-	QList	<int>	list;			//�����״������豸id�б�
+	QList<int>		list;
+
+	double planeLon = p.planeX.toDouble();
+	double planeLat = p.planeY.toDouble();
+	double planeAlt = p.hZ.toDouble();
+	if (planeAlt <= 0) planeAlt = p.xZ.toDouble();
 
 	for (int i = 0; i < gRadarLayerList.size(); i++)
 	{
 		QgsFeatureIterator	fit = gRadarLayerList[i]->getFeatures();
-		double x = p.planeX.toDouble();	//��ǰ���˻�����
-		double y = p.planeY.toDouble();	//��ǰ���˻�����
-		double z = p.xZ.toDouble();		//��Ը߶�
-
 
 		while (fit.nextFeature(f))
 		{
-			//����ÿ���״�ͼԪ��Ϣ������һ���µ�����ͶӰͼԪ
 			QgsPointXY pt = f.geometry().asPoint();
-			QString tAngle = f.attribute(6).toString();		//ͶӰ��Χ�Ƕ�	
-			QString heigth = f.attribute(4).toString();		//�豸�߶�
-			QString sAzimuth = f.attribute(7).toString();		//��ʼ��λ�Ǧ�
-			QString sElevation = f.attribute(8).toString();		//�����Ǧ�
-			QString svWidth = f.attribute(9).toString();	//ˮƽ��������
-			QString shWidth = f.attribute(10).toString();	//��ֱ��������
-			QString sR_max = f.attribute(11).toString();	//̽�����
-			//double x0 = pt.x();	double y0 = pt.y();
-			double z0 = heigth.toFloat();
+			double radarLon = pt.x();
+			double radarLat = pt.y();
+			double radarAlt = f.attribute(4).toDouble();		// 设备高度(m)
+			double azStart  = f.attribute(7).toDouble();		// 起始方位角(度, 0=北, 顺时针)
+			double elevC    = f.attribute(8).toDouble();		// 俯仰角(度)
+			double hBeam    = f.attribute(9).toDouble();		// 水平波束宽度(度)
+			double vBeam    = f.attribute(10).toDouble();		// 垂直波束宽度(度)
+			double range    = f.attribute(11).toDouble();		// 探测距离(m)
 
-			//�жϸ߶�
-			if (abs(z - z0) > 150)
+			// 转换为本地坐标系(米): dx=东向, dy=北向, dz=高度差
+			double dx = (planeLon - radarLon) * MM_PER_LONGITUDE_BYLAT(radarLat) / 1000.0;
+			double dy = (planeLat - radarLat) * MM_PER_LATITUDE / 1000.0;
+			double dz = planeAlt - radarAlt;
+
+			// 三维距离判断
+			double dist3D = sqrt(dx * dx + dy * dy + dz * dz);
+			if (dist3D > range || dist3D < 0.1)
 				continue;
 
-			//�ж����θ���
-			//�����豸��Ϣ�Զ�����ͶӰ�����ȫ����
-			QList<QgsPointXY>	set = GetTYPolygon(pt, sAzimuth.toInt(), tAngle.toFloat(), sElevation.toFloat(), sR_max.toInt());
-			cl::PathD			path;
+			// 计算目标方位角(度, 0=北, 顺时针)
+			double targetAz = atan2(dx, dy) * 180.0 / M_PI;
+			if (targetAz < 0) targetAz += 360.0;
 
-			foreach(QgsPointXY p, set) {
-				path.push_back(cl::PointD(p.x(), p.y()));
-			}
+			// 方位角范围检查 [azStart, azStart+hBeam]，处理360°环绕
+			double azS = fmod(azStart, 360.0);
+			if (azS < 0) azS += 360.0;
+			double azE = azS + hBeam;
+			bool azOK;
+			if (azE <= 360.0)
+				azOK = (targetAz >= azS && targetAz <= azE);
+			else
+				azOK = (targetAz >= azS || targetAz <= fmod(azE, 360.0));
+			if (!azOK)
+				continue;
 
-			cl::PointD			p1(x, y);
+			// 计算目标俯仰角(度)
+			double hDist = sqrt(dx * dx + dy * dy);
+			double targetElev = atan2(dz, hDist) * 180.0 / M_PI;
 
-			cl::PointInPolygonResult bin = PointInPolygon(p1, path);//�жϵ��Ƿ��ڶ������
+			// 俯仰角范围检查 [elevC - vBeam/2, elevC + vBeam/2]
+			double vHalf = (vBeam > 0) ? vBeam / 2.0 : 15.0;  // 默认±15°
+			if (targetElev < elevC - vHalf || targetElev > elevC + vHalf)
+				continue;
 
-			if (bin == cl::PointInPolygonResult::IsInside)
-			{
-				list.append(f.attribute(0).toInt());
-			}
+			list.append(f.attribute(0).toInt());
 		}
 	}
 	return list;
@@ -424,7 +526,7 @@ void MainWindow::timer1_timeout()
 				QString sType = f.attribute(3).toString();	//�豸����
 				QString heigth = f.attribute(4).toString();	//�豸�߶�
 				QString sAngle = f.attribute(5).toString();	//��ʼ�Ƕ�
-				QString tAngle = f.attribute(6).toString();	//̽��Ƕ�
+				QString tAngle = f.attribute(9).toString();	//ˮƽ��������
 				QString length = f.attribute(11).toString();	//̽�����
 
 				pt = info.tlist[m_iRaderTckID];
@@ -459,13 +561,19 @@ void MainWindow::timer1_timeout()
 //      （isDrawing() 检查，不中断正在进行的缩放/平移渲染任务）
 void MainWindow::onAirLayerRefreshTimer()
 {
+	// 一次性：将飞机矢量图层改为空渲染器（图标改由 biaopai QGraphicsItem 显示，无需 canvas 重绘）
+	// 层数据和空间查询不受影响，仅不再绘制图标（消除 10fps 跳变）
+	static bool s_airLayerIconHidden = false;
+	if (!s_airLayerIconHidden && g_pAirLayer)
+	{
+		g_pAirLayer->setRenderer(new QgsNullSymbolRenderer());
+		s_airLayerIconHidden = true;
+	}
+
 	processAllPlaneUpdates();
 
-	// 仅当有新飞机位置数据时才触发重绘，避免无变化时持续驱动全图层渲染导致地图闪烁
-	if (m_bAirLayerDirty && g_pAirLayer && m_mapCanvas && !m_mapCanvas->isDrawing()) {
-		g_pAirLayer->triggerRepaint();
-		m_bAirLayerDirty = false;
-	}
+	// triggerRepaint 已无需（飞机图层用 QgsNullSymbolRenderer 渲染空，biaopai 走 QGraphicsItem 路径）
+	m_bAirLayerDirty = false;
 
 	// 轨迹记录开启时，每 2s 自动将缓冲点渲染到图层（20 × 100ms）
 	static int s_trackTick = 0;
@@ -473,6 +581,16 @@ void MainWindow::onAirLayerRefreshTimer()
 		s_trackTick = 0;
 		RefreshGj();
 	}
+}
+
+// 16ms 插值定时器：平滑更新所有 PlaneIconItem 的屏幕位置
+// GPS 100ms 更新一次，此处在每帧（~60fps）对图标位置做线性插值，消除跳帧卡顿
+void MainWindow::onInterpTimer()
+{
+	if (m_planeIDvec.isEmpty()) return;
+	qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+	for (biaopai* pPai : m_planeIDvec)
+		pPai->interpolate(nowMs);
 }
 
 //��������������,�豸�ƶ��ٶȣ�����������֮�䣬ÿ�ξ�������
@@ -595,16 +713,75 @@ void MainWindow::AddMenu5()
 //ѡ���״�ͼ��
 void MainWindow::selectRadarLayer()
 {
-	if (gRadarLayerList.size() > 0)
+	for (int i = 0; i < gRadarLayerList.size(); i++)
 	{
-		m_mapCanvas->setCurrentLayer(gRadarLayerList[0]);
-		for (int i = 0; i < gRadarLayerList.size(); i++)
-		{
+		if (gRadarLayerList[i])
 			gRadarLayerList[i]->startEditing();
-		}
-
-		m_mapCanvas->unsetMapTool(mToolPan);
 	}
+	// 使用多图层点选工具，点击地图时自动搜索所有装备图层
+	m_mapCanvas->setMapTool(mToolRadarPick);
+}
+
+// 多图层装备点选：在所有装备图层中搜索最近的要素并选中
+void MainWindow::onRadarPick(const QgsPointXY &pt, Qt::MouseButton btn)
+{
+	if (btn != Qt::LeftButton) return;
+
+	// 根据当前地图缩放计算容差（像素 → 地图单位）
+	double tol = m_mapCanvas->mapUnitsPerPixel() * 12.0;
+	QgsRectangle searchRect(pt.x() - tol, pt.y() - tol, pt.x() + tol, pt.y() + tol);
+
+	double bestDist = 1e30;
+	QgsFeatureId bestFid = -1;
+	int bestLayer = -1;
+
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		QgsVectorLayer *lyr = gRadarLayerList[i];
+		if (!lyr) continue;
+
+		QgsFeatureRequest req;
+		req.setFilterRect(searchRect);
+		req.setNoAttributes();
+		QgsFeatureIterator fit = lyr->getFeatures(req);
+		QgsFeature f;
+		while (fit.nextFeature(f))
+		{
+			QgsGeometry g = f.geometry();
+			if (g.isNull()) continue;
+			double d = g.distance(QgsGeometry::fromPointXY(pt));
+			if (d < bestDist)
+			{
+				bestDist = d;
+				bestFid = f.id();
+				bestLayer = i;
+			}
+		}
+	}
+
+	// 先清除所有装备图层的选中状态
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		if (gRadarLayerList[i])
+			gRadarLayerList[i]->removeSelection();
+	}
+
+	if (bestLayer >= 0)
+	{
+		m_mapCanvas->setCurrentLayer(gRadarLayerList[bestLayer]);
+		gRadarLayerList[bestLayer]->selectByIds(QgsFeatureIds() << bestFid);
+	}
+}
+
+// 查找有选中要素的装备图层索引（替代下拉框）
+int MainWindow::findSelectedRadarLayerIndex()
+{
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		if (gRadarLayerList[i] && gRadarLayerList[i]->selectedFeatureCount() > 0)
+			return i;
+	}
+	return -1;
 }
 
 //ѡ���״�
@@ -625,40 +802,19 @@ void MainWindow::selectRadarDevice(QString s)
 	m_mapCanvas->setMapTool(mToolSelect);
 }
 //�ƶ��״�
-void MainWindow::moveRadarDevice()		
-{	
-	int iCount = 0;
-	for (int i = 0; i < gRadarLayerList.size(); i++)
+void MainWindow::moveRadarDevice()
+{
+	int index = findSelectedRadarLayerIndex();
+	if (index < 0)
 	{
-		iCount += gRadarLayerList[i]->selectedFeatures().count();
-	}
-
-	if (iCount == 0)
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("请先选择一个探测光学设备！"));
+		QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("请先选择一个探测设备！"));
 		return;
-	}
-
-	QString mPath = QCoreApplication::applicationDirPath();
-	QSettings settings(mPath + "/config.ini", QSettings::IniFormat);
-	QString slist = settings.value("DeviceType/list").toString();
-	QStringList list = slist.split("|");
-	int index = -1;
-	QString s=m_pRaderLayerBox->currentText();
-	for (int i = 0; i < list.size(); i++)
-	{
-		s = s.left(2);
-		if (list[i] == s)
-		{
-			index = i;
-			break;
-		}
 	}
 
 	m_mapCanvas->setMapTool(mMoveFeature);
 
 	bool b = ui->mActionMoveRadarDev->isChecked();
-	if (index>=0 && !b)//�����ѡ���ˣ���˵���Ѿ��ƶ������
+	if (!b)
 	{
 		gRadarLayerList[index]->commitChanges();
 
@@ -671,32 +827,18 @@ void MainWindow::moveRadarDevice()
 			g_pRadarTyLayer->deleteFeature(feat.id());
 		}
 		g_pRadarTyLayer->commitChanges();
-		ShowRadarTip();//�����״���ʾ��ǩ
+		ShowRadarTip();
+		syncLeafletAll();
+		sync3DAll();
 	}
 }
 
-void MainWindow::deleteRadarDevice()	//ɾ���״�
+void MainWindow::deleteRadarDevice()
 {
-	int index = -1;
-	QString mPath = QCoreApplication::applicationDirPath();
-	QSettings settings(mPath + "/config.ini", QSettings::IniFormat);
-	QString slist = settings.value("DeviceType/list").toString();
-	QStringList list = slist.split("|");
-	QString s = m_pRaderLayerBox->currentText();
-	for (int i = 0; i < list.size(); i++)
+	int index = findSelectedRadarLayerIndex();
+	if (index < 0)
 	{
-		s = s.left(2);
-		if (list[i] == s)
-		{
-			index = i;
-			break;
-		}
-	}
-
-	int iCount = gRadarLayerList[index]->selectedFeatures().count();
-	if (iCount<0)
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("请先选择一个探测光学设备！"));
+		QMessageBox::information(this, QString::fromLocal8Bit("提示"), QString::fromLocal8Bit("请先选择一个探测设备！"));
 		return;
 	}
 
@@ -722,6 +864,8 @@ void MainWindow::deleteRadarDevice()	//ɾ���״�
 		g_pRadarTyLayer->commitChanges();
 
 		ShowRadarTip();
+		syncLeafletAll();
+		sync3DAll();
 
 		refreshRadarCombox();
 	}
@@ -729,23 +873,9 @@ void MainWindow::deleteRadarDevice()	//ɾ���״�
 
 //�޸��״����
 int g_index = -1;
-void MainWindow::fixRadarDevice()			
+void MainWindow::fixRadarDevice()
 {
-	g_index = -1;
-	QString mPath = QCoreApplication::applicationDirPath();
-	QSettings settings(mPath + "/config.ini", QSettings::IniFormat);
-	QString slist = settings.value("DeviceType/list").toString();
-	QStringList list = slist.split("|");
-	QString s = m_pRaderLayerBox->currentText();
-	for (int i = 0; i < list.size(); i++)
-	{
-		s = s.left(2);
-		if (list[i] == s)
-		{
-			g_index = i;
-			break;
-		}
-	}
+	g_index = findSelectedRadarLayerIndex();
 
 	if (g_index == -1)
 	{
@@ -768,31 +898,35 @@ void MainWindow::fixRadarDevice()
 
 	QgsFeature f	= gRadarLayerList[g_index]->selectedFeatures().at(0);
 	QString	ID		= f.attribute(0).toString();
-	int iType		= f.attribute(3).toInt();		//�豸����
-	QString heigth	= f.attribute(4).toString();	//�豸�߶�
-	//QString sAngle	= f.attribute(5).toString();//��ʼ�Ƕ�
-	QString tAngle	= f.attribute(6).toString();	//end��Χ�Ƕ�
-	QString sAzimuth		= f.attribute(7).toString();	//��λ�Ǧ�
-	QString sElevation		= f.attribute(8).toString();	//�����Ǧ�
-	QString svWidth = f.attribute(9).toString();	//ˮƽ��������
-	QString shWidth = f.attribute(10).toString();	//��ֱ��������
-	QString length	= f.attribute(11).toString();	//̽�����
+	int iType		= f.attribute(3).toInt();
+	QString heigth	= f.attribute(4).toString();
+	QString sAzimuth		= f.attribute(7).toString();
+	QString sElevation		= f.attribute(8).toString();
+	QString svWidth = f.attribute(9).toString();
+	QString shWidth = f.attribute(10).toString();
+	QString length	= f.attribute(11).toString();
 
 	m_pSetRadarDlg	= new QsetRadarDlg(this, iType);
-	
+
 	m_pSetRadarDlg->m_fid = f.id();
-	m_pSetRadarDlg->m_bInsert = false;//�޸��豸��Ϣ
+	m_pSetRadarDlg->m_bInsert = false;
 	m_pSetRadarDlg->m_point = f.geometry().asPoint();
 
 	QgsPointXY p= f.geometry().asPoint();
 	QString sx = QString("%1").arg(p.x(), 0, 'g',9);
 	QString sy = QString("%1").arg(p.y(), 0, 'g',9);
-	
+
+	// 读取设备类型名称列表
+	QString mPath2 = QCoreApplication::applicationDirPath();
+	QSettings settings2(mPath2 + "/config.ini", QSettings::IniFormat);
+	QStringList typeNames = settings2.value("DeviceType/list").toString().split("|");
+	QString typeName = (iType >= 0 && iType < typeNames.size()) ? typeNames[iType] : QString::number(iType);
+
 	m_pSetRadarDlg->ui.textEdit_1->setText(ID);
-	m_pSetRadarDlg->ui.textEdit_2->setText(list[iType]);
+	m_pSetRadarDlg->ui.textEdit_2->setText(typeName);
 	m_pSetRadarDlg->ui.textEdit_3->setText(heigth);
 	m_pSetRadarDlg->ui.textEdit_4->setText(sx + "," + sy);
-	m_pSetRadarDlg->ui.textEdit_6->setText(tAngle);
+	m_pSetRadarDlg->ui.textEdit_6->setText(svWidth);
 	m_pSetRadarDlg->ui.textEdit_7->setText(sAzimuth);
 	m_pSetRadarDlg->ui.textEdit_8->setText(sElevation);
 	m_pSetRadarDlg->ui.textEdit_9->setText(svWidth);
@@ -823,18 +957,9 @@ void MainWindow::RadarTestAirList()
 	m_pDlgAirList->activateWindow();
 }
 
-void MainWindow::refreshRadarCombox()       //ˢ���״���Ͽ�ؼ�
+void MainWindow::refreshRadarCombox()
 {
-	if (m_pRaderLayerBox == nullptr)
-		return;
-
-	// 下拉框只显示4种设备类型名，选中后切换当前图层
-	m_pRaderLayerBox->clear();
-
-	QString mPath = QCoreApplication::applicationDirPath();
-	QSettings settings(mPath + "/config.ini", QSettings::IniFormat);
-	QStringList list = settings.value("DeviceType/list").toString().split("|");
-	m_pRaderLayerBox->addItems(list);
+	// 下拉框已移除，此函数保留为空
 }
 
 // 实时更新装载设备的探测范围投影（删除旧扇形 → 生成新扇形），由 processAllPlaneUpdates 每 500ms 调用一次
@@ -856,15 +981,17 @@ void MainWindow::updateMountedRadarProjection(int radarId, const QgsFeature& rad
 	}
 
 	// 从雷达特征读取探测参数（这些参数不随位移变化）
-	QString tAngle     = radarFeat.attribute(6).toString();   // 探测范围角度
+	QString tAngle     = radarFeat.attribute(9).toString();   // 水平波束宽度
 	QString sAzimuth   = radarFeat.attribute(7).toString();   // 方位角θ
 	QString sElevation = radarFeat.attribute(8).toString();   // 俯仰角α
+	QString sVBeam     = radarFeat.attribute(10).toString();  // 垂直波束宽度
 	QString length     = radarFeat.attribute(11).toString();  // 探测距离(米)
 
 	// 生成新位置的探测锥投影多边形
 	QList<QgsPointXY> pts = GetTYPolygon(newPt,
 		sAzimuth.toFloat(), tAngle.toInt(),
-		sElevation.toFloat(), length.toInt());
+		sElevation.toFloat(), length.toInt(), sVBeam.toFloat(),
+		radarFeat.attribute(4).toFloat());
 
 	if (!pts.isEmpty())
 	{
@@ -895,4 +1022,108 @@ void MainWindow::loadRadarUavMount()
 			m_radarUavMount[radarId] = uavId;
 	}
 	cfg.endGroup();
+}
+
+// 构建探测设备完整JSON数组（含方位角、波束宽度、探测距离）
+QString MainWindow::buildRadarsFullJson()
+{
+	QString arr = "[";
+	bool first = true;
+	for (int i = 0; i < gRadarLayerList.size(); i++)
+	{
+		if (!gRadarLayerList[i]) continue;
+		QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures();
+		QgsFeature f;
+		while (fit.nextFeature(f))
+		{
+			QgsGeometry geom = f.geometry();
+			if (geom.isNull()) continue;
+			QgsPointXY pt = geom.asPoint();
+			int rid = f.attribute(0).toInt();
+			bool mounted = m_radarUavMount.contains(rid);
+			if (!first) arr += ",";
+			arr += QString("{\"id\":%1,\"lon\":%2,\"lat\":%3,\"alt\":%4,"
+			               "\"azimuth\":%5,\"hBeam\":%6,\"range\":%7,\"type\":%8,"
+			               "\"elevation\":%9,\"vBeam\":%10,\"mounted\":%11}")
+				.arg(rid)
+				.arg(pt.x(), 0, 'f', 7)
+				.arg(pt.y(), 0, 'f', 7)
+				.arg(f.attribute(4).toDouble(), 0, 'f', 1)
+				.arg(f.attribute(7).toDouble(), 0, 'f', 1)   // 方位角θ
+				.arg(f.attribute(9).toDouble(), 0, 'f', 1)   // 水平波束宽度
+				.arg(f.attribute(11).toDouble(), 0, 'f', 0)  // 探测距离(m)
+				.arg(i)                                       // 装备类型(0-4)
+				.arg(f.attribute(8).toDouble(), 0, 'f', 1)   // 俯仰角α
+				.arg(f.attribute(10).toDouble(), 0, 'f', 1)  // 垂直波束宽度
+				.arg(mounted ? "true" : "false");
+			first = false;
+		}
+	}
+	return arr + "]";
+}
+
+// 构建当前所有无人机快照JSON数组（用于切换到3D视图时批量同步）
+QString MainWindow::buildPlanesJson()
+{
+	QString arr = "[";
+	bool first = true;
+	for (auto it = m_latestPlaneData.begin(); it != m_latestPlaneData.end(); ++it)
+	{
+		const tag_PlaneMessage &p = it.value();
+		if (p.planeX.isEmpty() || p.planeY.isEmpty()) continue;
+		double alt = p.hZ.toDouble();
+		if (alt <= 0) alt = p.xZ.toDouble();
+		if (!first) arr += ",";
+		arr += QString("{\"id\":\"%1\",\"lon\":%2,\"lat\":%3,\"alt\":%4,\"yaw\":%5}")
+			.arg(p.ID)
+			.arg(p.planeX.toDouble(), 0, 'f', 7)
+			.arg(p.planeY.toDouble(), 0, 'f', 7)
+			.arg(alt, 0, 'f', 1)
+			.arg(p.Yaw.toDouble(), 0, 'f', 1);
+		first = false;
+	}
+	return arr + "]";
+}
+
+// 构建任务区域多边形JSON数组
+QString MainWindow::buildTaskAreaJson()
+{
+	if (!g_pAirTaskPolyLayer) return "[]";
+	QString arr = "[";
+	bool first = true;
+	QgsFeatureIterator fit = g_pAirTaskPolyLayer->getFeatures();
+	QgsFeature f;
+	while (fit.nextFeature(f))
+	{
+		QgsGeometry geom = f.geometry();
+		if (geom.isNull()) continue;
+		QgsPolygonXY poly = geom.asPolygon();
+		if (poly.isEmpty() || poly[0].size() < 3)
+		{
+			// try multipolygon fallback
+			QgsMultiPolygonXY mpoly = geom.asMultiPolygon();
+			if (mpoly.isEmpty() || mpoly[0].isEmpty() || mpoly[0][0].size() < 3) continue;
+			poly = mpoly[0];
+		}
+		double minH = f.attribute(5).toDouble(); // 高度下限: 距地面最小高度(米)
+		double maxH = f.attribute(6).toDouble(); // 高度上限: 距地面最大高度(米)
+		if (minH < 0) minH = 0;
+		if (maxH <= minH) maxH = minH + 100.0;
+		if (!first) arr += ",";
+		arr += QString("{\"id\":%1,\"minH\":%2,\"maxH\":%3,\"coords\":[")
+			.arg(f.attribute(0).toInt())
+			.arg(minH, 0, 'f', 1)
+			.arg(maxH, 0, 'f', 1);
+		const QgsPolylineXY &ring = poly[0];
+		for (int k = 0; k < ring.size(); k++)
+		{
+			if (k) arr += ",";
+			arr += QString("[%1,%2]")
+				.arg(ring[k].x(), 0, 'f', 7)
+				.arg(ring[k].y(), 0, 'f', 7);
+		}
+		arr += "]}";
+		first = false;
+	}
+	return arr + "]";
 }

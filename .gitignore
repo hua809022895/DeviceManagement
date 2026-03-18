@@ -1,0 +1,16 @@
+# Build output
+x64/
+*.obj
+*.pch
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.log
+
+# VS generated
+*.user
+*.VC.db
+*.VC.opendb
+GeneratedFiles/
+.vs/
