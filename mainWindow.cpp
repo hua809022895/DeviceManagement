@@ -3032,15 +3032,16 @@ void MainWindow::processAllPlaneUpdates()
 
 				int radarId = mit.key();
 
-				// RadarTip 标签：QgsMapCanvasAnnotationItem 路径，无需 canvas 空闲
-				for (RadarTip *r : m_radarTipList)
-				{
-					if (r->m_id == radarId) { r->setPos(uavPt); break; }
-				}
-
-				// QGIS 图层几何更新（canvas 绘制时跳过，避免写锁竞争）
+				// QGIS 图层写入 + RadarTip（canvas 绘制时跳过，避免 QVector 线程断言）
 				if (!isDrawingNow)
 				{
+					// RadarTip 标签（QgsMapCanvasAnnotationItem 内部访问 canvas QVector，需空闲）
+					for (RadarTip *r : m_radarTipList)
+					{
+						if (r->m_id == radarId) { r->setPos(uavPt); break; }
+					}
+
+					// QGIS 图层几何更新
 					for (int i = 0; i < gRadarLayerList.size(); i++)
 					{
 						QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures(
