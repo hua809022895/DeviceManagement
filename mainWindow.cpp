@@ -2902,17 +2902,16 @@ void MainWindow::processAllPlaneUpdates()
 {
 	if (m_latestPlaneData.isEmpty())
 		return;
-	if (m_mapCanvas && m_mapCanvas->isDrawing())
-		return;
+	bool isDrawingNow = m_mapCanvas && m_mapCanvas->isDrawing();
 
 	DWORD now = GetTickCount();
-	bool doTable = (now - s_lastModifyTableTick >= 200);
-	bool doPoly  = (now - s_lastIsRadarPolyTick  >= 500);
+	bool doTable = !isDrawingNow && (now - s_lastModifyTableTick >= 200);
+	bool doPoly  = !isDrawingNow && (now - s_lastIsRadarPolyTick  >= 500);
 	if (doTable) s_lastModifyTableTick = now;
 	if (doPoly)  s_lastIsRadarPolyTick  = now;
 
 	// 批量注册新飞机：一次性写入 QGIS，替代每架飞机独立 commitChanges（80架从40s降到<1s）
-	if (!m_pendingNewPlanes.isEmpty() && g_pAirLayer)
+	if (!isDrawingNow && !m_pendingNewPlanes.isEmpty() && g_pAirLayer)
 	{
 		g_pAirLayer->startEditing();
 		for (const auto &plane : m_pendingNewPlanes)
@@ -2975,8 +2974,8 @@ void MainWindow::processAllPlaneUpdates()
 	{
 		tag_PlaneMessage *p = &it.value();
 
-		// 修改无人机图层位置（FixPlane 内部已有 50ms 限速，直接调用即可）
-		emit FixPlaneMsg(p);
+		// 修改无人机图层位置（QGIS 写入，canvas 绘制时跳过）
+		if (!isDrawingNow) emit FixPlaneMsg(p);
 
 		// 同步飞机位置到 Leaflet 2D 地图（累积到批量字符串）
 		if (has2D)
@@ -3023,7 +3022,6 @@ void MainWindow::processAllPlaneUpdates()
 		if (!m_radarUavMount.isEmpty())
 		{
 			QgsPointXY uavPt(p->planeX.toDouble(), p->planeY.toDouble());
-			// 装载设备高度 = 无人机实时飞行高度（优先海拔高度，fallback相对高度）
 			double uavAlt = p->hZ.toDouble();
 			if (uavAlt <= 0) uavAlt = p->xZ.toDouble();
 
@@ -3033,61 +3031,44 @@ void MainWindow::processAllPlaneUpdates()
 					continue;
 
 				int radarId = mit.key();
-				// 更新雷达设备图层中的几何位置和高度属性
-				for (int i = 0; i < gRadarLayerList.size(); i++)
-				{
-					QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures(
-						QString("\"electircid\"=%1").arg(radarId));
-					QgsFeature f;
-					if (!fit.nextFeature(f))
-						continue;
 
-					if (!gRadarLayerList[i]->isEditable())
-						gRadarLayerList[i]->startEditing();
-					// 更新位置
-					QgsGeometry newGeom = QgsGeometry::fromPointXY(uavPt);
-					gRadarLayerList[i]->changeGeometry(f.id(), newGeom);
-					// 更新高度（attribute[4]）为无人机实时高度
-					if (uavAlt > 0)
-						gRadarLayerList[i]->changeAttributeValue(f.id(), 4, (int)uavAlt);
-					// 不在此处 triggerRepaint：RadarTip 通过 setPos（QgsMapCanvasItem 路径）已完成
-					// 视觉更新，无需每100ms触发全画布（含TIF底图）重绘，避免2D画布卡顿。
-
-					// 实时刷新探测范围投影（500ms 节流）
-					if (doPoly)
-						updateMountedRadarProjection(radarId, f, uavPt);
-					break;  // 同一设备只在一个图层中存在
-				}
-				// 更新 RadarTip 标签位置
+				// RadarTip 标签：QgsMapCanvasAnnotationItem 路径，无需 canvas 空闲
 				for (RadarTip *r : m_radarTipList)
 				{
-					if (r->m_id == radarId)
+					if (r->m_id == radarId) { r->setPos(uavPt); break; }
+				}
+
+				// QGIS 图层几何更新（canvas 绘制时跳过，避免写锁竞争）
+				if (!isDrawingNow)
+				{
+					for (int i = 0; i < gRadarLayerList.size(); i++)
 					{
-						r->setPos(uavPt);
-						break;
+						QgsFeatureIterator fit = gRadarLayerList[i]->getFeatures(
+							QString("\"electircid\"=%1").arg(radarId));
+						QgsFeature f;
+						if (!fit.nextFeature(f))
+							continue;
+
+						if (!gRadarLayerList[i]->isEditable())
+							gRadarLayerList[i]->startEditing();
+						QgsGeometry newGeom = QgsGeometry::fromPointXY(uavPt);
+						gRadarLayerList[i]->changeGeometry(f.id(), newGeom);
+						if (uavAlt > 0)
+							gRadarLayerList[i]->changeAttributeValue(f.id(), 4, (int)uavAlt);
+						if (doPoly)
+							updateMountedRadarProjection(radarId, f, uavPt);
+						gRadarLayerList[i]->triggerRepaint();  // 刷新 SVG 图标位置
+						break;  // 同一设备只在一个图层中存在
 					}
 				}
-			}
-		}
 
-		// 同步挂载设备位置到 Leaflet 2D 地图和 3D 视图（每帧更新，与无人机图标同步）
-		if (!m_radarUavMount.isEmpty())
-		{
-			double uavLon = p->planeX.toDouble();
-			double uavLat = p->planeY.toDouble();
-			double uavAlt2 = p->hZ.toDouble();
-			if (uavAlt2 <= 0) uavAlt2 = p->xZ.toDouble();
-
-			for (auto mit = m_radarUavMount.begin(); mit != m_radarUavMount.end(); ++mit)
-			{
-				if (mit.value() != p->ID) continue;
-				int rid = mit.key();
+				// Leaflet + 3D（无论 canvas 是否在绘制，始终推送）
 				if (has2D)
 					batch2D += QString("if(typeof moveRadar==='function')moveRadar(%1,%2,%3);")
-						.arg(rid).arg(uavLat, 0, 'f', 7).arg(uavLon, 0, 'f', 7);
+						.arg(radarId).arg(uavPt.y(), 0, 'f', 7).arg(uavPt.x(), 0, 'f', 7);
 				if (has3D)
 					batch3D += QString("if(typeof moveRadar3D==='function')moveRadar3D(%1,%2,%3,%4);")
-						.arg(rid).arg(uavLon, 0, 'f', 7).arg(uavLat, 0, 'f', 7).arg(uavAlt2, 0, 'f', 1);
+						.arg(radarId).arg(uavPt.x(), 0, 'f', 7).arg(uavPt.y(), 0, 'f', 7).arg(uavAlt, 0, 'f', 1);
 			}
 		}
 
