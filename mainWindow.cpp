@@ -3003,8 +3003,9 @@ void MainWindow::processAllPlaneUpdates()
 				.arg(p->Yaw.toDouble(), 0, 'f', 1);
 		}
 
-		// 始终更新 QGIS canvas 标牌位置（biaopai 在 Leaflet 激活时已 setVisible(false)，
-		// 更新内部坐标不产生视觉冲突，且保证切回 QGIS 2D 视图时立即显示正确位置）
+		// QGIS canvas 标牌位置（canvas 绘制时跳过：setMapPosition→updatePosition 访问 canvas
+		// 共享 QVector，在渲染线程持有副本时从主线程调用触发 isDetached 断言）
+		if (!isDrawingNow)
 		{
 			int pid = p->ID.toInt();
 			for (int i = 0; i < m_planeIDvec.count(); i++)
