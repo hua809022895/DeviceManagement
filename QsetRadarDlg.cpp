@@ -30,7 +30,11 @@ QsetRadarDlg::QsetRadarDlg(QWidget *parent, int itype): QMainWindow(parent)
 	ui.textEdit_2->setText(list[itype]);
 	ui.textEdit_3->setText("2000");	//�豸���ڸ߶�
 	ui.textEdit_7->setText("0");	//��ʼ����λ�Ƕ�
-	ui.textEdit_6->setText("45");	//������Χ�Ƕ�
+	ui.textEdit_6->setText("45");	//ˮƽ��������
+	// 隐藏"探测范围角度"行（已用水平/垂直波束宽度替代）
+	ui.label_4->hide();
+	ui.textEdit_6->hide();
+	ui.label_19->hide();
 	//ui.textEdit_5->setText("2000"); //̽�����
 }
 
@@ -53,11 +57,11 @@ void QsetRadarDlg::on_saveBtn_click()	//���ñ���
 		return;
 	}
 
-	if (ui.textEdit_3->text().toInt() < 1)
+	if (ui.textEdit_3->text().toInt() < 0)
 	{
 		QMessageBox msgBox;
 		msgBox.setWindowTitle(QString::fromLocal8Bit("提示"));
-		msgBox.setText(QString::fromLocal8Bit("  探测设备高度必须大于0  "));
+		msgBox.setText(QString::fromLocal8Bit("  探测设备高度不能为负数  "));
 		msgBox.exec();
 		return;
 	}
@@ -106,7 +110,7 @@ void QsetRadarDlg::on_saveBtn_click()	//���ñ���
 		<< m_iType<<
 		ui.textEdit_3->text().toInt()<<			//设备高度
 		ui.textEdit_7->text() <<				//初始方位角度
-		ui.textEdit_6->text() <<					//探测范围角度
+		ui.textEdit_9->text() <<					//水平波束宽度（替代探测范围角度）
 		ui.textEdit_7->text()<<					//初始方位角
 		ui.textEdit_8->text()<<					//俯仰角
 		ui.textEdit_9->text()<<					//水平波束宽度
@@ -150,6 +154,8 @@ void QsetRadarDlg::on_saveBtn_click()	//���ñ���
 	MainWindow *pWin = (MainWindow*)gMainWindow;
 	pWin->loadRadarUavMount();   // 重新加载装载关系到内存
 	pWin->ShowRadarTip();
+	pWin->syncLeafletAll();
+	pWin->sync3DAll();
 
 	this->close();
 }

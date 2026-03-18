@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "DlgAddTaskArea.h"
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -13,73 +13,69 @@ DlgAddTaskArea::DlgAddTaskArea(QWidget *parent): QDialog(parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.okButton,	&QAbstractButton::clicked, this, &DlgAddTaskArea::on_queryBtn_click);	//Ìí¼ÓÃüÁî°´Å¥
-	connect(ui.cancelButton,&QAbstractButton::clicked, this, &DlgAddTaskArea::on_exitBtn_click);	//È¡ÏûÃüÁî°´Å¥
-	
-	ui.lineEdit_5->setText("100");//¸ß¶È
-	
+	connect(ui.okButton,	&QAbstractButton::clicked, this, &DlgAddTaskArea::on_queryBtn_click);
+	connect(ui.cancelButton,&QAbstractButton::clicked, this, &DlgAddTaskArea::on_exitBtn_click);
+
+	ui.lineEdit_5->setText("100");
+
 	this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint);
 }
 
 DlgAddTaskArea::~DlgAddTaskArea()
 {}
 
-//ÍË³ö
 void DlgAddTaskArea::on_exitBtn_click()
 {
 	MainWindow *pDlg = (MainWindow*)this->parentWidget();
 }
 
-//Ìí¼ÓÃüÁî°´Å¥
 void DlgAddTaskArea::on_queryBtn_click()
 {
-	QString  spt		= ui.lineEdit_1->text();//¾­Î³¶ÈÖµ
-	QString  sAreaID	= ui.lineEdit_2->text();//ÈÎÎñÇøÓò±àºÅid
-	QString  sW			=ui.lineEdit_3->text();	//¿í¶È
-	QString  sLength	=ui.lineEdit_4->text();	//³¤¶È
-	QString  sHeight	= ui.lineEdit_5->text();//¸ß¶È
-	QString  sflyTime= ui.lineEdit_6->text();	//·ÉÐÐÊ±¼ä
-	QString  sAngle = ui.lineEdit_7->text();	//½Ç¶È
-	QString  sRemarks= ui.lineEdit_8->text();	//±¸×¢
-	QString  sZ			= ui.lineEdit_9->text();//Ïà¶Ô¸ß¶È
-	
+	QString  spt		= ui.lineEdit_1->text();
+	QString  sAreaID	= ui.lineEdit_2->text();
+	QString  sW			=ui.lineEdit_3->text();
+	QString  sLength	=ui.lineEdit_4->text();
+	QString  sHeight	= ui.lineEdit_5->text();
+	QString  sflyTime= ui.lineEdit_6->text();
+	QString  sAngle = ui.lineEdit_7->text();
+	QString  sRemarks= ui.lineEdit_8->text();
+	QString  sZ			= ui.lineEdit_9->text();
+
 	if (sW.toInt() <100)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÈÎÎñÇøÓò¿í¶ÈÖµ²»ÄÜÐ¡ÓÚ100 £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u533a\u57df\u5bbd\u5ea6\u503c\u4e0d\u80fd\u5c0f\u4e8e100 \uff01\uff01\uff01"));
 		return;
 	}
 	if (sLength.toInt() <100)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÈÎÎñÇøÓò³¤¶ÈÖµ²»ÄÜÐ¡ÓÚ100 £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u533a\u57df\u957f\u5ea6\u503c\u4e0d\u80fd\u5c0f\u4e8e100 \uff01\uff01\uff01"));
 		return;
 	}
 
 	if (sAngle=="")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÈÎÎñÇøÓò ½Ç¶ÈÖµ £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u6b63\u786e\u533a\u57df \u89d2\u5ea6\u503c \uff01\uff01\uff01"));
 		return;
 	}
-	
-	if (sHeight.toInt()<2)
+
+	if (sZ.isEmpty() || sZ.toInt() <= sHeight.toInt())
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÈÎÎñÇøÓò ¸ß¶ÈÖµ £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u9ad8\u5ea6\u4e0a\u9650\u5fc5\u987b\u5927\u4e8e\u9ad8\u5ea6\u4e0b\u9650\uff01"));
 		return;
 	}
 
 	if (sAreaID == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÈÎÎñÇøÓò ±àºÅ  £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u6b63\u786e\u533a\u57df \u7f16\u53f7 \uff01\uff01\uff01"));
 		return;
 	}
 
 	if (sflyTime.toInt()<2)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÈÎÎñÇøÓò ·ÉÐÐÊ±¼ä  £¡£¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u6b63\u786e\u533a\u57df \u98de\u884c\u65f6\u95f4 \uff01\uff01\uff01"));
 		return;
 	}
 
-	//¼ì²éÈÎÎñÍ¼²ãÖÐÊÇ·ñÒÑ¾­ÓÐ´ËÎÞÈË»ú±àºÅµÄÈÎÎñÇøÓò
-	//±éÀúÈ«²¿À×´ïÉè±¸	
 	QgsFeature feat;
 	QgsFeatureIterator fit = g_pAirTaskPolyLayer->getFeatures();
 	while (fit.nextFeature(feat))
@@ -87,7 +83,7 @@ void DlgAddTaskArea::on_queryBtn_click()
 		QString		sID = feat.attribute(0).toString();
 		if (sID == sAreaID)
 		{
-			QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÄúÒÑ¾­Ìí¼ÓÁË´ËÎÞÈË»úµÄÈÎÎñÇøÓò±àºÅ  £¡£¡£¡"));
+			QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u5df2\u7ecf\u5b58\u5728\u6b64\u65e0\u4eba\u673a\u4efb\u52a1\u533a\u57df\u7f16\u53f7 \uff01\uff01\uff01"));
 			return;
 		}
 	}
@@ -95,7 +91,7 @@ void DlgAddTaskArea::on_queryBtn_click()
 
 	QList<QgsPointXY> PointSet = GetPolygon();
 	QgsPolygonXY	pxy		= QgsPolygonXY() << PointSet.toVector();
-	QgsGeometry		Geometry= QgsGeometry::fromPolygonXY(pxy);//¸ù¾Ý¶à±ßÐÎµÄµãÐÅÏ¢Éú³É¼¸ºÎÍ¼ÐÎ¶ÔÏó
+	QgsGeometry		Geometry= QgsGeometry::fromPolygonXY(pxy);
 
 	QgsFeature f = QgsFeature();
 	f.setGeometry(Geometry);
@@ -107,15 +103,17 @@ void DlgAddTaskArea::on_queryBtn_click()
 
 	MainWindow *pDlg = (MainWindow*)this->parentWidget();
 	pDlg->ShowTaskAreaTip();
+	pDlg->syncLeafletAll();
+	pDlg->sync3DAll();
 }
 
-QList<QgsPointXY> DlgAddTaskArea::GetPolygon()//¸ù¾Ý¾ØÐÎÔ­µã£¬¿í¶È£¬³¤¶È£¬½Ç¶È£¬Ëã³öÒ»¸öËÄ¸öµãÁÐ±í
+QList<QgsPointXY> DlgAddTaskArea::GetPolygon()
 {
 	QList<QgsPointXY> list;
-	QString  spt	= ui.lineEdit_1->text();	//¾ØÐÎÔ­µã,¾­Î³¶ÈÖµ
-	QString  sw		= ui.lineEdit_3->text();	//¿í¶È,µ¥Î»Ã×
-	QString  sLength= ui.lineEdit_4->text();	//³¤¶È,µ¥Î»Ã×
-	QString  sAngle = ui.lineEdit_7->text();	//½Ç¶È
+	QString  spt	= ui.lineEdit_1->text();
+	QString  sw		= ui.lineEdit_3->text();
+	QString  sLength= ui.lineEdit_4->text();
+	QString  sAngle = ui.lineEdit_7->text();
 
 	int k = spt.indexOf(",");
 	QString x = spt.mid(0, k);
@@ -126,7 +124,7 @@ QList<QgsPointXY> DlgAddTaskArea::GetPolygon()//¸ù¾Ý¾ØÐÎÔ­µã£¬¿í¶È£¬³¤¶È£¬½Ç¶È£¬
 	double banWidth = (sw.toInt() / 2 * 0.00001);
 	double banLngth = sLength.toInt() / 2 * 1000 * LATITUDE_PER_MM;
 	QgsPointXY  p1(x.toDouble()- banWidth, y.toDouble()+ banLngth);
-	QgsPointXY  p2(x.toDouble()+ banWidth, y.toDouble()+ banLngth);	
+	QgsPointXY  p2(x.toDouble()+ banWidth, y.toDouble()+ banLngth);
 	QgsPointXY  p3(x.toDouble()+ banWidth, y.toDouble()- banLngth);
 	QgsPointXY  p4(x.toDouble()- banWidth, y.toDouble()- banLngth);
 

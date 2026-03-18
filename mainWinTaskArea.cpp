@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "mainWindow.h"
 #include "ui_mainwindow.h"
 
@@ -61,7 +61,7 @@
 #include "clipper2/include/clipper.h"
 #include "DlgTaskGuihua.h"
 
-//Ìí¼ÓÎÞÈË»úÈÎÎñÇøÓò
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MainWindow::AddAirTaskArea()
 {
 	if (m_pDlgAddTaskArea == nullptr)
@@ -73,22 +73,22 @@ void MainWindow::AddAirTaskArea()
 	m_pDlgAddTaskArea->ui.lineEdit_1->setText(s);
 	m_pDlgAddTaskArea->show();
 }
-//Ñ¡ÔñÎÞÈË»úÈÎÎñÇøÓò
+//Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MainWindow::SelectTaskArea()
 {
 	m_mapCanvas->setCurrentLayer(g_pAirTaskPolyLayer);
 	m_mapCanvas->setMapTool(mToolSelect);
 	g_pAirTaskPolyLayer->startEditing();
 }
-//ÐÞ¸ÄÎÞÈË»úÈÎÎñÇøÓò
+//ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MainWindow::FixTaskArea()
 {
-	//ÅÐ¶ÏÊÇ·ñÓÐÑ¡ÖÐµÄÈÎÎñÇøÓòÍ¼Ôª
+	//ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ñ¡ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ôª
 	m_mapCanvas->setCurrentLayer(g_pAirTaskPolyLayer);
 
 	if (g_pAirTaskPolyLayer->selectedFeatures().count() == 0)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÏÈÑ¡ÖÐÒ»¸ö ÎÞÈË»úÈÎÎñÇøÓò   £¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u4e00\u4e2a \u65e0\u4eba\u673a\u4efb\u52a1\u533a\u57df \uff01\uff01\uff01"));
 		return;
 	}
 
@@ -103,15 +103,15 @@ void MainWindow::FixTaskArea()
 
 	m_pDlgModifyArea->m_fid = f.id();
 
-	QString	airID	= f.attribute(0).toString();	//ÈÎÎñÇøÓò±àºÅ	
-	QString	sPt		= f.attribute(2).toString();	//ÈÎÎñÇøÓòÖÐÐÄÎ»ÖÃ×ø±ê
-	QString sWidth	= f.attribute(3).toString();	//ÇøÓò¿í¶È
-	QString sLen	= f.attribute(4).toString();	//ÇøÓò³¤¶È
-	QString	sHeight = f.attribute(5).toString();	//ÇøÓò¸ß¶È
-	QString	sZ		= f.attribute(6).toString();	//ÇøÓòÏà¶Ô¸ß¶È
-	QString sAngle	= f.attribute(7).toString();	//ÇøÓò½Ç¶È
-	QString sTime	= f.attribute(8).toString();	//ÇøÓò·ÉÐÐÊ±¼ä
-	QString sRemark = f.attribute(9).toString();//±¸×¢
+	QString	airID	= f.attribute(0).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½	
+	QString	sPt		= f.attribute(2).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString sWidth	= f.attribute(3).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString sLen	= f.attribute(4).toString();	//ï¿½ï¿½ï¿½ò³¤¶ï¿½
+	QString	sHeight = f.attribute(5).toString();	//ï¿½ï¿½ï¿½ï¿½ß¶ï¿½
+	QString	sZ		= f.attribute(6).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸ß¶ï¿½
+	QString sAngle	= f.attribute(7).toString();	//ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½
+	QString sTime	= f.attribute(8).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	QString sRemark = f.attribute(9).toString();//ï¿½ï¿½×¢
 
 	m_pDlgModifyArea->ui.lineEdit_1->setText(sPt);
 	m_pDlgModifyArea->ui.lineEdit_2->setText(airID);
@@ -127,13 +127,13 @@ void MainWindow::FixTaskArea()
 	m_pDlgModifyArea->show();
 }
 
-//ÒÆ¶¯ÎÞÈË»úÈÎÎñÇøÓò
+//ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MainWindow::MoveTaskArea()
 {
 	m_mapCanvas->setCurrentLayer(g_pAirTaskPolyLayer);
 	if (g_pAirTaskPolyLayer->selectedFeatures().count() == 0)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÏÈÑ¡ÖÐÒ»¸ö ÎÞÈË»úÈÎÎñÇøÓò   £¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u4e00\u4e2a \u65e0\u4eba\u673a\u4efb\u52a1\u533a\u57df \uff01\uff01\uff01"));
 		return;
 	}
 	
@@ -144,7 +144,7 @@ void MainWindow::MoveTaskArea()
 
 	qDebug() <<"b=" << b << endl;
 
-	if (!b)//Èç¹ûÊÇÑ¡ÖÐÁË£¬¾ÍËµÃ÷ÒÑ¾­ÒÆ¶¯Íê³ÉÁË
+	if (!b)//ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	{
 		g_pAirTaskPolyLayer->startEditing();
 		QgsFeature f;
@@ -154,16 +154,16 @@ void MainWindow::MoveTaskArea()
 			QgsPointXY p = mMoveFeature->m_stopPoint;
 
 			if (p.isEmpty()) break;
-			QString	sID = f.attribute(0).toString();	//ÎÞÈË»úÈÎÎñÇøÓò±àºÅ
+			QString	sID = f.attribute(0).toString();	//ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 			QString sx = QString("%1").arg(p.x(), 0, 'g',9);
 			QString sy = QString("%1").arg(p.y(), 0, 'g',9);
 
-			QString	sPt =sx+"," +sy; 	//ÈÎÎñÇøÓòÖÐÐÄÎ»ÖÃ×ø±ê
-			//QString sWidth = f.attribute(3).toString();	//ÇøÓò¿í¶È
-			//QString slen = f.attribute(4).toString();	//ÇøÓò³¤¶È
-			//QString heigth = f.attribute(1).toString();	//ÇøÓò¸ß¶È
-			//QString sAngle = f.attribute(5).toString();	//ÇøÓò½Ç¶È
+			QString	sPt =sx+"," +sy; 	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//QString sWidth = f.attribute(3).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//QString slen = f.attribute(4).toString();	//ï¿½ï¿½ï¿½ò³¤¶ï¿½
+			//QString heigth = f.attribute(1).toString();	//ï¿½ï¿½ï¿½ï¿½ß¶ï¿½
+			//QString sAngle = f.attribute(5).toString();	//ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½
 
 			QgsAttributes attribues;
 			attribues << sID <<"NAME" << sPt;
@@ -172,24 +172,24 @@ void MainWindow::MoveTaskArea()
 
 			g_pAirTaskPolyLayer->commitChanges();
 
-			ShowTaskAreaTip();//¸úÐÂÈÎÎñÇøÓòÌáÊ¾±êÇ©
+			ShowTaskAreaTip();//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ç©
 			break;
 		}		
 	}
 }
-//É¾³ýÎÞÈË»úÈÎÎñÇøÓò
+//É¾ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void MainWindow::DeleteTaskArea()
 {
-	//ÅÐ¶ÏÊÇ·ñÓÐÑ¡ÖÐµÄÈÎÎñÇøÓòÍ¼Ôª
+	//ï¿½Ð¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ñ¡ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ôª
 	m_mapCanvas->setCurrentLayer(g_pAirTaskPolyLayer);
 
 	if (g_pAirTaskPolyLayer->selectedFeatures().count() == 0)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÏÈÑ¡ÖÐÒ»¸ö ÎÞÈË»úÈÎÎñÇøÓò   £¡£¡"));
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u4e00\u4e2a \u65e0\u4eba\u673a\u4efb\u52a1\u533a\u57df \uff01\uff01\uff01"));
 		return;
 	}
 
-	QMessageBox::StandardButton id = QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÄúÈ·ÊµÏëÉ¾³ýÑ¡ÖÐµÄÇøÓòÂð£¿£¿"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
+	QMessageBox::StandardButton id = QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u786e\u8ba4\u662f\u5426\u5220\u9664\u9009\u4e2d\u7684\u533a\u57df\uff1f\uff1f"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
 
 	if (id == QMessageBox::StandardButton::Yes)
 	{
@@ -202,7 +202,7 @@ void MainWindow::DeleteTaskArea()
 	}	
 }
 
-//ÏÔÊ¾À×´ïÒÑ¸²¸ÇÈÎÎñÇøÓò£¬Í¼²ã
+//ï¿½ï¿½Ê¾ï¿½×´ï¿½ï¿½Ñ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 void MainWindow::ShowRadarNoArea()
 {
 	g_pRadarTaskLayer->startEditing();
@@ -215,9 +215,9 @@ void MainWindow::ShowRadarNoArea()
 			g_pRadarTaskLayer->deleteFeature(feat.id());
 	}
 	else
-	{	//±éÀúÈÎÎñÇøÓòÍ¼²ã,ÄÚÈ«²¿ÈÎÎñÇøÓò
-		QgsFeature				taskFeat;	//ÈÎÎñÇøÓòÍ¼Ôª
-		QgsFeatureIterator		taskFit = g_pAirTaskPolyLayer->getFeatures();//ÈÎÎñÇøÓòÍ¼²ã
+	{	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½,ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		QgsFeature				taskFeat;	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ôª
+		QgsFeatureIterator		taskFit = g_pAirTaskPolyLayer->getFeatures();//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
 
 		for (int i = 0; i < gRadarLayerList.size(); i++)
 		{
@@ -228,39 +228,40 @@ void MainWindow::ShowRadarNoArea()
 				//QString name = feature.attribute("name").value<QString>();
 				QString sID = taskFeat.attribute(0).toString();
 				QPolygonF polyxy = taskFeat.geometry().asQPolygonF();
-				polyxy.erase(polyxy.begin());//É¾³ý¶àÓàµÄµã
+				polyxy.erase(polyxy.begin());//É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½
 
-				// ´´½¨¾ØÐÎ
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				cl::PathsD			rect_poly = rectangle_to_polygon(polyxy);
 				float dTaskArea = calculate_area(rect_poly);//
 
 				if (dTaskArea < 0)
 					dTaskArea = dTaskArea * -1;
 				QgsFeature			feat;
-				QgsFeatureIterator	fit = gRadarLayerList[i]->getFeatures();//À×´ïÉÈÐÎÇøÓò
+				QgsFeatureIterator	fit = gRadarLayerList[i]->getFeatures();//ï¿½×´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-				cl::PathsD union_sectors;//ËùÓÐºÏ²¢ºóµÄÉÈÐÎ¶à±ßÐÎ
+				cl::PathsD union_sectors;//ï¿½ï¿½ï¿½ÐºÏ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¶ï¿½ï¿½ï¿½ï¿½
 
 				while (fit.nextFeature(feat))
 				{
-					//¸ù¾ÝÃ¿¸öÀ×´ïÍ¼ÔªÐÅÏ¢£¬´´½¨Ò»¸öÐÂµÄÉÈÐÎÍ¶Ó°Í¼Ôª
+					//ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½×´ï¿½Í¼Ôªï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ï¿½ï¿½Í¶Ó°Í¼Ôª
 					QgsPointXY pt = feat.geometry().asPoint();
 					QString ssID = feat.attribute(0).toString();
-					QString sAngle = feat.attribute(5).toString();	//ÆðÊ¼½Ç¶È
-					QString eAngle = feat.attribute(6).toString();	//½áÊø½Ç¶È
-					QString pitch = feat.attribute(8).toString();	//¸©Ñö½Ç¶È
-					QString length = feat.attribute(11).toString();//Í¶Ó°³¤¶È
+					QString sAngle = feat.attribute(5).toString();	//ï¿½ï¿½Ê¼ï¿½Ç¶ï¿½
+					QString eAngle = feat.attribute(9).toString();	//Ë®Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+					QString pitch = feat.attribute(8).toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½
+					QString vBeam = feat.attribute(10).toString();	//ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+					QString length = feat.attribute(11).toString();//Í¶Ó°ï¿½ï¿½ï¿½ï¿½
 
-					//¸ù¾ÝÉè±¸ÐÅÏ¢×Ô¶¯Éú³ÉÍ¶Ó°¶à±ßÐÎÈ«²¿µã
-					QList<QgsPointXY>	set = GetTYPolygon(pt, sAngle.toInt(), eAngle.toInt(), pitch.toFloat(), length.toInt());
-					cl::PathsD			sec = sector_to_polygon(set);//½«ÉÈÐÎ×ª»»Îª¶à±ßÐÎ½üËÆ
+					//ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½Ï¢ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½Í¶Ó°ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½
+					QList<QgsPointXY>	set = GetTYPolygon(pt, sAngle.toInt(), eAngle.toInt(), pitch.toFloat(), length.toInt(), vBeam.toFloat(), feat.attribute(4).toFloat());
+					cl::PathsD			sec = sector_to_polygon(set);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Î½ï¿½ï¿½ï¿½
 					union_sectors = Union(union_sectors, sec, cl::FillRule::NonZero, 8);
 				}
 
-				// ¼ÆËãÉÈÐÎÓë¾ØÐÎµÄ½»¼¯
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎµÄ½ï¿½ï¿½ï¿½
 				cl::PathsD interSection = Intersect(union_sectors, rect_poly, cl::FillRule::NonZero, 8);
 
-				// ¼ÆËãÃæ»ý
+				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				double area = calculate_area(interSection);
 				qDebug() << "iCount area=" << area << " dTaskArea=" << dTaskArea << endl;
 				QList<QgsPointXY>	set1;
@@ -275,7 +276,7 @@ void MainWindow::ShowRadarNoArea()
 				if (iCount < 3)
 					continue;
 				QgsPolygonXY	pxy = QgsPolygonXY() << set1.toVector();
-				QgsGeometry		geom = QgsGeometry::fromPolygonXY(pxy);		//¸ù¾Ý¶à±ßÐÎµÄµãÐÅÏ¢Éú³É¼¸ºÎÍ¼ÐÎ¶ÔÏó
+				QgsGeometry		geom = QgsGeometry::fromPolygonXY(pxy);		//ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ï¿½ÎµÄµï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½É¼ï¿½ï¿½ï¿½Í¼ï¿½Î¶ï¿½ï¿½ï¿½
 
 				iCount = g_pRadarTaskLayer->featureCount();
 				QgsFeature f = QgsFeature();
@@ -296,19 +297,19 @@ QgsGeometry geometry = QgsGeometry::fromPointXY(QgsPointXY(point.getX(), point.g
 						ftpt.setAttributes(QgsAttributes() << i+10
 							<< QString::number(point.getX(), 'f', 6)
 							<< QString::number(point.getY(), 'f', 6)
-							<< 1 << 111 <<  //Éè±¸ËùÔÚ ¸ß¶È
-							0 <<											//ÆðÊ¼½Ç¶È
-							45 <<											//Ì½²â½Ç¶È
-							2200);											//Ì½²â¾àÀë
+							<< 1 << 111 <<  //ï¿½è±¸ï¿½ï¿½ï¿½ï¿½ ï¿½ß¶ï¿½
+							0 <<											//ï¿½ï¿½Ê¼ï¿½Ç¶ï¿½
+							45 <<											//Ì½ï¿½ï¿½Ç¶ï¿½
+							2200);											//Ì½ï¿½ï¿½ï¿½ï¿½ï¿½
 						g_pRadarLayer->addFeature(ftpt);*/
-//ÏÔÊ¾ÈÎÎñÇøÓòËù¸²¸ÇµÄÀ×´ïÁÐ±í
+//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½×´ï¿½ï¿½Ð±ï¿½
 void MainWindow::AreaRadarList()
 {
 	DlgAreaRadarList dlg;
 	dlg.exec();
 }
 
-//¸üÐÂÏÔÊ¾£¬ÈÎÎñÇøÓòÌáÊ¾ÐÅÏ¢Í¼Ôª
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ï¢Í¼Ôª
 void MainWindow::ShowTaskAreaTip()
 {
 	foreach(TaskAreaTip *w, m_TAreaTipList) {
@@ -318,7 +319,7 @@ void MainWindow::ShowTaskAreaTip()
 
 	QString mPath = QCoreApplication::applicationDirPath();
 
-	//±éÀúÍ¼²ãÄÚÈ«²¿ÈÎÎñÇøÓòÍ¼Ôª
+	//ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ôª
 	QgsFeature			feat;
 	QgsFeatureIterator	fit = g_pAirTaskPolyLayer->getFeatures();
 
@@ -330,7 +331,7 @@ void MainWindow::ShowTaskAreaTip()
 		QString		ID = feat.attribute(0).toString();
 
 		TaskAreaTip *pTip = new TaskAreaTip((QgsMapCanvas*)m_mapCanvas);
-		pTip->setString(QString::fromLocal8Bit("ÈÎÎñÇøÓò") + ID);
+		pTip->setString(QStringLiteral("\u4efb\u52a1\u533a\u57df") + ID);
 		pTip->setPos(p);
 		pTip->m_id = ID.toInt();
 
@@ -338,7 +339,7 @@ void MainWindow::ShowTaskAreaTip()
 	}
 }
 
-//ÈÎÎñ¹æ»®
+//ï¿½ï¿½ï¿½ï¿½æ»®
 void MainWindow::TaskGuihua()
 {
 	DlgTaskGuihua dlg;

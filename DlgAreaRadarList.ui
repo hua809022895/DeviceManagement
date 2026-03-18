@@ -101,7 +101,7 @@
         </font>
        </property>
        <property name="text">
-        <string>面积单位: 平方米 (m²)</string>
+        <string>体积单位: 立方千米 (km3)</string>
        </property>
       </widget>
      </item>

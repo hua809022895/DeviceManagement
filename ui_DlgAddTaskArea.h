@@ -263,9 +263,9 @@ public:
         label_6->setText(QApplication::translate("DlgAddTaskArea", "\347\261\263", nullptr));
         label_3->setText(QApplication::translate("DlgAddTaskArea", "\351\225\277\345\272\246", nullptr));
         label_7->setText(QApplication::translate("DlgAddTaskArea", "\347\261\263", nullptr));
-        label_8->setText(QApplication::translate("DlgAddTaskArea", "\351\253\230\345\272\246", nullptr));
+        label_8->setText(QApplication::translate("DlgAddTaskArea", "\351\253\230\345\272\246\344\270\213\351\231\220", nullptr));
         label_9->setText(QApplication::translate("DlgAddTaskArea", "\347\261\263", nullptr));
-        label_14->setText(QApplication::translate("DlgAddTaskArea", "\347\233\270\345\257\271\351\253\230\345\272\246", nullptr));
+        label_14->setText(QApplication::translate("DlgAddTaskArea", "\351\253\230\345\272\246\344\270\212\351\231\220", nullptr));
         label_13->setText(QApplication::translate("DlgAddTaskArea", "\347\261\263", nullptr));
         label_10->setText(QApplication::translate("DlgAddTaskArea", "\351\243\236\350\241\214\346\227\266\351\227\264", nullptr));
         label_11->setText(QApplication::translate("DlgAddTaskArea", "\345\215\225\344\275\215(\345\210\206\351\222\237)", nullptr));

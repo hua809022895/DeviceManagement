@@ -130,7 +130,7 @@ public:
         DlgAreaRaderList->setWindowTitle(QApplication::translate("DlgAreaRaderList", "\350\243\205\345\244\207\350\246\206\347\233\226\345\210\227\350\241\250", nullptr));
         label->setText(QApplication::translate("DlgAreaRaderList", "\344\273\273\345\212\241\345\214\272\345\237\237", nullptr));
         label_2->setText(QApplication::translate("DlgAreaRaderList", "\346\211\200\350\246\206\347\233\226\350\243\205\345\244\207\345\220\215\347\247\260", nullptr));
-        label_3->setText(QApplication::translate("DlgAreaRaderList", "\351\235\242\347\247\257\345\215\225\344\275\215: \345\271\263\346\226\271\347\261\263 (m\302\262)", nullptr));
+        label_3->setText(QApplication::translate("DlgAreaRaderList", "\344\275\223\347\247\257\345\215\225\344\275\215: \347\253\213\346\226\271\345\215\203\347\261\263 (km3)", nullptr));
         cancelButton->setText(QApplication::translate("DlgAreaRaderList", "\345\205\263\351\227\255", nullptr));
     } // retranslateUi
 

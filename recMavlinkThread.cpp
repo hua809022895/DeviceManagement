@@ -38,7 +38,7 @@ void RecMavlinkThread::run()
 
 		if (!m_pUdp->hasPendingDatagrams())
 		{
-			this->msleep(5);
+			this->msleep(2);
 			continue;
 		}
 
@@ -182,7 +182,7 @@ void RecMavlinkThread::run()
 			g_transitMutex.unlock();
 		}
 
-		this->msleep(5);
+		// 不加 sleep：若还有待处理的数据报则立即继续，无数据才在顶部 sleep(2)
 	}
 	// m_stopped=true，线程正常退出：在本线程内关闭并释放 socket，确保端口立即解绑
 	m_pUdp->close();

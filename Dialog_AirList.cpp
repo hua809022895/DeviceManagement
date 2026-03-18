@@ -85,20 +85,22 @@ static QString radarDisplayName(const QString &radarID)
 	return radarID;  // 找不到类型则原样显示
 }
 
-// 添加到列表控件中
-void Dialog_AirList::insert(QString airID,QString radarID)
+// 添加到列表控件中；按无人机ID从小到大排序插入
+void Dialog_AirList::insert(QString airID, QString radarID)
 {
 	QDateTime time = QDateTime::currentDateTime();
 	QString st = time.toString("yyyy-MM-dd hh:mm:ss.zzz");
 	QString radarDisplay = radarDisplayName(radarID);
+	int aid = airID.toInt();
 
-	if (m_devID > 0)
+	// 找到第一行中无人机ID >= aid 的位置，保持升序
+	int row = ui.mAirTable->rowCount();
+	for (int i = 0; i < ui.mAirTable->rowCount(); i++)
 	{
-		if (m_devID != radarID.toInt())
-			return;
+		QTableWidgetItem *it = ui.mAirTable->item(i, 2);
+		if (it && it->text().toInt() >= aid) { row = i; break; }
 	}
 
-	int row = ui.mAirTable->rowCount();
 	ui.mAirTable->insertRow(row);
 	ui.mAirTable->setItem(row, 0, new QTableWidgetItem(st));
 	ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignVCenter | Qt::AlignLeft);
@@ -107,7 +109,12 @@ void Dialog_AirList::insert(QString airID,QString radarID)
 	ui.mAirTable->setItem(row, 2, new QTableWidgetItem(airID));
 	ui.mAirTable->item(row, 2)->setTextAlignment(Qt::AlignCenter);
 
-	ui.mAirTable->scrollToBottom();
+	// 按当前筛选隐藏不匹配的行（按ID比较，不依赖显示字符串格式）
+	if (m_devID > 0 && radarID.toInt() != m_devID)
+		ui.mAirTable->setRowHidden(row, true);
+
+	if (!ui.mAirTable->isRowHidden(row))
+		ui.mAirTable->scrollToBottom();
 }
 
 // 退出
@@ -118,24 +125,33 @@ void Dialog_AirList::on_exitBtn_click()
 
 void Dialog_AirList::on_queryBtn_click()
 {
-	ui.mAirTable->sortItems(1, Qt::AscendingOrder);	// 按雷达设备id排序
-
-	// 列表中只显示指定雷达设备id的记录
-	m_devID = ui.comboBox->currentText().toInt();
-
-	if (m_devID == 0)
+	QString sel = ui.comboBox->currentText();
+	if (sel == QString::fromLocal8Bit("全部"))
 	{
-		return;
+		m_devID = 0;
+	}
+	else
+	{
+		// comboBox 文本格式为 "100 (光学)"，取空格前的数字部分
+		m_devID = sel.section(' ', 0, 0).toInt();
 	}
 
-loop1:
+	// 按隐藏/显示过滤行（按装备ID数值比较，不依赖显示字符串格式）
+	int visCount = 0;
 	for (int i = 0; i < ui.mAirTable->rowCount(); i++)
 	{
 		QTableWidgetItem *pitem = ui.mAirTable->item(i, 1);
-		if (m_devID != pitem->text().toInt())
-		{
-			ui.mAirTable->removeRow(i);
-			goto loop1;
-		}
+		int cellDevID = pitem ? pitem->text().section(' ', 0, 0).toInt() : 0;
+		bool show = (m_devID == 0) || (cellDevID == m_devID);
+		ui.mAirTable->setRowHidden(i, !show);
+		if (show) visCount++;
+	}
+	// 若筛选后无匹配行，回退到"全部"并提示
+	if (m_devID != 0 && visCount == 0)
+	{
+		m_devID = 0;
+		for (int i = 0; i < ui.mAirTable->rowCount(); i++)
+			ui.mAirTable->setRowHidden(i, false);
+		ui.comboBox->setCurrentIndex(0);  // 切回"全部"
 	}
 }

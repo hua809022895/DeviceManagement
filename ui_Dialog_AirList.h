@@ -96,7 +96,7 @@ public:
     void retranslateUi(QDialog *DialogAirList)
     {
         DialogAirList->setWindowTitle(QApplication::translate("DialogAirList", "\345\256\236\346\227\266\346\216\242\346\265\213\346\227\240\344\272\272\346\234\272\344\277\241\346\201\257", nullptr));
-        label->setText(QApplication::translate("DialogAirList", "\351\233\267\350\276\276ID", nullptr));
+        label->setText(QApplication::translate("DialogAirList", "\350\243\205\345\244\207\345\210\227\350\241\250", nullptr));
         ok_Button->setText(QApplication::translate("DialogAirList", "\347\255\233\351\200\211", nullptr));
         pushExitBtn->setText(QApplication::translate("DialogAirList", "\345\205\263\351\227\255", nullptr));
     } // retranslateUi

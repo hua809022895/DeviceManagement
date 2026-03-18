@@ -38,7 +38,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>雷达ID</string>
+        <string>装备列表</string>
        </property>
       </widget>
      </item>
