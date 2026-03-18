@@ -3058,7 +3058,6 @@ void MainWindow::processAllPlaneUpdates()
 							gRadarLayerList[i]->changeAttributeValue(f.id(), 4, (int)uavAlt);
 						if (doPoly)
 							updateMountedRadarProjection(radarId, f, uavPt);
-						gRadarLayerList[i]->triggerRepaint();  // 刷新 SVG 图标位置
 						break;  // 同一设备只在一个图层中存在
 					}
 				}

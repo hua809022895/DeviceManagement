@@ -1812,7 +1812,7 @@ window.addEventListener('load', function() {
 
   // ===== UAV (aircraft body: fuselage + wings + tail, HTML overlay label) =====
   var _pl={};
-  var _uavR = GW * 0.0005;
+  var _uavR = GW * 0.001;
   var _trails = {};
   var _maxTrailPts = 600;
   window.clearTrails3D = function clearTrails3D(){
