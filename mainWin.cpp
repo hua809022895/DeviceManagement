@@ -1824,26 +1824,32 @@ window.addEventListener('load', function() {
   }
   function _makeUavGroup(id,altM){
     var g=new THREE.Group();
-    var umat=new THREE.MeshLambertMaterial({color:0xff3300});
-    var wmat=new THREE.MeshLambertMaterial({color:0xcc2200});
-    var fus=new THREE.Mesh(new THREE.SphereGeometry(_uavR,10,6),umat);
-    fus.scale.set(0.55,0.38,3.2); g.add(fus);
-    var nose=new THREE.Mesh(new THREE.ConeGeometry(_uavR*0.32,_uavR*1.1,6),umat);
-    nose.rotation.x=Math.PI/2; nose.position.z=-_uavR*3.0; g.add(nose);
-    var lwing=new THREE.Mesh(new THREE.BoxGeometry(_uavR*3.0,_uavR*0.15,_uavR*1.0),wmat);
-    lwing.position.set(-_uavR*1.6,0,_uavR*0.2); g.add(lwing);
-    var rwing=new THREE.Mesh(new THREE.BoxGeometry(_uavR*3.0,_uavR*0.15,_uavR*1.0),wmat);
-    rwing.position.set(_uavR*1.6,0,_uavR*0.2); g.add(rwing);
-    var fin=new THREE.Mesh(new THREE.BoxGeometry(_uavR*0.14,_uavR*0.85,_uavR*0.75),wmat);
-    fin.position.set(0,_uavR*0.45,_uavR*2.2); g.add(fin);
-    var htail=new THREE.Mesh(new THREE.BoxGeometry(_uavR*1.5,_uavR*0.12,_uavR*0.55),wmat);
-    htail.position.set(0,0,_uavR*2.3); g.add(htail);
-    var lp=[new THREE.Vector3(0,0,0),new THREE.Vector3(0,-(altM||0),0)];  // updated by updatePlane3D
+    var r=_uavR;
+    // 飞机轮廓 Shape（XY平面，机头朝+Y）：
+    // rotation.x=-PI/2 后平铺在XZ平面，机头指向-Z（北），俯视即为飞机平面图。
+    // yaw由外部 g.rotation.y 控制，rotation.y=-yaw*PI/180 顺时针转向正确。
+    var sh=new THREE.Shape();
+    sh.moveTo(0,        r*3.0);   // 机头
+    sh.lineTo(r*0.45,  r*1.8);
+    sh.lineTo(r*3.2,   r*0.2);   // 右翼尖
+    sh.lineTo(r*0.55,  r*-0.5);
+    sh.lineTo(r*1.3,   r*-2.5);  // 右尾翼尖
+    sh.lineTo(0,        r*-2.0); // 尾中心
+    sh.lineTo(-r*1.3,  r*-2.5);  // 左尾翼尖
+    sh.lineTo(-r*0.55, r*-0.5);
+    sh.lineTo(-r*3.2,  r*0.2);   // 左翼尖
+    sh.lineTo(-r*0.45, r*1.8);
+    sh.closePath();
+    var geo=new THREE.ExtrudeGeometry(sh,{depth:r*0.25,bevelEnabled:false});
+    var mat=new THREE.MeshLambertMaterial({color:0xff3300,side:THREE.DoubleSide});
+    var body=new THREE.Mesh(geo,mat);
+    body.rotation.x=-Math.PI/2;
+    g.add(body);
+    var lp=[new THREE.Vector3(0,0,0),new THREE.Vector3(0,-(altM||0),0)];
     var lo=new THREE.Line(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0xff6600,transparent:true,opacity:.35}));
     g.add(lo);
-    // HTML overlay label (no canvas)
-    _makeOvLabel(_lblKey('u',id), '\u65e0\u4eba\u673a#'+id, '\u9ad8\u5ea6:'+Math.round(altM)+'m', 'rgba(50,12,0,0.90)', '#ffcc88');
-    return {g:g, lo:lo};
+    _makeOvLabel(_lblKey('u',id),'\u65e0\u4eba\u673a#'+id,'\u9ad8\u5ea6:'+Math.round(altM)+'m','rgba(50,12,0,0.90)','#ffcc88');
+    return {g:g,lo:lo};
   }
   window.updatePlane3D = function updatePlane3D(id,lon,lat,altM,yaw){
     var pos=geo2s(lon,lat,0);
