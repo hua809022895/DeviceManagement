@@ -223,8 +223,15 @@ QList<QgsPointXY> MainWindow::GetTYPolygon(QgsPointXY devPt, float sAngle, float
 //�����״���Ϣ��������ʾͼԪ
 void MainWindow::ShowRadarTip()
 {
+	// canvas 正在渲染时，setMapPosition→updatePosition→toCanvasCoordinates
+	// 访问 canvas 共享 QVector，会触发 isDetached() 断言崩溃 → 延迟执行
+	if (m_mapCanvas && m_mapCanvas->isDrawing()) {
+		QTimer::singleShot(50, this, &MainWindow::ShowRadarTip);
+		return;
+	}
+
 	foreach(RadarTip *w, m_radarTipList) {
-		delete w;		
+		delete w;
 	}
 	m_radarTipList.clear();
 
@@ -539,12 +546,14 @@ void MainWindow::timer1_timeout()
 				gRadarLayerList[i]->updateFeature(f);
 			}
 
-			//��ʼ�ƶ��״���ʾͼԪ
-			foreach(RadarTip * r, m_radarTipList) {
-				if (r->m_id == info.id.toInt())
-				{
-					r->setPos(pt);
-					break;
+			//��ʼ�ƶ��״���ʾͼԪ（canvas 空闲时才设位置，避免 isDetached 崩溃）
+			if (!(m_mapCanvas && m_mapCanvas->isDrawing())) {
+				foreach(RadarTip * r, m_radarTipList) {
+					if (r->m_id == info.id.toInt())
+					{
+						r->setPos(pt);
+						break;
+					}
 				}
 			}
 		}
@@ -814,11 +823,17 @@ void MainWindow::moveRadarDevice()
 		return;
 	}
 
-	m_mapCanvas->setMapTool(mMoveFeature);
-
 	bool b = ui->mActionMoveRadarDev->isChecked();
-	if (!b)
+	if (b)
 	{
+		// enter move mode: ensure layer is editable
+		if (!gRadarLayerList[index]->isEditable())
+			gRadarLayerList[index]->startEditing();
+		m_mapCanvas->setMapTool(mMoveFeature);
+	}
+	else
+	{
+		m_mapCanvas->setMapTool(mMoveFeature);
 		gRadarLayerList[index]->commitChanges();
 
 		//����ͶӰͼ����ȫ���״�ͼԪ,��ȫ��ɾ��

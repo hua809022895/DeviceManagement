@@ -267,7 +267,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	//m_pBatchThread = new BatchSendThread;
 	//m_pBatchThread->start();
 
-	sprintf(buf,"收到飞机数量: %d", m_planeVector.count());
+	sprintf(buf,"在线飞机数量: %d", m_planeVector.count());
 	m_PlaneNumEditer->setText(QString::fromLocal8Bit(buf));
 	//addJpgAnnotaion(38.1371383667,116.2953262329,38.1353416443,116.2950057983,38.1372909546,116.2935943604,38.1355018616,116.2933807373,
 	//"/home/szs/test2/distorted_resn237.jpg");
@@ -463,6 +463,21 @@ bool MainWindow::createSqliteDatabase()
 		}
 	}
 
+	initQuery.exec(
+		"CREATE TABLE IF NOT EXISTS EquipmentA ("
+		"Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+		"type TEXT, Num TEXT, lookWidth TEXT, len TEXT, width TEXT, height TEXT,"
+		"ctrlRadius TEXT, MaxSpeed TEXT, xhTime TEXT, workHeight TEXT, maxWeight TEXT,"
+		"kejian1 TEXT, kejian2 TEXT, kejian3 TEXT, image BLOB)"
+	);
+	initQuery.exec(
+		"CREATE TABLE IF NOT EXISTS EquipmentB ("
+		"Id INTEGER PRIMARY KEY AUTOINCREMENT,"
+		"type TEXT, num TEXT, lookWidth TEXT, len TEXT, width TEXT, height TEXT,"
+		"yiZhan TEXT, flyWeight TEXT, flyHeight TEXT, ctrlRadius TEXT, flyTime TEXT,"
+		"maxWeight TEXT, flyType TEXT, backType TEXT, other TEXT, image BLOB)"
+	);
+
 	QSqlQuery query(g_sqliteDbase);
 	bool b = query.exec("SELECT 1 FROM mavlink LIMIT 1");
 	return g_sqliteDbase.isOpen();
@@ -635,7 +650,7 @@ void MainWindow::setMapCanvas()
 
     //创建显示飞机数量文本框对象
     m_PlaneNumEditer =new QLineEdit();
-    m_PlaneNumEditer->setMaximumWidth(170);
+    m_PlaneNumEditer->setMaximumWidth(220);
     ui->mToolBarSchedule->addWidget(m_PlaneNumEditer);
 
 	//创建一个2D地图窗口
@@ -1294,7 +1309,7 @@ void MainWindow::setEvents()
 	connect(ui->mActionMoveRadarDev, &QAction::triggered, this, &MainWindow::moveRadarDevice);			//移动雷达设备
 	connect(ui->mActionDelRadarDev, &QAction::triggered, this, &MainWindow::deleteRadarDevice);			//删除雷达设备
 	connect(ui->mActionFixRadar, &QAction::triggered, this, &MainWindow::fixRadarDevice);				//修改雷达设备
-	connect(ui->mActionOutfitMove, &QAction::triggered, this, &MainWindow::OutfitMove);					//装备移动
+	//connect(ui->mActionOutfitMove, &QAction::triggered, this, &MainWindow::OutfitMove);					//装备移动(已删除按钮)
 	connect(ui->mActionRadarTestAirList, &QAction::triggered, this, &MainWindow::RadarTestAirList);		//雷达探测无人机列表
 
 	//工具栏-无人机任务区域相关
@@ -1531,7 +1546,7 @@ void MainWindow::connectUDP()
 		}
 		m_planeThreadVec.clear();
 		ui->mPlaneWidget->setRowCount(0);	// 清空数据表格，防止重连后重复显示
-		m_PlaneNumEditer->setText(QString::fromLocal8Bit("收到飞机数量: 0"));
+		m_PlaneNumEditer->setText(QString::fromLocal8Bit("在线飞机数量: 0"));
 
 		// 清理无人机 QGIS 图层内所有图元
 		if (g_pAirLayer)
@@ -2792,8 +2807,8 @@ void MainWindow::getPlaneCount()
 	}
     //QMessageBox::information(this,tr("成功"),tr("获取无人机个数"));
     char buf[128];
-    sprintf(buf,"收到飞机数量: %d", m_planeVector.count());
-    //QString str=QString("收到飞机数量: %1").arg( planeVector.count()) ;
+    sprintf(buf,"在线飞机数量: %d", m_planeVector.count());
+    //QString str=QString("在线飞机数量: %1").arg( planeVector.count()) ;
     m_PlaneNumEditer->setText(QString::fromLocal8Bit(buf));	
 	QString mPath = QCoreApplication::applicationDirPath();
 	//创建一个接收mavlink协议，无人机数据线程
@@ -2945,7 +2960,8 @@ void MainWindow::processAllPlaneUpdates()
 			pPai->setString(plane.ID);
 			pPai->setPos(QgsPointXY(plane.planeX.toDouble(), plane.planeY.toDouble()));
 			// Leaflet 激活时隐藏，避免与 Leaflet marker 双重显示并产生渲染速度差异
-			if (m_leafletReady) pPai->setVisible(false);
+			// 仅在非 QGIS 视图时隐藏标牌（Leaflet/3D 有自己的标签系统）
+			if (m_mapViewMode != 0) pPai->setVisible(false);
 
 			tag_PlaneMessage *pp = const_cast<tag_PlaneMessage*>(&plane);
 			insertToTable(pp);
@@ -2962,7 +2978,7 @@ void MainWindow::processAllPlaneUpdates()
 		g_pAirLayer->commitChanges();	// 一次提交，无论多少架飞机
 		g_pAirLayer->triggerRepaint();
 		m_PlaneNumEditer->setText(
-			QString(QString::fromLocal8Bit("收到飞机数量: %1")).arg(m_planeVector.count()));
+			QString(QString::fromLocal8Bit("在线飞机数量: %1")).arg(m_planeVector.count()));
 		m_pendingNewPlanes.clear();
 	}
 
@@ -3516,7 +3532,7 @@ void MainWindow::setActionSvg()
 	ui->mActionMoveRadarDev->setIcon(QIcon(":/images/themes/default/mActionMoveFeature.svg"));
 	ui->mActionDelRadarDev->setIcon(QIcon(":/images/themes/default/mActionDeleteSelected.svg"));
 	ui->mActionFixRadar->setIcon(QIcon(":/images/themes/default/mActionOptions.svg"));
-	ui->mActionOutfitMove->setIcon(QIcon(":/images/themes/default/mActionMoveFeatureCopy.svg"));
+//	ui->mActionOutfitMove->setIcon(QIcon(":/images/themes/default/mActionMoveFeatureCopy.svg"));
 	ui->mActionRadarTestAirList->setIcon(QIcon(":/images/themes/default/mActionOpenTable.svg"));
 
 	// 任务工具栏 (toolBar_4)

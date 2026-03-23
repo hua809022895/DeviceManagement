@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>族群任务指控系统</string>
+   <string>态势显示评估系统</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTableWidget" name="mTableWidgetMarkAttribute">
@@ -196,7 +196,6 @@
    <addaction name="mActionMoveRadarDev"/>
    <addaction name="mActionDelRadarDev"/>
    <addaction name="mActionFixRadar"/>
-   <addaction name="mActionOutfitMove"/>
    <addaction name="mActionRadarTestAirList"/>
   </widget>
   <widget class="QToolBar" name="toolBar_4">
@@ -519,20 +518,6 @@
     <string>选中雷达</string>
    </property>
   </action>
-  <action name="mActionMoveRadarDev">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>移动装备</string>
-   </property>
-   <property name="toolTip">
-    <string>移动装备</string>
-   </property>
-  </action>
   <action name="mActionDelRadarDev">
    <property name="text">
     <string>删除装备</string>
@@ -549,7 +534,14 @@
     <string>修改装备参数</string>
    </property>
   </action>
-  <action name="mActionOutfitMove">
+
+  <action name="mActionMoveRadarDev">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>移动装备</string>
    </property>
@@ -557,6 +549,7 @@
     <string>移动装备</string>
    </property>
   </action>
+
   <action name="mActionAddTaskRect">
    <property name="text">
     <string>添加任务区域</string>

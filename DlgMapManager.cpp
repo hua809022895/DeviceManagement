@@ -38,10 +38,6 @@ static const TilePreset kOnlineMaps[] = {
       "type=xyz&url=https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
       "" },
-    { "\xe5\xa4\xa9\xe5\x9c\xb0\xe5\x9b\xbe\xe7\x9f\xa2\xe9\x87\x8f",  // 天地图矢量
-      "type=xyz&url=http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=your_key",
-      "http://t0.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=your_key",
-      "\xe9\x9c\x80\xe5\xb0\x86 your_key \xe6\x9b\xbf\xe6\x8d\xa2\xe4\xb8\xba\xe5\xa4\xa9\xe5\x9c\xb0\xe5\x9b\xbe API Key" }, // 需将 your_key 替换为天地图 API Key
 };
 static const int kOnlineCount = (int)(sizeof(kOnlineMaps) / sizeof(kOnlineMaps[0]));
 

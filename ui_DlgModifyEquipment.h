@@ -848,7 +848,7 @@ public:
         label_8->setText(QApplication::translate("DlgModifyEquipment", "\350\243\205\345\244\207\347\261\273\345\236\213", nullptr));
         label_22->setText(QApplication::translate("DlgModifyEquipment", "\345\234\250\345\272\223\346\225\260\351\207\217", nullptr));
         label_23->setText(QApplication::translate("DlgModifyEquipment", "\346\236\266", nullptr));
-        label_20->setText(QApplication::translate("DlgModifyEquipment", "\344\276\265\346\237\245\345\270\246\345\256\275", nullptr));
+        label_20->setText(QApplication::translate("DlgModifyEquipment", "\344\276\246\345\257\237\345\270\246\345\256\275", nullptr));
         label_21->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
         label_2->setText(QApplication::translate("DlgModifyEquipment", "\350\243\205\345\244\207\351\225\277\345\272\246", nullptr));
         label_12->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
@@ -873,7 +873,7 @@ public:
         label_35->setText(QApplication::translate("DlgModifyEquipment", "\350\243\205\345\244\207\347\261\273\345\236\213", nullptr));
         label_30->setText(QApplication::translate("DlgModifyEquipment", "\345\234\250\345\272\223\346\225\260\351\207\217", nullptr));
         label_36->setText(QApplication::translate("DlgModifyEquipment", "\346\236\266", nullptr));
-        label_38->setText(QApplication::translate("DlgModifyEquipment", "\344\276\265\346\237\245\345\270\246\345\256\275", nullptr));
+        label_38->setText(QApplication::translate("DlgModifyEquipment", "\344\276\246\345\257\237\345\270\246\345\256\275", nullptr));
         label_31->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
         label_37->setText(QApplication::translate("DlgModifyEquipment", "\350\243\205\345\244\207\351\225\277\345\272\246", nullptr));
         label_29->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
@@ -893,7 +893,7 @@ public:
         label_28->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\345\205\213)", nullptr));
         label_48->setText(QApplication::translate("DlgModifyEquipment", "\350\265\267\351\243\236\346\226\271\345\274\217", nullptr));
         label_49->setText(QApplication::translate("DlgModifyEquipment", "\345\233\236\346\224\266\346\226\271\345\274\217", nullptr));
-        label_50->setText(QApplication::translate("DlgModifyEquipment", "\347\277\205\345\261\225", nullptr));
+        label_50->setText(QApplication::translate("DlgModifyEquipment", "\347\277\274\345\261\225", nullptr));
         label_51->setText(QApplication::translate("DlgModifyEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
         label_52->setText(QApplication::translate("DlgModifyEquipment", "\351\243\236\350\241\214\351\200\237\345\272\246", nullptr));
         label_53->setText(QApplication::translate("DlgModifyEquipment", "(\347\261\263/\347\247\222)", nullptr));

@@ -653,9 +653,9 @@ function _rafKick() {
   if (!_rafLive) { _rafLive = true; requestAnimationFrame(_rafTick); }
 }
 
-// ── 航迹 ─────────────────────────────────────────────────────────────────────
-var _plTrails = {};
-var _maxPlTrail = 800;
+// ── 航迹（分段方案：每段≤200点，满了冻结为静态polyline，只重绘活跃段）──────
+var _plTrails = {};   // id → {segs:[L.polyline,...], active:L.polyline, cnt:0}
+var _segSize = 200;   // 每段最大点数（SVG 重绘量恒定）
 
 // ── 主入口：C++ 每 100ms 调用一次 ─────────────────────────────────────────────
 function updatePlane(id, lat, lng, label, yaw, alt) {
@@ -669,7 +669,8 @@ function updatePlane(id, lat, lng, label, yaw, alt) {
       +'<span class="pt-alt" style="font-size:11px;opacity:0.9;">\u9ad8\u5ea6:'+Math.round(alt||0)+'m</span>',
       { permanent:true, direction:'bottom', className:'plane-lbl', offset:[0,4] }
     );
-    _plTrails[id] = L.polyline([], {color:'#ff6600',weight:2.5,opacity:0.7,dashArray:'6,4'}).addTo(map);
+    var firstSeg = L.polyline([], {color:'#ff6600',weight:2.5,opacity:0.7,dashArray:'6,4'}).addTo(map);
+    _plTrails[id] = { segs:[firstSeg], active:firstSeg, cnt:0 };
     planes[id] = { m:m, cnt:0 };
     _plState[id]  = { pLat:lat, pLng:lng, nLat:lat, nLng:lng, t0:now, dt:100 };
   } else {
@@ -696,23 +697,35 @@ function updatePlane(id, lat, lng, label, yaw, alt) {
   }
   // 启动 60fps 插值循环
   _rafKick();
-  // 航迹：追加 GPS 真实点（O(1)），超限时截断
-  if (_plTrails[id]) {
-    _plTrails[id].addLatLng([lat,lng]);
-    planes[id].cnt = (planes[id].cnt||0) + 1;
-    if (planes[id].cnt > _maxPlTrail) {
-      var pts = _plTrails[id].getLatLngs();
-      _plTrails[id].setLatLngs(pts.slice(pts.length - _maxPlTrail/2));
-      planes[id].cnt = _maxPlTrail/2;
+  // 航迹：分段追加，每段≤_segSize 点。满段冻结，新建下一段。
+  // SVG 重绘量恒定（只重绘活跃段≤200点），已绘制航线保持不变。
+  var tr = _plTrails[id];
+  if (tr) {
+    planes[id]._tc = (planes[id]._tc||0) + 1;
+    if (planes[id]._tc >= 5) {
+      planes[id]._tc = 0;
+      tr.active.addLatLng([lat,lng]);
+      tr.cnt++;
+      // 活跃段满 → 冻结，新建下一段（首点=当前点，保证线段连续）
+      if (tr.cnt >= _segSize) {
+        var ns = L.polyline([[lat,lng]], {color:'#ff6600',weight:2.5,opacity:0.7,dashArray:'6,4'}).addTo(map);
+        tr.segs.push(ns);
+        tr.active = ns;
+        tr.cnt = 0;
+      }
     }
   }
 }
 
 function setPlaneDetected(id) {
-  if (_plTrails[id]) _plTrails[id].setStyle({color:'#ff0000',weight:3,dashArray:null,opacity:0.9});
+  var tr=_plTrails[id]; if(!tr) return;
+  var s={color:'#ff0000',weight:3,dashArray:null,opacity:0.9};
+  tr.segs.forEach(function(seg){seg.setStyle(s);});
 }
 function setPlaneNormal(id) {
-  if (_plTrails[id]) _plTrails[id].setStyle({color:'#ff6600',weight:2.5,dashArray:'6,4',opacity:0.7});
+  var tr=_plTrails[id]; if(!tr) return;
+  var s={color:'#ff6600',weight:2.5,dashArray:'6,4',opacity:0.7};
+  tr.segs.forEach(function(seg){seg.setStyle(s);});
 }
 
 function setTileUrl(url) {
@@ -910,8 +923,10 @@ map.on('zoomend', function() {
 
 	connect(m_p2DMapView, &QWebEngineView::loadFinished, this, [this](bool ok) {
 		m_leafletReady = ok;
-		// Leaflet 激活时隐藏 QGIS biaopai（避免 QGIS/Leaflet 两套系统渲染速度不同导致图标与标签错位）
-		for (biaopai *bp : m_planeIDvec) bp->setVisible(!ok);
+		// 仅当当前处于 Leaflet 视图时隐藏 QGIS biaopai（避免在 QGIS 2D 视图下误隐藏）
+		if (ok && m_mapViewMode == 1) {
+			for (biaopai *bp : m_planeIDvec) bp->setVisible(false);
+		}
 		// 页面加载完成后，若当前正处于 Leaflet 模式，立即同步视角 + 装备/任务区域图标
 		// （类似 3D 的 loadFinished → sync3DAll()，避免用户在页面加载完成前切到 Leaflet 时图标丢失）
 		if (ok && m_mapViewMode == 1 && m_mapCanvas) {
@@ -1025,7 +1040,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:linear-gradient(180d
  <div class="item" id="pi-region"><span class="item-name">&#x536b;&#x661f;&#x5f71;&#x50cf;</span><div class="bar-bg"><div class="bar-fill" style="background:#44aaff"></div></div><span class="item-pct"></span></div>
  <div class="item" id="pi-elev"><span class="item-name">&#x5730;&#x5f62;&#x9ad8;&#x7a0b;</span><div class="bar-bg"><div class="bar-fill" style="background:#44ddaa"></div></div><span class="item-pct"></span></div>
 </div>
-<div id="dbg" style="position:fixed;bottom:0;left:0;right:0;max-height:220px;overflow-y:auto;background:rgba(0,0,0,.88);color:#0f0;font-size:11px;font-family:monospace;padding:4px 8px;z-index:9999;pointer-events:none;"></div>
+<div id="dbg" style="display:none;"></div>
 <script>
 var _dbgEl=document.getElementById('dbg');
 function dbg(m){if(_dbgEl){var d=document.createElement('div');d.textContent=m;_dbgEl.appendChild(d);_dbgEl.scrollTop=9999;}}
@@ -1485,15 +1500,22 @@ window.addEventListener('load', function() {
     // 创建/更新 detail mesh 的几何体位置和大小
     var dW = viewSpan * 2 * M_LON, dH = viewSpan * 2 * M_LAT;
     var dCx = (tLon - CX) * M_LON, dCz = -(tLat - CY) * M_LAT;
-    if (_dtlMesh) { scene.remove(_dtlMesh); _dtlMesh.geometry.dispose(); }
+    if (_dtlMesh) { scene.remove(_dtlMesh); _dtlMesh.geometry.dispose(); _dtlMesh = null; }
     var dGeo = new THREE.PlaneGeometry(dW, dH, 128, 128);
     _dtlMesh = new THREE.Mesh(dGeo, _dtlMat);
     _dtlMesh.rotation.x = -Math.PI / 2;
-    _dtlMesh.position.set(dCx, 0, dCz); // same level as base, polygonOffset handles z-fighting
-    scene.add(_dtlMesh);
-    // 同时请求影像和高程（DEM）
+    _dtlMesh.position.set(dCx, 0, dCz);
+    // 不立即 scene.add — 等卫星图加载完再显示，避免白色遮挡底图
+    var _lodImgOK = false, _lodDemOK = false;
     var cntDone = 0;
-    function onDone() { cntDone++; if (cntDone >= 2) _lodLoading = false; }
+    function onDone() {
+      cntDone++;
+      // 卫星图加载成功后才添加到场景（无纹理时保持透明不遮挡底图）
+      if (_lodImgOK && _dtlMesh && !_dtlMesh.parent) {
+        scene.add(_dtlMesh);
+      }
+      if (cntDone >= 2) _lodLoading = false;
+    }
     // 卫星影像
     var xhr1 = new XMLHttpRequest();
     xhr1.open('GET', _buildUrl(_IMG_BASE, bbox, 2048, 'jpg'), true);
@@ -1505,6 +1527,7 @@ window.addEventListener('load', function() {
           URL.revokeObjectURL(u);
           tex.minFilter = THREE.LinearMipmapLinearFilter; tex.magFilter = THREE.LinearFilter; tex.anisotropy = 4;
           _dtlMat.map = tex; _dtlMat.needsUpdate = true;
+          _lodImgOK = true;
           dbg('LOD img OK ' + Math.round(xhr1.response.size/1024) + 'KB');
           onDone();
         }, undefined, function(){ URL.revokeObjectURL(u); onDone(); });
@@ -1515,11 +1538,12 @@ window.addEventListener('load', function() {
     // 高程 DEM (Terrarium tiles)
     _fetchTerrainDEM(bbox[0],bbox[1],bbox[2],bbox[3], 512, null,
       function(tex, range) {
-        _dtlMat.displacementScale = _elevRange; // use base terrain range for consistency
+        _dtlMat.displacementScale = _elevRange;
         _dtlMat.displacementBias = 0;
         _dtlMat.displacementMap = tex;
         _dtlMat.bumpMap = tex; _dtlMat.bumpScale = 0.8;
         _dtlMat.needsUpdate = true;
+        _lodDemOK = true;
         dbg('LOD DEM OK range='+Math.round(range)+'m');
         onDone();
       },
@@ -1638,6 +1662,7 @@ window.addEventListener('load', function() {
 	+ R"RAW(
   // ===== Radar equipment (type-based models + 3D range cones) =====
   var _rd={}, _rdById={};
+  var _rdContainer = new THREE.Group(); scene.add(_rdContainer);
   var _rr = GW * 0.000085;
   // 俯仰角默认值（当属性值为0时使用）
   var _elevDefault=15;
@@ -1735,7 +1760,13 @@ window.addEventListener('load', function() {
 	+ R"RAW(
   window.syncRadars3D = function syncRadars3D(arr){
     window._lastRadarsData = arr;
-    for(var k in _rd){scene.remove(_rd[k]); _removeOvLabel(_lblKey('r',k));} _rd={}; _rdById={};
+    // 清理标签
+    for(var k in _rd){ _removeOvLabel(_lblKey('r',k)); }
+    // 整体移除容器并重建，确保所有旧 mesh 完全从 scene 移除（避免堆叠）
+    scene.remove(_rdContainer);
+    _rdContainer = new THREE.Group();
+    scene.add(_rdContainer);
+    _rd={}; _rdById={};
     if(!arr||!arr.length) return;
     arr.forEach(function(r){
       var t=(r.type||0)%_typeColors.length, tc=_typeColors[t];
@@ -1789,7 +1820,7 @@ window.addEventListener('load', function() {
         grp.add(coneGrp);
       }
       var rkey=r.type+'_'+r.id;
-      scene.add(grp); _rd[rkey]=grp; _rdById[r.id]=rkey;
+      _rdContainer.add(grp); _rd[rkey]=grp; _rdById[r.id]=rkey;
       var lo=_makeOvLabel(_lblKey('r',rkey),tc.name+'#'+r.id,'\u9ad8\u5ea6:'+Math.round(r.alt||0)+'m \u6d77\u62d4:'+Math.round(_absElev+(r.alt||0))+'m',tc.bc,tc.tc);
       lo.wpos.set(pos.x,_gY+mastH+_rr*3,pos.z);
     });
@@ -1814,7 +1845,7 @@ window.addEventListener('load', function() {
   var _pl={};
   var _uavR = GW * 0.001;
   var _trails = {};
-  var _maxTrailPts = 600;
+  var _maxTrailPts = 6000;
   window.clearTrails3D = function clearTrails3D(){
     for(var k in _trails){
       if(_trails[k]&&_trails[k].line){scene.remove(_trails[k].line);_trails[k].line.geometry.dispose();}
@@ -1825,25 +1856,33 @@ window.addEventListener('load', function() {
   function _makeUavGroup(id,altM){
     var g=new THREE.Group();
     var r=_uavR;
-    // 飞机轮廓 Shape（XY平面，机头朝+Y）：
-    // rotation.x=-PI/2 后平铺在XZ平面，机头指向-Z（北），俯视即为飞机平面图。
-    // yaw由外部 g.rotation.y 控制，rotation.y=-yaw*PI/180 顺时针转向正确。
-    var sh=new THREE.Shape();
-    sh.moveTo(0,        r*3.0);   // 机头
-    sh.lineTo(r*0.45,  r*1.8);
-    sh.lineTo(r*3.2,   r*0.2);   // 右翼尖
-    sh.lineTo(r*0.55,  r*-0.5);
-    sh.lineTo(r*1.3,   r*-2.5);  // 右尾翼尖
-    sh.lineTo(0,        r*-2.0); // 尾中心
-    sh.lineTo(-r*1.3,  r*-2.5);  // 左尾翼尖
-    sh.lineTo(-r*0.55, r*-0.5);
-    sh.lineTo(-r*3.2,  r*0.2);   // 左翼尖
-    sh.lineTo(-r*0.45, r*1.8);
-    sh.closePath();
-    var geo=new THREE.ExtrudeGeometry(sh,{depth:r*0.25,bevelEnabled:false});
-    var mat=new THREE.MeshLambertMaterial({color:0xff3300,side:THREE.DoubleSide});
+    // 飞机形状：手动三角化凹多边形（分为机身+左右翼+左右尾翼 5个凸三角形）
+    //   0=机头, 1=右肩, 2=右翼尖, 3=右腰, 4=右尾尖, 5=尾中, 6=左尾尖, 7=左腰, 8=左翼尖, 9=左肩
+    // 坐标：X=右, Z=南（-Z=北=机头方向），Y=0
+    var P=[
+      [0,-r*3],[r*.45,-r*1.8],[r*3.2,-r*.2],[r*.55,r*.5],
+      [r*1.3,r*2.5],[0,r*2],[-r*1.3,r*2.5],[-r*.55,r*.5],
+      [-r*3.2,-r*.2],[-r*.45,-r*1.8]
+    ];
+    // 凸分解三角形列表 [a,b,c]
+    var tris=[
+      [0,1,9],[1,3,9],[9,3,7],  // 机身中轴
+      [1,2,3],                   // 右翼
+      [3,4,5],[5,7,3],           // 尾部
+      [5,6,7],                   // 左尾
+      [7,8,9]                    // 左翼
+    ];
+    var verts=[];
+    tris.forEach(function(t){
+      for(var j=0;j<3;j++) verts.push(P[t[j]][0], 0, P[t[j]][1]);
+    });
+    var geo=new THREE.BufferGeometry();
+    geo.addAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+    geo.computeVertexNormals();
+    var mat=new THREE.MeshLambertMaterial({color:0xff3300,side:THREE.DoubleSide,
+      depthTest:false,depthWrite:false});
     var body=new THREE.Mesh(geo,mat);
-    body.rotation.x=-Math.PI/2;
+    body.renderOrder=10;
     g.add(body);
     var lp=[new THREE.Vector3(0,0,0),new THREE.Vector3(0,-(altM||0),0)];
     var lo=new THREE.Line(new THREE.BufferGeometry().setFromPoints(lp),new THREE.LineBasicMaterial({color:0xff6600,transparent:true,opacity:.35}));
@@ -1858,31 +1897,34 @@ window.addEventListener('load', function() {
     var p=_pl[id];
     p.g.position.copy(pos); p.g.rotation.y=-(yaw||0)*Math.PI/180;
     var a=p.lo.geometry.attributes.position; a.setY(1,-(altM||0)); a.needsUpdate=true;
-    // Trail update (pre-allocated buffer, update in place)
+    // Trail update: 每5次GPS更新记录一个航迹点（降低 GPU 开销）
     var tk='tr_'+id;
     if(!_trails[tk]){
       var buf=new THREE.BufferAttribute(new Float32Array(_maxTrailPts*3),3);
-      buf.setUsage(THREE.DynamicDrawUsage);
-      var geo=new THREE.BufferGeometry(); geo.setAttribute('position',buf);
+      if(buf.setUsage) buf.setUsage(THREE.DynamicDrawUsage);
+      var geo=new THREE.BufferGeometry(); geo.addAttribute('position',buf);
       geo.setDrawRange(0,0);
       var line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0xff8800}));
       scene.add(line);
-      // WebGL不支持linewidth>1，额外叠加Points层（固定像素大小）增强航线可视性
       var dots=new THREE.Points(geo,new THREE.PointsMaterial({color:0xffaa00,size:4,sizeAttenuation:false}));
       scene.add(dots);
-      _trails[tk]={cnt:0,line:line,dots:dots};
+      _trails[tk]={cnt:0,line:line,dots:dots,_tc:0};
     }
     var tr=_trails[tk], attr=tr.line.geometry.attributes.position;
-    if(tr.cnt<_maxTrailPts){
-      attr.setXYZ(tr.cnt,pos.x,pos.y,pos.z);
-      tr.cnt++;
-    } else {
-      // shift buffer left by 1
-      var a=attr.array; a.copyWithin(0,3); var i=(_maxTrailPts-1)*3;
-      a[i]=pos.x; a[i+1]=pos.y; a[i+2]=pos.z;
+    tr._tc = (tr._tc||0) + 1;
+    if(tr._tc >= 5){
+      tr._tc = 0;
+      if(tr.cnt<_maxTrailPts){
+        attr.setXYZ(tr.cnt,pos.x,pos.y,pos.z);
+        tr.cnt++;
+      } else {
+        // 缓冲区满：左移一位，末尾写入新点
+        var a=attr.array; a.copyWithin(0,3); var i=(_maxTrailPts-1)*3;
+        a[i]=pos.x; a[i+1]=pos.y; a[i+2]=pos.z;
+      }
+      tr.line.geometry.setDrawRange(0,tr.cnt);
+      attr.needsUpdate=true;
     }
-    tr.line.geometry.setDrawRange(0,tr.cnt);
-    attr.needsUpdate=true;
     // Update HTML overlay label position + altitude text
     var lk=_lblKey('u',id);
     if(!_ovLabels[lk]) _makeOvLabel(lk,'\u65e0\u4eba\u673a#'+id,'\u9ad8\u5ea6:'+Math.round(altM)+'m','rgba(50,12,0,0.90)','#ffcc88');

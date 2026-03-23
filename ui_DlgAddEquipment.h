@@ -76,12 +76,6 @@ public:
     QHBoxLayout *hboxLayout9;
     QTextEdit *textEdit_10;
     QLabel *label_19;
-    QLabel *label_24;
-    QTextEdit *textEdit_12;
-    QLabel *label_26;
-    QTextEdit *textEdit_13;
-    QLabel *label_25;
-    QTextEdit *textEdit_14;
     QWidget *tab_2;
     QFormLayout *formLayout2;
     QLabel *label_35;
@@ -413,45 +407,6 @@ public:
 
 
         formLayout1->setLayout(10, QFormLayout::FieldRole, hboxLayout9);
-
-        label_24 = new QLabel(tab_1);
-        label_24->setObjectName(QString::fromUtf8("label_24"));
-
-        formLayout1->setWidget(11, QFormLayout::LabelRole, label_24);
-
-        textEdit_12 = new QTextEdit(tab_1);
-        textEdit_12->setObjectName(QString::fromUtf8("textEdit_12"));
-        sizePolicy.setHeightForWidth(textEdit_12->sizePolicy().hasHeightForWidth());
-        textEdit_12->setSizePolicy(sizePolicy);
-        textEdit_12->setMaximumHeight(40);
-
-        formLayout1->setWidget(11, QFormLayout::FieldRole, textEdit_12);
-
-        label_26 = new QLabel(tab_1);
-        label_26->setObjectName(QString::fromUtf8("label_26"));
-
-        formLayout1->setWidget(12, QFormLayout::LabelRole, label_26);
-
-        textEdit_13 = new QTextEdit(tab_1);
-        textEdit_13->setObjectName(QString::fromUtf8("textEdit_13"));
-        sizePolicy.setHeightForWidth(textEdit_13->sizePolicy().hasHeightForWidth());
-        textEdit_13->setSizePolicy(sizePolicy);
-        textEdit_13->setMaximumHeight(40);
-
-        formLayout1->setWidget(12, QFormLayout::FieldRole, textEdit_13);
-
-        label_25 = new QLabel(tab_1);
-        label_25->setObjectName(QString::fromUtf8("label_25"));
-
-        formLayout1->setWidget(13, QFormLayout::LabelRole, label_25);
-
-        textEdit_14 = new QTextEdit(tab_1);
-        textEdit_14->setObjectName(QString::fromUtf8("textEdit_14"));
-        sizePolicy.setHeightForWidth(textEdit_14->sizePolicy().hasHeightForWidth());
-        textEdit_14->setSizePolicy(sizePolicy);
-        textEdit_14->setMaximumHeight(40);
-
-        formLayout1->setWidget(13, QFormLayout::FieldRole, textEdit_14);
 
         tabWidget->addTab(tab_1, QString());
         tab_2 = new QWidget();
@@ -848,53 +803,50 @@ public:
         label_8->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\347\261\273\345\236\213", nullptr));
         label_22->setText(QApplication::translate("DlgAddEquipment", "\345\234\250\345\272\223\346\225\260\351\207\217", nullptr));
         label_23->setText(QApplication::translate("DlgAddEquipment", "\346\236\266", nullptr));
-        label_20->setText(QApplication::translate("DlgAddEquipment", "\344\276\265\346\237\245\345\270\246\345\256\275", nullptr));
-        label_21->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_20->setText(QApplication::translate("DlgAddEquipment", "\344\276\246\345\257\237\345\270\246\345\256\275", nullptr));
+        label_21->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263)", nullptr));
         label_2->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\351\225\277\345\272\246", nullptr));
-        label_12->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_12->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\345\256\275\345\272\246", nullptr));
-        label_7->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_7->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label_3->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\351\253\230\345\272\246", nullptr));
-        label_13->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_13->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label_4->setText(QApplication::translate("DlgAddEquipment", "\351\243\236\350\241\214\346\216\247\345\210\266\345\215\212\345\276\204", nullptr));
-        label_14->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\205\254\351\207\214)", nullptr));
+        label_14->setText(QApplication::translate("DlgAddEquipment", "(\345\205\254\351\207\214)", nullptr));
         label_5->setText(QApplication::translate("DlgAddEquipment", "\346\234\200\345\244\247\351\243\236\350\241\214\351\200\237\345\272\246", nullptr));
         label_15->setText(QApplication::translate("DlgAddEquipment", "\347\247\222/\347\261\263", nullptr));
         label_6->setText(QApplication::translate("DlgAddEquipment", "\346\234\200\351\225\277\351\243\236\350\241\214\346\227\266\351\227\264", nullptr));
-        label_16->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\210\206\351\222\237)", nullptr));
+        label_16->setText(QApplication::translate("DlgAddEquipment", "(\345\210\206\351\222\237)", nullptr));
         label_9->setText(QApplication::translate("DlgAddEquipment", "\345\267\245\344\275\234\351\253\230\345\272\246", nullptr));
-        label_17->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_17->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263)", nullptr));
         label_11->setText(QApplication::translate("DlgAddEquipment", "\346\234\200\345\244\247\350\275\275\351\207\215", nullptr));
-        label_19->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\205\254\346\226\244)", nullptr));
-        label_24->setText(QApplication::translate("DlgAddEquipment", "\345\217\257\350\247\201\345\205\211\351\270\234\345\244\264", nullptr));
-        label_26->setText(QApplication::translate("DlgAddEquipment", "\345\217\257\350\247\201\345\205\211\346\225\260\345\255\227\345\217\230\347\204\246", nullptr));
-        label_25->setText(QApplication::translate("DlgAddEquipment", "\347\203\255\346\210\220\345\203\217\344\274\240\346\204\237\345\231\250\347\261\273\345\236\213", nullptr));
+        label_19->setText(QApplication::translate("DlgAddEquipment", "(\345\205\254\346\226\244)", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_1), QApplication::translate("DlgAddEquipment", "Tab 1", nullptr));
         label_35->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\347\261\273\345\236\213", nullptr));
         label_30->setText(QApplication::translate("DlgAddEquipment", "\345\234\250\345\272\223\346\225\260\351\207\217", nullptr));
         label_36->setText(QApplication::translate("DlgAddEquipment", "\346\236\266", nullptr));
-        label_38->setText(QApplication::translate("DlgAddEquipment", "\344\276\265\346\237\245\345\270\246\345\256\275", nullptr));
-        label_31->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_38->setText(QApplication::translate("DlgAddEquipment", "\344\276\246\345\257\237\345\270\246\345\256\275", nullptr));
+        label_31->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263)", nullptr));
         label_37->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\351\225\277\345\272\246", nullptr));
-        label_29->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_29->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label_34->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\345\256\275\345\272\246", nullptr));
-        label_33->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_33->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label_39->setText(QApplication::translate("DlgAddEquipment", "\350\243\205\345\244\207\351\253\230\345\272\246", nullptr));
-        label_32->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\346\257\253\347\261\263)", nullptr));
+        label_32->setText(QApplication::translate("DlgAddEquipment", "(\346\257\253\347\261\263)", nullptr));
         label_40->setText(QApplication::translate("DlgAddEquipment", "\350\265\267\351\243\236\351\207\215\351\207\217", nullptr));
-        label_41->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\205\254\346\226\244)", nullptr));
+        label_41->setText(QApplication::translate("DlgAddEquipment", "(\345\205\254\346\226\244)", nullptr));
         label_43->setText(QApplication::translate("DlgAddEquipment", "\351\243\236\350\241\214\351\253\230\345\272\246", nullptr));
-        label_42->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_42->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263)", nullptr));
         label_44->setText(QApplication::translate("DlgAddEquipment", "\346\216\247\345\210\266\350\267\235\347\246\273", nullptr));
-        label_45->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\205\254\351\207\214)", nullptr));
+        label_45->setText(QApplication::translate("DlgAddEquipment", "(\345\205\254\351\207\214)", nullptr));
         label_46->setText(QApplication::translate("DlgAddEquipment", "\347\251\272\350\275\275\351\243\236\350\241\214\346\227\266\351\227\264", nullptr));
-        label_47->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\210\206\351\222\237)", nullptr));
+        label_47->setText(QApplication::translate("DlgAddEquipment", "(\345\210\206\351\222\237)", nullptr));
         label_27->setText(QApplication::translate("DlgAddEquipment", "\346\234\200\345\244\247\344\273\273\345\212\241\350\275\275\350\215\267", nullptr));
-        label_28->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\345\205\213)", nullptr));
+        label_28->setText(QApplication::translate("DlgAddEquipment", "(\345\205\213)", nullptr));
         label_48->setText(QApplication::translate("DlgAddEquipment", "\350\265\267\351\243\236\346\226\271\345\274\217", nullptr));
         label_49->setText(QApplication::translate("DlgAddEquipment", "\345\233\236\346\224\266\346\226\271\345\274\217", nullptr));
-        label_50->setText(QApplication::translate("DlgAddEquipment", "\347\277\205\345\261\225", nullptr));
-        label_51->setText(QApplication::translate("DlgAddEquipment", "\345\215\225\344\275\215(\347\261\263)", nullptr));
+        label_50->setText(QApplication::translate("DlgAddEquipment", "\347\277\274\345\261\225", nullptr));
+        label_51->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263)", nullptr));
         label_52->setText(QApplication::translate("DlgAddEquipment", "\351\243\236\350\241\214\351\200\237\345\272\246", nullptr));
         label_53->setText(QApplication::translate("DlgAddEquipment", "(\347\261\263/\347\247\222)", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("DlgAddEquipment", "Tab 2", nullptr));

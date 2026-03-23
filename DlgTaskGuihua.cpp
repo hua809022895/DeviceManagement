@@ -12,58 +12,45 @@
 DlgTaskGuihua::DlgTaskGuihua(QWidget *parent): QDialog(parent)
 {
 	ui.setupUi(this);
-	//connect(ui.okButton, &QAbstractButton::clicked, this, &DlgTaskGuihua::on_exitBtn_click);//ÍË³öÃüÁî°´Å¥
+	//connect(ui.okButton, &QAbstractButton::clicked, this, &DlgTaskGuihua::on_exitBtn_click);//ï¿½Ë³ï¿½ï¿½ï¿½ï¿½î°´Å¥
 	
-	//Á¬½Óµã»÷ÏîµÄ²Ûº¯Êý	
+	//ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½Ä²Ûºï¿½ï¿½ï¿½	
 	connect(ui.mWidget, &QTableWidget::itemClicked, this, &DlgTaskGuihua::onItemClicked);
 
-	//ÉèÖÃÎÞÈË»ú±í¸ñ¿Ø¼þ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½
 	int i = 0;
 	ui.mWidget->setColumnCount(5);
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ÈÎÎñID")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("³¤¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¿í¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¸ß¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("·ÉÐÐÊ±¼ä")));
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u4efb\u52a1ID")));    // ä»»åŠ¡ID
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u957f\u5ea6")));      // é•¿åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u5bbd\u5ea6")));      // å®½åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u9ad8\u5ea6")));      // é«˜åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u884c\u65f6")));      // è¡Œæ—¶
 	
-	ui.mWidget->setColumnWidth(0, 70);
-	ui.mWidget->setColumnWidth(1, 50);
-	ui.mWidget->setColumnWidth(2, 50);
-	ui.mWidget->setColumnWidth(3, 50);
-	ui.mWidget->setColumnWidth(4, 70);
-
+	ui.mWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui.mWidget->verticalHeader()->setVisible(false);
-	ui.mWidget->setSelectionBehavior(QAbstractItemView::SelectRows); //ÉèÖÃÑ¡ÔñÐÐÎª£¬ÒÔÐÐÎªµ¥Î»
-	ui.mWidget->setSelectionMode(QAbstractItemView::SingleSelection); //ÉèÖÃÑ¡ÔñÄ£Ê½£¬Ñ¡Ôñµ¥ÐÐ
+	ui.mWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.mWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	i = 0;
 	ui.mWidget_2->setColumnCount(9);
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("×°±¸id")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ÀàÐÍ")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Õì²é´ø¿í")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("³¤¶È")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¿í¶È")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¸ß¶È")));	
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Ðøº½Ê±¼ä")));	
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ËÙ¶È")));
-	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ÐèÓÃÊýÁ¿")));
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u88c5\u5907id")));   // è£…å¤‡id
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u7c7b\u578b")));    // ç±»åž‹
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u67e5\u5e26\u5bbd")));// æŸ¥å¸¦å®½
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u957f\u5ea6")));    // é•¿åº¦
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u5bbd\u5ea6")));    // å®½åº¦
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u9ad8\u5ea6")));    // é«˜åº¦
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u822a\u65f6")));    // èˆªæ—¶
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u901f\u5ea6")));    // é€Ÿåº¦
+	ui.mWidget_2->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u7528\u6570")));    // ç”¨æ•°
 	
-	ui.mWidget_2->setColumnWidth(0, 0);
-	ui.mWidget_2->setColumnWidth(1, 80);//ÀàÐÍ
-	ui.mWidget_2->setColumnWidth(2, 70);//Õì²é´ø¿í
-	ui.mWidget_2->setColumnWidth(3, 60);
-	ui.mWidget_2->setColumnWidth(4, 60);
-	ui.mWidget_2->setColumnWidth(5, 60);
-	ui.mWidget_2->setColumnWidth(6, 60);
-	ui.mWidget_2->setColumnWidth(7, 60); //ËÙ¶È
-	ui.mWidget_2->setColumnWidth(8, 60); //ÐèÒª¼ÜÊý
-
+	ui.mWidget_2->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	ui.mWidget_2->setColumnHidden(0, true);  // éšè—è£…å¤‡idåˆ—
 	ui.mWidget_2->verticalHeader()->setVisible(false);
-	ui.mWidget_2->setSelectionBehavior(QAbstractItemView::SelectRows); //ÉèÖÃÑ¡ÔñÐÐÎª£¬ÒÔÐÐÎªµ¥Î»
-	ui.mWidget_2->setSelectionMode(QAbstractItemView::SingleSelection); //ÉèÖÃÑ¡ÔñÄ£Ê½£¬Ñ¡Ôñµ¥ÐÐ	
+	ui.mWidget_2->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.mWidget_2->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	//this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint);
-	//±éÀúÈ«²¿À×´ïÉè±¸
+	//ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½×´ï¿½ï¿½è±¸
 	QgsFeature feat;
 	QgsFeatureIterator fit = g_pAirTaskPolyLayer->getFeatures();
 	while (fit.nextFeature(feat))
@@ -108,23 +95,23 @@ loop1:
 	}
 	int row = item->row();
 
-	// »ñÈ¡µ¥Ôª¸ñÄÚÈÝ
+	// ï¿½ï¿½È¡ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	//QTableWidgetItem *qim = ui.mWidget->item(row, 0);
-	QTableWidgetItem *qFlyTime	= ui.mWidget->item(row, 4);//·ÉÐÐÊ±¼ä
-	QTableWidgetItem *qLen		= ui.mWidget->item(row, 1);//³¤¶È
-	QTableWidgetItem *qW		= ui.mWidget->item(row, 2);//¿í¶È
+	QTableWidgetItem *qFlyTime	= ui.mWidget->item(row, 4);//ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	QTableWidgetItem *qLen		= ui.mWidget->item(row, 1);//ï¿½ï¿½ï¿½ï¿½
+	QTableWidgetItem *qW		= ui.mWidget->item(row, 2);//ï¿½ï¿½ï¿½ï¿½
 	if (item) {
 		QString text = qFlyTime->text();
 		QString tLen = qLen->text();
 		QString tWidth = qW->text();
 		//qDebug() << "iCount text=" << text << endl;
 		
-		refreshA(tLen.toInt(), tWidth.toInt(),text.toInt()); //¸ù¾Ý·ÉÐÐÊ±¼ä£¬ÅÐ¶Ï£¬×°±¸ÊÇ·ñ¿ÉÓÃ
-		refreshB(tLen.toInt(), tWidth.toInt(),text.toInt()); //¸ù¾Ý·ÉÐÐÊ±¼ä£¬ÅÐ¶Ï£¬×°±¸ÊÇ·ñ¿ÉÓÃ		
+		refreshA(tLen.toInt(), tWidth.toInt(),text.toInt()); //ï¿½ï¿½ï¿½Ý·ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½Ð¶Ï£ï¿½×°ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
+		refreshB(tLen.toInt(), tWidth.toInt(),text.toInt()); //ï¿½ï¿½ï¿½Ý·ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½Ð¶Ï£ï¿½×°ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½		
 	}
 }
 
-//ÖØÐÂË¢ÐÂ±í¸ñÊý¾Ý£¬¸ù¾Ý·ÉÐÐÊ±¼ä£¬ÅÐ¶Ï×°±¸ÐèÒªÓÃ¼¸¸ö
+//ï¿½ï¿½ï¿½ï¿½Ë¢ï¿½Â±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½Ý·ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½Ð¶ï¿½×°ï¿½ï¿½ï¿½ï¿½Òªï¿½Ã¼ï¿½ï¿½ï¿½
 void DlgTaskGuihua::refreshA(int len, int w, int flyTime)
 {
 	QString sql = "select * from EquipmentA order by id";
@@ -135,12 +122,12 @@ void DlgTaskGuihua::refreshA(int len, int w, int flyTime)
 	{		
 		QString ID			= query.value("ID").toString();
 		QString type		= query.value("type").toString();
-		QString lookWidth	= query.value("lookWidth").toString();		//Õì²é´ø¿í
+		QString lookWidth	= query.value("lookWidth").toString();		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		QString slen		= query.value("len").toString();
 		QString width	= query.value("width").toString();
 		QString height	= query.value("height").toString();
 		QString xhTime	= query.value("xhTime").toString();
-		QString sSpeed = query.value("MaxSpeed").toString();  //ËÙ¶È
+		QString sSpeed = query.value("MaxSpeed").toString();  //ï¿½Ù¶ï¿½
 
 		int row = ui.mWidget_2->rowCount();
 		ui.mWidget_2->insertRow(row);
@@ -148,7 +135,7 @@ void DlgTaskGuihua::refreshA(int len, int w, int flyTime)
 		ui.mWidget_2->setItem(row, 0, new QTableWidgetItem(ID));	//ID
 		ui.mWidget_2->item(row, 0)->setTextAlignment(Qt::AlignTop);
 		ui.mWidget_2->setItem(row, 1, new QTableWidgetItem(type));
-		ui.mWidget_2->setItem(row, 2, new QTableWidgetItem(lookWidth)); //Õì²é´ø¿í
+		ui.mWidget_2->setItem(row, 2, new QTableWidgetItem(lookWidth)); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		ui.mWidget_2->setItem(row, 3, new QTableWidgetItem(slen));
 		ui.mWidget_2->setItem(row, 4, new QTableWidgetItem(width));
 		ui.mWidget_2->setItem(row, 5, new QTableWidgetItem(height));
@@ -157,7 +144,7 @@ void DlgTaskGuihua::refreshA(int len, int w, int flyTime)
 		
 		int time =  (len * w) / lookWidth.toInt() / sSpeed.toInt()/ flyTime /60; 
 		QString sNum = QString::number(time+1);
-		ui.mWidget_2->setItem(row, 8, new QTableWidgetItem(sNum));//ÐèÒª¸öÊý
+		ui.mWidget_2->setItem(row, 8, new QTableWidgetItem(sNum));//ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
 	}
 }
 
@@ -171,7 +158,7 @@ void DlgTaskGuihua::refreshB(int len, int w, int flyTime)
 	{
 		QString ID = query.value("ID").toString();
 		QString type = query.value("type").toString();
-		QString lookWidth = query.value("lookWidth").toString();		//Õì²é´ø¿í
+		QString lookWidth = query.value("lookWidth").toString();		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		QString slen = query.value("len").toString();
 		QString width = query.value("width").toString();
 		QString height = query.value("height").toString();
@@ -184,7 +171,7 @@ void DlgTaskGuihua::refreshB(int len, int w, int flyTime)
 		ui.mWidget_2->setItem(row, 0, new QTableWidgetItem(ID));	//ID
 		ui.mWidget_2->item(row, 0)->setTextAlignment(Qt::AlignTop);
 		ui.mWidget_2->setItem(row, 1, new QTableWidgetItem(type));
-		ui.mWidget_2->setItem(row, 2, new QTableWidgetItem(lookWidth)); //Õì²é´ø¿í
+		ui.mWidget_2->setItem(row, 2, new QTableWidgetItem(lookWidth)); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		ui.mWidget_2->setItem(row, 3, new QTableWidgetItem(slen));
 		ui.mWidget_2->setItem(row, 4, new QTableWidgetItem(width));
 		ui.mWidget_2->setItem(row, 5, new QTableWidgetItem(height));
@@ -193,7 +180,7 @@ void DlgTaskGuihua::refreshB(int len, int w, int flyTime)
 
 		int time = (len * w) / lookWidth.toInt() / flyTime /iSpeed /60;
 		QString sNum = QString::number(time+1);
-		ui.mWidget_2->setItem(row, 8, new QTableWidgetItem(sNum));//ÐèÒª¸öÊý
+		ui.mWidget_2->setItem(row, 8, new QTableWidgetItem(sNum));//ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
 	}
 }
 

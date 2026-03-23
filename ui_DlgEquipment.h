@@ -18,94 +18,108 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTableWidget>
-#include <QtWidgets/QWidget>
+#include <QtWidgets/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 
 class Ui_DlgEquipment
 {
 public:
+    QVBoxLayout *mainLayout;
+    QHBoxLayout *contentLayout;
     QTableWidget *mWidget;
-    QWidget *horizontalLayoutWidget;
-    QHBoxLayout *horizontalLayout;
+    QGroupBox *groupBox;
+    QVBoxLayout *imgLayout;
+    QFrame *frame;
+    QVBoxLayout *frameLay;
+    QLabel *labelImage;
+    QHBoxLayout *btnLayout;
     QPushButton *pushAddBtn;
     QPushButton *pushModifyBtn;
     QPushButton *pushDeleteBtn;
     QPushButton *pushAllDelBtn;
+    QSpacerItem *btnSpacer;
     QPushButton *okButton;
-    QGroupBox *groupBox;
-    QFrame *frame;
-    QLabel *labelImage;
-    QFrame *frame_2;
-    QFrame *frame_3;
-    QFrame *frame_4;
 
     void setupUi(QDialog *DlgEquipment)
     {
         if (DlgEquipment->objectName().isEmpty())
             DlgEquipment->setObjectName(QString::fromUtf8("DlgEquipment"));
-        DlgEquipment->resize(1195, 583);
+        DlgEquipment->resize(1200, 600);
+        mainLayout = new QVBoxLayout(DlgEquipment);
+        mainLayout->setObjectName(QString::fromUtf8("mainLayout"));
+        contentLayout = new QHBoxLayout();
+        contentLayout->setObjectName(QString::fromUtf8("contentLayout"));
         mWidget = new QTableWidget(DlgEquipment);
         mWidget->setObjectName(QString::fromUtf8("mWidget"));
-        mWidget->setGeometry(QRect(0, 0, 651, 521));
-        horizontalLayoutWidget = new QWidget(DlgEquipment);
-        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(20, 530, 461, 51));
-        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        pushAddBtn = new QPushButton(horizontalLayoutWidget);
+        mWidget->setMinimumWidth(550);
+
+        contentLayout->addWidget(mWidget);
+
+        groupBox = new QGroupBox(DlgEquipment);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setFlat(true);
+        imgLayout = new QVBoxLayout(groupBox);
+        imgLayout->setObjectName(QString::fromUtf8("imgLayout"));
+        frame = new QFrame(groupBox);
+        frame->setObjectName(QString::fromUtf8("frame"));
+        frame->setFrameShape(QFrame::StyledPanel);
+        frame->setFrameShadow(QFrame::Raised);
+        frame->setMinimumWidth(400);
+        frameLay = new QVBoxLayout(frame);
+        frameLay->setObjectName(QString::fromUtf8("frameLay"));
+        labelImage = new QLabel(frame);
+        labelImage->setObjectName(QString::fromUtf8("labelImage"));
+        labelImage->setAlignment(Qt::AlignCenter);
+
+        frameLay->addWidget(labelImage);
+
+
+        imgLayout->addWidget(frame);
+
+
+        contentLayout->addWidget(groupBox);
+
+
+        mainLayout->addLayout(contentLayout);
+
+        btnLayout = new QHBoxLayout();
+        btnLayout->setObjectName(QString::fromUtf8("btnLayout"));
+        pushAddBtn = new QPushButton(DlgEquipment);
         pushAddBtn->setObjectName(QString::fromUtf8("pushAddBtn"));
 
-        horizontalLayout->addWidget(pushAddBtn);
+        btnLayout->addWidget(pushAddBtn);
 
-        pushModifyBtn = new QPushButton(horizontalLayoutWidget);
+        pushModifyBtn = new QPushButton(DlgEquipment);
         pushModifyBtn->setObjectName(QString::fromUtf8("pushModifyBtn"));
 
-        horizontalLayout->addWidget(pushModifyBtn);
+        btnLayout->addWidget(pushModifyBtn);
 
-        pushDeleteBtn = new QPushButton(horizontalLayoutWidget);
+        pushDeleteBtn = new QPushButton(DlgEquipment);
         pushDeleteBtn->setObjectName(QString::fromUtf8("pushDeleteBtn"));
 
-        horizontalLayout->addWidget(pushDeleteBtn);
+        btnLayout->addWidget(pushDeleteBtn);
 
-        pushAllDelBtn = new QPushButton(horizontalLayoutWidget);
+        pushAllDelBtn = new QPushButton(DlgEquipment);
         pushAllDelBtn->setObjectName(QString::fromUtf8("pushAllDelBtn"));
 
-        horizontalLayout->addWidget(pushAllDelBtn);
+        btnLayout->addWidget(pushAllDelBtn);
+
+        btnSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        btnLayout->addItem(btnSpacer);
 
         okButton = new QPushButton(DlgEquipment);
         okButton->setObjectName(QString::fromUtf8("okButton"));
-        okButton->setGeometry(QRect(1060, 540, 100, 30));
-        groupBox = new QGroupBox(DlgEquipment);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(660, 10, 530, 511));
-        groupBox->setTabletTracking(true);
-        groupBox->setFlat(true);
-        frame = new QFrame(groupBox);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setGeometry(QRect(0, 20, 521, 481));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
-        labelImage = new QLabel(frame);
-        labelImage->setObjectName(QString::fromUtf8("labelImage"));
-        labelImage->setGeometry(QRect(0, 0, 521, 481));
-        frame_2 = new QFrame(groupBox);
-        frame_2->setObjectName(QString::fromUtf8("frame_2"));
-        frame_2->setGeometry(QRect(0, 500, 530, 16));
-        frame_2->setFrameShape(QFrame::HLine);
-        frame_2->setFrameShadow(QFrame::Raised);
-        frame_3 = new QFrame(DlgEquipment);
-        frame_3->setObjectName(QString::fromUtf8("frame_3"));
-        frame_3->setGeometry(QRect(1180, 16, 16, 500));
-        frame_3->setFrameShape(QFrame::VLine);
-        frame_3->setFrameShadow(QFrame::Raised);
-        frame_4 = new QFrame(DlgEquipment);
-        frame_4->setObjectName(QString::fromUtf8("frame_4"));
-        frame_4->setGeometry(QRect(648, 10, 16, 510));
-        frame_4->setFrameShape(QFrame::VLine);
-        frame_4->setFrameShadow(QFrame::Raised);
+        okButton->setMinimumWidth(100);
+
+        btnLayout->addWidget(okButton);
+
+
+        mainLayout->addLayout(btnLayout);
+
 
         retranslateUi(DlgEquipment);
         QObject::connect(okButton, SIGNAL(clicked()), DlgEquipment, SLOT(accept()));
@@ -116,13 +130,13 @@ public:
     void retranslateUi(QDialog *DlgEquipment)
     {
         DlgEquipment->setWindowTitle(QApplication::translate("DlgEquipment", "\350\243\205\345\244\207\345\272\223\347\256\241\347\220\206", nullptr));
+        groupBox->setTitle(QApplication::translate("DlgEquipment", "\345\233\276\345\203\217", nullptr));
+        labelImage->setText(QApplication::translate("DlgEquipment", "    \345\233\276\345\203\217\345\214\272\345\237\237", nullptr));
         pushAddBtn->setText(QApplication::translate("DlgEquipment", "\346\267\273\345\212\240", nullptr));
         pushModifyBtn->setText(QApplication::translate("DlgEquipment", "\344\277\256\346\224\271", nullptr));
         pushDeleteBtn->setText(QApplication::translate("DlgEquipment", "\345\210\240\351\231\244", nullptr));
         pushAllDelBtn->setText(QApplication::translate("DlgEquipment", "\345\205\250\351\203\250\345\210\240\351\231\244", nullptr));
         okButton->setText(QApplication::translate("DlgEquipment", "\351\200\200\345\207\272", nullptr));
-        groupBox->setTitle(QApplication::translate("DlgEquipment", "\345\233\276\345\203\217", nullptr));
-        labelImage->setText(QApplication::translate("DlgEquipment", "    \345\233\276\345\203\217\345\214\272\345\237\237", nullptr));
     } // retranslateUi
 
 };

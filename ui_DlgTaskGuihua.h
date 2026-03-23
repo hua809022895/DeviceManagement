@@ -12,40 +12,65 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QFrame>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTableWidget>
+#include <QtWidgets/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 
 class Ui_DlgTaskGuihua
 {
 public:
+    QVBoxLayout *mainLayout;
+    QHBoxLayout *tableLayout;
     QTableWidget *mWidget;
-    QPushButton *okButton;
-    QFrame *frame_4;
     QTableWidget *mWidget_2;
+    QHBoxLayout *btnLayout;
+    QSpacerItem *btnSpacer;
+    QPushButton *okButton;
 
     void setupUi(QDialog *DlgTaskGuihua)
     {
         if (DlgTaskGuihua->objectName().isEmpty())
             DlgTaskGuihua->setObjectName(QString::fromUtf8("DlgTaskGuihua"));
-        DlgTaskGuihua->resize(844, 565);
+        DlgTaskGuihua->resize(960, 580);
+        mainLayout = new QVBoxLayout(DlgTaskGuihua);
+        mainLayout->setObjectName(QString::fromUtf8("mainLayout"));
+        tableLayout = new QHBoxLayout();
+        tableLayout->setObjectName(QString::fromUtf8("tableLayout"));
         mWidget = new QTableWidget(DlgTaskGuihua);
         mWidget->setObjectName(QString::fromUtf8("mWidget"));
-        mWidget->setGeometry(QRect(0, 0, 321, 521));
-        okButton = new QPushButton(DlgTaskGuihua);
-        okButton->setObjectName(QString::fromUtf8("okButton"));
-        okButton->setGeometry(QRect(720, 530, 100, 30));
-        frame_4 = new QFrame(DlgTaskGuihua);
-        frame_4->setObjectName(QString::fromUtf8("frame_4"));
-        frame_4->setGeometry(QRect(500, 369, 20, 151));
-        frame_4->setFrameShape(QFrame::VLine);
-        frame_4->setFrameShadow(QFrame::Raised);
+        mWidget->setMinimumWidth(300);
+
+        tableLayout->addWidget(mWidget);
+
         mWidget_2 = new QTableWidget(DlgTaskGuihua);
         mWidget_2->setObjectName(QString::fromUtf8("mWidget_2"));
-        mWidget_2->setGeometry(QRect(320, 0, 521, 521));
+        mWidget_2->setMinimumWidth(500);
+
+        tableLayout->addWidget(mWidget_2);
+
+
+        mainLayout->addLayout(tableLayout);
+
+        btnLayout = new QHBoxLayout();
+        btnLayout->setObjectName(QString::fromUtf8("btnLayout"));
+        btnSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        btnLayout->addItem(btnSpacer);
+
+        okButton = new QPushButton(DlgTaskGuihua);
+        okButton->setObjectName(QString::fromUtf8("okButton"));
+        okButton->setMinimumWidth(100);
+
+        btnLayout->addWidget(okButton);
+
+
+        mainLayout->addLayout(btnLayout);
+
 
         retranslateUi(DlgTaskGuihua);
         QObject::connect(okButton, SIGNAL(clicked()), DlgTaskGuihua, SLOT(accept()));

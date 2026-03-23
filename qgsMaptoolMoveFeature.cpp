@@ -18,6 +18,7 @@
 
 #include <QMessageBox>
 #include <QSettings>
+#include <QTimer>
 #include <limits>
 #include "comm.h"
 #include "mainWindow.h"
@@ -179,7 +180,15 @@ void QgsMapToolMoveFeature::cadCanvasReleaseEvent( QgsMapMouseEvent *e )
 		case Move:
 			for (QgsFeatureId id : qgis::as_const(mMovedFeatures))
 			{
-				vlayer->translateFeature(id, dx, dy);
+				// snap point feature to exact drop position
+				bool pointSnapped = false;
+				if (vlayer->geometryType() == QgsWkbTypes::PointGeometry && mMovedFeatures.size() == 1)
+				{
+					QgsGeometry exactPt = QgsGeometry::fromPointXY(stopPointLayerCoords);
+					pointSnapped = vlayer->changeGeometry(id, exactPt);
+				}
+				if (!pointSnapped)
+					vlayer->translateFeature(id, dx, dy);
 
 				if (QgsProject::instance()->topologicalEditing())
 				{
@@ -211,6 +220,9 @@ void QgsMapToolMoveFeature::cadCanvasReleaseEvent( QgsMapMouseEvent *e )
 
 		vlayer->endEditCommand();
 		vlayer->triggerRepaint();
+
+		// refresh radar labels after move
+		QTimer::singleShot(100, [](){ ((MainWindow*)gMainWindow)->ShowRadarTip(); });
 
 		m_stopPoint = stopPointLayerCoords;
 	}

@@ -17,23 +17,18 @@ DlgAddEquipment::DlgAddEquipment(QWidget *parent): QDialog(parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.okBtn,		&QAbstractButton::clicked, this, &DlgAddEquipment::on_okBtn_click);			//É¸Ñ¡ÃüÁî°´Å¥
-	connect(ui.pushButton,	&QAbstractButton::clicked, this, &DlgAddEquipment::on_addImageBtn_click);	//Ìí¼ÓÍ¼Æ¬°´Å¥
+	connect(ui.okBtn,		&QAbstractButton::clicked, this, &DlgAddEquipment::on_okBtn_click);			//É¸Ñ¡ï¿½ï¿½ï¿½î°´Å¥
+	connect(ui.pushButton,	&QAbstractButton::clicked, this, &DlgAddEquipment::on_addImageBtn_click);	//ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½ï¿½Å¥
 	
-	ui.comboBox->addItem(QString::fromLocal8Bit("¶àÐýÒíAÐÍ"));
-	ui.comboBox->addItem(QString::fromLocal8Bit("¶àÐýÒíBÐÍ"));
-	ui.comboBox->addItem(QString::fromLocal8Bit("¶àÐýÒíCÐÍ"));
-	ui.comboBox->addItem(QString::fromLocal8Bit("¶àÐýÒíDÐÍ"));
+	ui.comboBox->addItem(QStringLiteral("\u591a\u65cb\u7ffc\u0041\u578b")); // å¤šæ—‹ç¿¼Aåž‹
+	ui.comboBox->addItem(QStringLiteral("\u591a\u65cb\u7ffc\u0042\u578b")); // å¤šæ—‹ç¿¼Båž‹
+	ui.comboBox->addItem(QStringLiteral("\u591a\u65cb\u7ffc\u0043\u578b")); // å¤šæ—‹ç¿¼Cåž‹
+	ui.comboBox->addItem(QStringLiteral("\u591a\u65cb\u7ffc\u0044\u578b")); // å¤šæ—‹ç¿¼Dåž‹
 
-
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¹Ì¶¨ÒíAÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¹Ì¶¨ÒíBÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¹Ì¶¨ÒíCÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¹Ì¶¨ÒíDÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¸´ºÏÒíAÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¸´ºÏÒíBÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¸´ºÏÒíCÐÍ"));
-	ui.comboBox_2->addItem(QString::fromLocal8Bit("¸´ºÏÒíDÐÍ"));
+	ui.comboBox_2->addItem(QStringLiteral("\u56fa\u5b9a\u7ffc\u0041\u578b")); // å›ºå®šç¿¼Aåž‹
+	ui.comboBox_2->addItem(QStringLiteral("\u56fa\u5b9a\u7ffc\u0042\u578b")); // å›ºå®šç¿¼Båž‹
+	ui.comboBox_2->addItem(QStringLiteral("\u56fa\u5b9a\u7ffc\u0043\u578b")); // å›ºå®šç¿¼Cåž‹
+	ui.comboBox_2->addItem(QStringLiteral("\u56fa\u5b9a\u7ffc\u0044\u578b")); // å›ºå®šç¿¼Dåž‹
 	
 	QStringList sortedOptions;
 	sortedOptions <<"";
@@ -48,8 +43,8 @@ DlgAddEquipment::DlgAddEquipment(QWidget *parent): QDialog(parent)
 	//m_pModel = new QStandardItemModel();
 	//ui.listView->setModel(m_pModel);
 
-	ui.tabWidget->setTabText(0, QString::fromLocal8Bit("¶àÐýÒí")); // ÉèÖÃµÚÒ»¸öÒ³ÃæµÄ±êÌâ
-	ui.tabWidget->setTabText(1, QString::fromLocal8Bit("¹Ì¶¨Òí")); // ÉèÖÃµÚÒ»¸öÒ³ÃæµÄ±êÌâ
+	ui.tabWidget->setTabText(0, QStringLiteral("\u591a\u65cb\u7ffc")); // å¤šæ—‹ç¿¼
+	ui.tabWidget->setTabText(1, QStringLiteral("\u56fa\u5b9a\u7ffc")); // å›ºå®šç¿¼
 	ui.tabWidget->setCurrentIndex(0);
 }
 
@@ -57,21 +52,21 @@ DlgAddEquipment::~DlgAddEquipment()
 {}
 
 
-//Ìí¼ÓÍ¼Æ¬
+//ï¿½ï¿½ï¿½ï¿½Í¼Æ¬
 void DlgAddEquipment::on_addImageBtn_click()
 {	
-	m_strFile = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("´ò¿ªÎÄ¼þ"), QCoreApplication::applicationDirPath(),
+	m_strFile = QFileDialog::getOpenFileName(this, QStringLiteral("\u6253\u5f00\u6587\u4ef6"), QCoreApplication::applicationDirPath(),
 		"image files (*jpg);;All files (*.*)");
 
 	if (!m_strFile.isEmpty()) {
 		//QRect rc = ui.labelImage->rect();
 		int width = ui.labelImage->width();
 		int height = ui.labelImage->height();
-		QPixmap pixmap(m_strFile); // Ê¹ÓÃ×ÊÔ´ÎÄ¼þÂ·¾¶»ò¾ø¶ÔÂ·¾¶
-		QPixmap scaledPixmap = pixmap.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation); // Ëõ·ÅÍ¼Æ¬
+		QPixmap pixmap(m_strFile); // Ê¹ï¿½ï¿½ï¿½ï¿½Ô´ï¿½Ä¼ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
+		QPixmap scaledPixmap = pixmap.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation); // ï¿½ï¿½ï¿½ï¿½Í¼Æ¬
 
 		ui.labelImage->setPixmap(scaledPixmap);
-		ui.labelImage->setGeometry(348, 15, width, height+15); // ÉèÖÃlabelµÄ´óÐ¡ºÍÎ»ÖÃ
+		ui.labelImage->setGeometry(348, 15, width, height+15); // ï¿½ï¿½ï¿½ï¿½labelï¿½Ä´ï¿½Ð¡ï¿½ï¿½Î»ï¿½ï¿½
 	}
 }
 
@@ -79,57 +74,56 @@ void DlgAddEquipment::on_okBtn_click()
 {
 	if (ui.tabWidget->currentIndex() == 0)
 	{
-		insert0();//Ìí¼Ó¶àÐýÒí
+		insert0();//ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½
 		return;
 	}
 	
-	//Ìí¼Ó¹Ì¶¨Òí
+	//ï¿½ï¿½ï¿½Ó¹Ì¶ï¿½ï¿½ï¿½
 	QString type=ui.comboBox_2->currentText();
-	QString num = ui.textEdit_17->toPlainText();		//ÔÚ¿âÊýÁ¿
-	QString lookWidth = ui.textEdit_20->toPlainText();	//Õì²é´ø¿í
-	QString len = ui.textEdit_16->toPlainText();		//³¤¶È
-	QString width = ui.textEdit_18->toPlainText();		//¿í¶È
-	QString height = ui.textEdit_19->toPlainText();		//¸ß¶È
-	QString yiZhan = ui.textEdit_27->toPlainText();		//ÒíÕ¹
-	QString flyWeight = ui.textEdit_21->toPlainText();	//Æð·ÉÖØÁ¿
-	QString flyHeight = ui.textEdit_22->toPlainText();	//Æð·É¹¤×÷¸ß¶È
-	QString bj = ui.textEdit_23->toPlainText();			//·ÉÐÐ°ë¾¶	
-	QString xhTime = ui.textEdit_24->toPlainText();		//¿ÕÔØ·ÉÐÐÐøº½Ê±¼ä
-	QString maxWeight = ui.textEdit_15->toPlainText();	//×î´óÈÎÎñÔØÖØ
-	QString flyType = ui.textEdit_25->toPlainText();	//Æð·É·½Ê½
-	QString backType = ui.textEdit_26->toPlainText();	//»ØÊÕ·½Ê½
-	QString sSpeed = ui.textEdit_28->toPlainText();	//ËÙ¶È
+	QString num = ui.textEdit_17->toPlainText();		//ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString lookWidth = ui.textEdit_20->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString len = ui.textEdit_16->toPlainText();		//ï¿½ï¿½ï¿½ï¿½
+	QString width = ui.textEdit_18->toPlainText();		//ï¿½ï¿½ï¿½ï¿½
+	QString height = ui.textEdit_19->toPlainText();		//ï¿½ß¶ï¿½
+	QString yiZhan = ui.textEdit_27->toPlainText();		//ï¿½ï¿½Õ¹
+	QString flyWeight = ui.textEdit_21->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString flyHeight = ui.textEdit_22->toPlainText();	//ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ß¶ï¿½
+	QString bj = ui.textEdit_23->toPlainText();			//ï¿½ï¿½ï¿½Ð°ë¾¶	
+	QString xhTime = ui.textEdit_24->toPlainText();		//ï¿½ï¿½ï¿½Ø·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	QString maxWeight = ui.textEdit_15->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString flyType = ui.textEdit_25->toPlainText();	//ï¿½ï¿½É·ï¿½Ê½
+	QString backType = ui.textEdit_26->toPlainText();	//ï¿½ï¿½ï¿½Õ·ï¿½Ê½
+	QString sSpeed = ui.textEdit_28->toPlainText();	//ï¿½Ù¶ï¿½
 	
 	if (type == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÑ¡ÔñÀàÐÍ   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u7c7b\u578b"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 	if (num == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÔÚ¿âÊýÁ¿   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u5728\u5e93\u6570\u91cf"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 	if (len == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈë³¤¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u957f\u5ea6"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 	if (width == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÎÞÈË»ú¿í¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u5bbd\u5ea6"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 
 	if (height == "")
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÎÞÈË»ú¸ß¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u9ad8\u5ea6"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 	
 
-	QString sql = "insert into EquipmentB(type,num,lookWidth,len,width,height,yiZhan,flyWeight,flyHeight,ctrlRadius,flyTime, \
-			maxWeight,flyType,backType,other";
+	QString sql = "insert into EquipmentB(type,num,lookWidth,len,width,height,yiZhan,flyWeight,flyHeight,ctrlRadius,flyTime,maxWeight,flyType,backType,other";
 
 	if (!m_strFile.isEmpty())
 		sql += ",image";
@@ -143,7 +137,7 @@ void DlgAddEquipment::on_okBtn_click()
 
 	QSqlQuery sql_query(g_sqliteDbase);
 	sql_query.prepare(sql);
-	sql_query.bindValue(":type", type);			//×Ö·û´®£¬Çø·Ö´óÐ¡Ð´
+	sql_query.bindValue(":type", type);			//ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð¡Ð´
 	sql_query.bindValue(":num", num);
 	sql_query.bindValue(":lookWidth", lookWidth);
 	sql_query.bindValue(":len", len);
@@ -166,121 +160,106 @@ void DlgAddEquipment::on_okBtn_click()
 		QBuffer		buffer(&array);
 		buffer.open(QIODevice::WriteOnly);
 		pixmap.save(&buffer, "JPG");
-		sql_query.bindValue(":image", array);		//ÎÞÈË»úÍ¼Ïñ£¬¶þ½øÖÆÊý¾Ý
+		sql_query.bindValue(":image", array);		//ï¿½ï¿½ï¿½Ë»ï¿½Í¼ï¿½ñ£¬¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 
 
 	bool b = sql_query.exec();
 	if (!b)
 	{
-		qDebug() << "InsertDBThread in: fail...." << endl;
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("Ìí¼Ó×°±¸ Ê§°Ü   £¡£¡"), QMessageBox::StandardButton::Yes);
+		qDebug() << "Insert fail:" << sql_query.lastError().text() << endl;
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"),
+			QStringLiteral("\u6dfb\u52a0\u88c5\u5907\u5931\u8d25: ") + sql_query.lastError().text(),
+			QMessageBox::StandardButton::Yes);
 	}
 	else
 	{
-		qDebug() << "InsertDBThread in: success...." << endl;
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("Ìí¼ÓÎÞÈË»ú×°±¸ ³É¹¦    £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u6dfb\u52a0\u88c5\u5907\u6210\u529f"), QMessageBox::StandardButton::Yes);
 	}
 }
 
-//Ìí¼Ó¶àÐýÒí
+//ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½
 void DlgAddEquipment::insert0()
 {
 	QString type = ui.comboBox->currentText();
-	QString num = ui.textEdit_1->toPlainText();			//ÔÚ¿âÊýÁ¿
-	QString lookWidth = ui.textEdit_11->toPlainText();	//Õì²é´ø¿í
-	QString len = ui.textEdit_2->toPlainText();			//³¤¶È
-	QString width = ui.textEdit_3->toPlainText();		//¿í¶È
-	QString height = ui.textEdit_4->toPlainText();		//¸ß¶È
-	QString bj = ui.textEdit_5->toPlainText();			//·ÉÐÐ°ë¾¶
-	QString maxSpd = ui.textEdit_6->toPlainText();		//×î´óËÙ¶È
-	QString xhTime = ui.textEdit_7->toPlainText();		//×î´ó·ÉÐÐ£¬Ðøº½Ê±¼ä
-	QString workHeight = ui.textEdit_8->toPlainText();	//¹¤×÷¸ß¶È	
-	QString maxWeight = ui.textEdit_10->toPlainText();	//×î´óÔØÖØ
-	QString kjg1 = ui.textEdit_12->toPlainText();		//¿É¼û¹â1
-	QString kjg2 = ui.textEdit_13->toPlainText();		//¿É¼û¹â2
-	QString kjg3 = ui.textEdit_14->toPlainText();		//¿É¼û¹â3
-
-	if (type == "")
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÑ¡ÔñÀàÐÍ   £¡£¡"), QMessageBox::StandardButton::Yes);
+	QString num = ui.textEdit_1->toPlainText();			//ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString lookWidth = ui.textEdit_11->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	QString len = ui.textEdit_2->toPlainText();			//ï¿½ï¿½ï¿½ï¿½
+	QString width = ui.textEdit_3->toPlainText();		//ï¿½ï¿½ï¿½ï¿½
+	QString height = ui.textEdit_4->toPlainText();		//ï¿½ß¶ï¿½
+	QString bj = ui.textEdit_5->toPlainText();			//ï¿½ï¿½ï¿½Ð°ë¾¶
+	QString maxSpd = ui.textEdit_6->toPlainText();		//ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
+	QString xhTime = ui.textEdit_7->toPlainText();		//ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+	QString workHeight = ui.textEdit_8->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ß¶ï¿½	
+	QString maxWeight = ui.textEdit_10->toPlainText();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	if (type.isEmpty()) {
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u9009\u62e9\u7c7b\u578b"), QMessageBox::StandardButton::Yes);
+		return;
+	}
+	if (num.isEmpty()) {
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u5728\u5e93\u6570\u91cf"), QMessageBox::StandardButton::Yes);
+		return;
+	}
+	if (len.isEmpty()) {
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u957f\u5ea6"), QMessageBox::StandardButton::Yes);
+		return;
+	}
+	if (width.isEmpty()) {
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u5bbd\u5ea6"), QMessageBox::StandardButton::Yes);
+		return;
+	}
+	if (height.isEmpty()) {
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u8f93\u5165\u9ad8\u5ea6"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 
-	if (num == "")
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÔÚ¿âÊýÁ¿   £¡£¡"), QMessageBox::StandardButton::Yes);
-		return;
+	QByteArray imgArray;
+	bool hasImage = !m_strFile.isEmpty();
+	if (hasImage) {
+		QPixmap pixmap(m_strFile);
+		QBuffer buffer(&imgArray);
+		buffer.open(QIODevice::WriteOnly);
+		pixmap.save(&buffer, "JPG");
 	}
 
-	if (len == "")
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈë³¤¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
-		return;
-	}
-	if (width == "")
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÎÞÈË»ú¿í¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
-		return;
-	}
-
-	if (height == "")
-	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊäÈëÎÞÈË»ú¸ß¶È   £¡£¡"), QMessageBox::StandardButton::Yes);
-		return;
-	}
-
-	QString sql = "insert into EquipmentA(type,Num,lookWidth,len,width,height,ctrlRadius,MaxSpeed,xhTime,workHeight, \
-		maxWeight,kejian1,kejian2,kejian3";
-
-	if (!m_strFile.isEmpty())
-		sql += ",image";
-
-	sql += ") values (:type,:num,:lookWidth,:len,:width,:height,:ctrlRadius,:MaxSpeed,:xhTime,:workHeight,:maxWeight,\
-		:kejian1,:kejian2,:kejian3";
-
-	if (!m_strFile.isEmpty())
-		sql += ",:image";
-
+	QString sql = "insert into EquipmentA(type,Num,lookWidth,len,width,height,ctrlRadius,MaxSpeed,xhTime,workHeight,maxWeight";
+	if (hasImage) sql += ",image";
+	sql += ") values (?,?,?,?,?,?,?,?,?,?,?";
+	if (hasImage) sql += ",?";
 	sql += ")";
 
 	QSqlQuery sql_query(g_sqliteDbase);
-	sql_query.prepare(sql);
-	sql_query.bindValue(":type", type);
-	sql_query.bindValue(":num", num);
-	sql_query.bindValue(":lookWidth", lookWidth);	
-	sql_query.bindValue(":len", len);
-	sql_query.bindValue(":width", width);
-	sql_query.bindValue(":height", height);
-	sql_query.bindValue(":ctrlRadius", bj);
-	sql_query.bindValue(":MaxSpeed", maxSpd);
-	sql_query.bindValue(":xhTime", xhTime);
-	sql_query.bindValue(":workHeight", workHeight);	
-	sql_query.bindValue(":maxWeight", maxWeight);
-	sql_query.bindValue(":kejian1", kjg1);
-	sql_query.bindValue(":kejian2", kjg2);
-	sql_query.bindValue(":kejian3", kjg3);
-
-	QByteArray	array;
-	if (!m_strFile.isEmpty())
-	{
-		QPixmap		pixmap(m_strFile);
-		QBuffer		buffer(&array);
-		buffer.open(QIODevice::WriteOnly);
-		pixmap.save(&buffer, "JPG");
-		sql_query.bindValue(":image", array);		//ÎÞÈË»úÍ¼Ïñ£¬¶þ½øÖÆÊý¾Ý
+	bool prepOk = sql_query.prepare(sql);
+	if (!prepOk) {
+		QString err = QString("prepare fail: %1\nSQL: %2\nDB open: %3")
+			.arg(sql_query.lastError().text()).arg(sql).arg(g_sqliteDbase.isOpen()?"yes":"no");
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), err, QMessageBox::StandardButton::Yes);
+		return;
 	}
-
+	sql_query.addBindValue(type);
+	sql_query.addBindValue(num);
+	sql_query.addBindValue(lookWidth);
+	sql_query.addBindValue(len);
+	sql_query.addBindValue(width);
+	sql_query.addBindValue(height);
+	sql_query.addBindValue(bj);
+	sql_query.addBindValue(maxSpd);
+	sql_query.addBindValue(xhTime);
+	sql_query.addBindValue(workHeight);
+	sql_query.addBindValue(maxWeight);
+	if (hasImage) sql_query.addBindValue(imgArray);
 
 	bool b = sql_query.exec();
 	if (!b)
 	{
-		qDebug() << "InsertDBThread in: fail...." << endl;
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("Ìí¼Ó×°±¸ Ê§°Ü   £¡£¡"), QMessageBox::StandardButton::Yes);
+		QString err = QString("exec fail: %1\nSQL: %2").arg(sql_query.lastError().text()).arg(sql);
+		qDebug() << err;
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"),
+			QStringLiteral("\u6dfb\u52a0\u88c5\u5907\u5931\u8d25: ") + sql_query.lastError().text(),
+			QMessageBox::StandardButton::Yes);
 	}
 	else
 	{
-		qDebug() << "InsertDBThread in: success...." << endl;
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("Ìí¼ÓÎÞÈË»ú×°±¸ ³É¹¦    £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u6dfb\u52a0\u88c5\u5907\u6210\u529f"), QMessageBox::StandardButton::Yes);
 	}
 }

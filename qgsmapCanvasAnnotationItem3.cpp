@@ -10,6 +10,7 @@
 #include "qgsproject.h"
 #include "qgsannotationmanager.h"
 #include <QPainter>
+#include <QTimer>
 
 
 QgsMapCanvasAnnotationItem3::QgsMapCanvasAnnotationItem3(QgsAirAnnotation *annotation, QgsMapCanvas *mapCanvas)
@@ -36,8 +37,16 @@ QgsMapCanvasAnnotationItem3::QgsMapCanvasAnnotationItem3(QgsAirAnnotation *annot
 
 void QgsMapCanvasAnnotationItem3::updatePosition()
 {
-	if (!mAnnotation)
+	if (!mAnnotation || !mMapCanvas)
 		return;
+
+	// canvas 渲染线程持有共享 QVector 副本时，toCanvasCoordinates() 会触发
+	// isDetached() 断言崩溃（qvector.h:392）→ 延迟到渲染完成后再执行
+	if (mMapCanvas->isDrawing())
+	{
+		QTimer::singleShot(50, this, &QgsMapCanvasAnnotationItem3::updatePosition);
+		return;
+	}
 
 	if (mAnnotation->hasFixedMapPosition())
 	{
@@ -54,8 +63,6 @@ void QgsMapCanvasAnnotationItem3::updatePosition()
 	}
 	else
 	{
-		//relative position
-
 		double x = mAnnotation->relativePosition().x() * mMapCanvas->width();
 		double y = mAnnotation->relativePosition().y() * mMapCanvas->height();
 		setPos(x, y);

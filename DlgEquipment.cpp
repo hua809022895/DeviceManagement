@@ -13,45 +13,35 @@ DlgEquipment::DlgEquipment(QWidget *parent): QDialog(parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.pushAddBtn,&QAbstractButton::clicked, this, &DlgEquipment::on_addBtn_click);//Ìí¼ÓÃüÁî°´Å¥
-	connect(ui.pushModifyBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_Midify_click);//ÐÞ¸ÄÃüÁî°´Å¥
-	connect(ui.pushDeleteBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_deleteBtn_click);//É¾³ýÃüÁî°´Å¥
-	connect(ui.pushAllDelBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_AllDeleteBtn_click);//È«²¿É¾³ýÃüÁî°´Å¥
-	connect(ui.okButton, &QAbstractButton::clicked, this, &DlgEquipment::on_exitBtn_click);//ÍË³öÃüÁî°´Å¥
+	connect(ui.pushAddBtn,&QAbstractButton::clicked, this, &DlgEquipment::on_addBtn_click);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î°´Å¥
+	connect(ui.pushModifyBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_Midify_click);//ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½î°´Å¥
+	connect(ui.pushDeleteBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_deleteBtn_click);//É¾ï¿½ï¿½ï¿½ï¿½ï¿½î°´Å¥
+	connect(ui.pushAllDelBtn, &QAbstractButton::clicked, this, &DlgEquipment::on_AllDeleteBtn_click);//È«ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½î°´Å¥
+	connect(ui.okButton, &QAbstractButton::clicked, this, &DlgEquipment::on_exitBtn_click);//ï¿½Ë³ï¿½ï¿½ï¿½ï¿½î°´Å¥
 	
-	//Á¬½Óµã»÷ÏîµÄ²Ûº¯Êý
+	//ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½Ä²Ûºï¿½ï¿½ï¿½
 	connect(ui.mWidget, &QTableWidget::itemClicked, this, &DlgEquipment::onItemClicked);
 
-	//ÉèÖÃÎÞÈË»ú×°±¸±í¸ñ¿Ø¼þ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½
 	int i = 0;
-	ui.mWidget->setColumnCount(11); //ÉèÖÃÁÐ¸öÊý
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("id")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ÀàÐÍ")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("ÔÚ¿âÊýÁ¿")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Õì²é´ø¿í")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("³¤¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¿í¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¸ß¶È")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¿ØÖÆ°ë¾¶")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Ðøº½Ê±¼ä")));	
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("×î´óÔØÖØ")));
-	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Æð·ÉÖØÁ¿")));//¹Ì¶¨Òí×¨ÓÃ×Ö¶Î
-	
-	ui.mWidget->setColumnWidth(0, 0);
-	ui.mWidget->setColumnWidth(1, 80);
-	ui.mWidget->setColumnWidth(2, 70);
-	ui.mWidget->setColumnWidth(3, 70);
-	ui.mWidget->setColumnWidth(4, 50);
-	ui.mWidget->setColumnWidth(5, 60);
-	ui.mWidget->setColumnWidth(6, 60);
-	ui.mWidget->setColumnWidth(7, 60);
-	ui.mWidget->setColumnWidth(8, 60);
-	ui.mWidget->setColumnWidth(9, 60);
-	ui.mWidget->setColumnWidth(10,60);
+	ui.mWidget->setColumnCount(11); //ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½ï¿½
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("id")));
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u88c5\u5907\u7c7b\u578b")));          // è£…å¤‡ç±»åž‹
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u5728\u5e93\u6570\u91cf")));          // åœ¨åº“æ•°é‡
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u4fa6\u5bdf\u5e26\u5bbd")));          // ä¾¦å¯Ÿå¸¦å®½
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u88c5\u5907\u957f\u5ea6")));          // è£…å¤‡é•¿åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u88c5\u5907\u5bbd\u5ea6")));          // è£…å¤‡å®½åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u88c5\u5907\u9ad8\u5ea6")));          // è£…å¤‡é«˜åº¦
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u63a7\u5236\u534a\u5f84")));          // æŽ§åˆ¶åŠå¾„
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u98de\u884c\u65f6\u95f4")));          // é£žè¡Œæ—¶é—´
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u6700\u5927\u8f7d\u91cd")));          // æœ€å¤§è½½é‡
+	ui.mWidget->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u5de5\u4f5c\u9ad8\u5ea6")));          // å·¥ä½œé«˜åº¦
 
+	ui.mWidget->setColumnHidden(0, true);
+	ui.mWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui.mWidget->verticalHeader()->setVisible(false);
-	ui.mWidget->setSelectionBehavior(QAbstractItemView::SelectRows); //ÉèÖÃÑ¡ÔñÐÐÎª£¬ÒÔÐÐÎªµ¥Î»
-	ui.mWidget->setSelectionMode(QAbstractItemView::SingleSelection); //ÉèÖÃÑ¡ÔñÄ£Ê½£¬Ñ¡Ôñµ¥ÐÐ	
+	ui.mWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.mWidget->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	//this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint);
 	refreshA();
@@ -72,7 +62,7 @@ void DlgEquipment::onItemClicked(QTableWidgetItem *item)
 
 	int row = item->row();
 
-	// »ñÈ¡µ¥Ôª¸ñÄÚÈÝ
+	// ï¿½ï¿½È¡ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	QTableWidgetItem *qim0 = ui.mWidget->item(row, 0);
 	QTableWidgetItem *qim1 = ui.mWidget->item(row, 1);
 	if (item) {
@@ -86,9 +76,9 @@ void DlgEquipment::onItemClicked(QTableWidgetItem *item)
 
 		sql = "select image from Equipment";
 
-		if (name.indexOf(QString::fromLocal8Bit("¶àÐý")) >= 0)
+		if (name.indexOf(QStringLiteral("\u591a\u65cb")) >= 0)
 			sql += "A";
-		if (name.indexOf(QString::fromLocal8Bit("¹Ì¶¨")) >= 0 || name.indexOf(QString::fromLocal8Bit("¸´ºÏ")) >= 0)
+		else
 			sql += "B";
 
 		sql += " where Id=" + text;
@@ -100,13 +90,14 @@ void DlgEquipment::onItemClicked(QTableWidgetItem *item)
 			{
 				QPixmap pixmap;
 				pixmap.loadFromData(jpg, "jpg");
-				QPixmap pixmapcopy = pixmap.scaled(ui.frame->width() - 10, ui.frame->height() - 10);
+				QPixmap pixmapcopy = pixmap.scaled(ui.frame->width() - 10, ui.frame->height() - 10, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 				ui.labelImage->setPixmap(pixmapcopy);
+				ui.labelImage->setAlignment(Qt::AlignCenter);
 			}
 		}
 	}
 }
-//ÖØÐÂË¢ÐÂ,¶àÐýÒí±í¸ñÊý¾Ý£¬
+//ï¿½ï¿½ï¿½ï¿½Ë¢ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½
 void DlgEquipment::refreshA()
 {
 loop1:
@@ -130,23 +121,24 @@ loop1:
 		QString width = query.value("width").toString();
 		QString height = query.value("height").toString();
 		QString ctrlRadius = query.value("ctrlRadius").toString();		
-		QString xhTime = query.value("xhTime").toString();			//Ðøº½Ê±¼ä
-		QString maxWeight = query.value("maxWeight").toString();	//×î´óÔØÖØ		
-		//QString flyWeight = query.value("flyWeight").toString();	//¹Ì¶¨Òí×¨ÓÃ×Ö¶Î
+		QString xhTime = query.value("xhTime").toString();
+		QString maxWeight = query.value("maxWeight").toString();
+		QString workHeight = query.value("workHeight").toString();
 		int row = ui.mWidget->rowCount();
 		ui.mWidget->insertRow(row);
-		
-		ui.mWidget->setItem(row, 0, new QTableWidgetItem(ID));	//ID
-		ui.mWidget->item(row, 0)->setTextAlignment(Qt::AlignTop);		
+
+		ui.mWidget->setItem(row, 0, new QTableWidgetItem(ID));
+		ui.mWidget->item(row, 0)->setTextAlignment(Qt::AlignTop);
 		ui.mWidget->setItem(row, 1, new QTableWidgetItem(type));
 		ui.mWidget->setItem(row, 2, new QTableWidgetItem(num));
 		ui.mWidget->setItem(row, 3, new QTableWidgetItem(lookWidth));
 		ui.mWidget->setItem(row, 4, new QTableWidgetItem(len));
 		ui.mWidget->setItem(row, 5, new QTableWidgetItem(width));
 		ui.mWidget->setItem(row, 6, new QTableWidgetItem(height));
-		ui.mWidget->setItem(row, 7, new QTableWidgetItem(ctrlRadius));		
+		ui.mWidget->setItem(row, 7, new QTableWidgetItem(ctrlRadius));
 		ui.mWidget->setItem(row, 8, new QTableWidgetItem(xhTime));
-		ui.mWidget->setItem(row, 9, new QTableWidgetItem(maxWeight));		
+		ui.mWidget->setItem(row, 9, new QTableWidgetItem(maxWeight));
+		ui.mWidget->setItem(row, 10, new QTableWidgetItem(workHeight));		
 	}
 }
 
@@ -166,9 +158,9 @@ void DlgEquipment::refreshB()
 		QString width	= query.value("width").toString();
 		QString height	= query.value("height").toString();
 		QString ctrlRadius	= query.value("ctrlRadius").toString();
-		QString xhTime		= query.value("flyTime").toString();	//Ðøº½Ê±¼ä
-		QString maxWeight	= query.value("maxWeight").toString();	//×î´óÔØÖØ		
-		QString flyWeight	= query.value("flyWeight").toString();	//¹Ì¶¨Òí×¨ÓÃ×Ö¶Î
+		QString xhTime		= query.value("flyTime").toString();	//ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+		QString maxWeight	= query.value("maxWeight").toString();	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½		
+		QString flyWeight	= query.value("flyWeight").toString();	//ï¿½Ì¶ï¿½ï¿½ï¿½×¨ï¿½ï¿½ï¿½Ö¶ï¿½
 
 		int row = ui.mWidget->rowCount();
 		ui.mWidget->insertRow(row);
@@ -187,7 +179,7 @@ void DlgEquipment::refreshB()
 		ui.mWidget->setItem(row, 10, new QTableWidgetItem(flyWeight));
 	}
 }
-//Ìí¼Ó×°±¸
+//ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½
 void DlgEquipment::on_addBtn_click()
 {
 	DlgAddEquipment dlg;
@@ -195,26 +187,26 @@ void DlgEquipment::on_addBtn_click()
 	refreshA();
 	refreshB();
 }
-//ÐÞ¸Ä×°±¸
+//ï¿½Þ¸ï¿½×°ï¿½ï¿½
 void DlgEquipment::on_Midify_click()
 {
 	QList<QTableWidgetItem*> pitem = ui.mWidget->selectedItems();
 	if (pitem.size() < 1)
 	{
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÇëÊ×ÏÈÑ¡ÖÐ Ò»¸ö×°±¸ Íê³É £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u8bf7\u5148\u9009\u62e9\u4e00\u4e2a\u88c5\u5907\u518d\u4fee\u6539"), QMessageBox::StandardButton::Yes);
 		return;
 	}
 
 	int row = pitem[0]->row();
 
-	// »ñÈ¡µ¥Ôª¸ñÄÚÈÝ
+	// ï¿½ï¿½È¡ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	QTableWidgetItem *qim0 = ui.mWidget->item(row, 0);
-	QTableWidgetItem *qim1 = ui.mWidget->item(row, 1); //ÀàÐÍ
+	QTableWidgetItem *qim1 = ui.mWidget->item(row, 1); //ï¿½ï¿½ï¿½ï¿½
 	QString text = qim0->text();
 	QString name = qim1->text();	
 
 	bool bDuo = true;
-	if(name.indexOf(QString::fromLocal8Bit("¶àÐý"))>=0)
+	if(name.indexOf(QStringLiteral("\u591a\u65cb"))>=0)
 		bDuo = true;
 	else
 		bDuo = false;
@@ -225,7 +217,7 @@ void DlgEquipment::on_Midify_click()
 	refreshB();
 	delete dlg;
 }
-//É¾³ý×°±¸
+//É¾ï¿½ï¿½×°ï¿½ï¿½
 void DlgEquipment::on_deleteBtn_click()
 {
 	QList<QTableWidgetItem*> pitem = ui.mWidget->selectedItems();
@@ -234,42 +226,42 @@ void DlgEquipment::on_deleteBtn_click()
 
 	int row = pitem[0]->row();
 
-	// »ñÈ¡µ¥Ôª¸ñÄÚÈÝ
+	// ï¿½ï¿½È¡ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	QTableWidgetItem *qim0 = ui.mWidget->item(row, 0);
 	QTableWidgetItem *qim1 = ui.mWidget->item(row, 1);
-	QMessageBox::StandardButton id = QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÄúÈ·ÊµÏëÉ¾³ýµ±Ç° ×°±¸Âð£¿£¿"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
+	QMessageBox::StandardButton id = QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u786e\u5b9e\u8981\u5220\u9664\u5f53\u524d\u88c5\u5907\u5417\uff1f"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
 	if (id == QMessageBox::StandardButton::Yes)
 	{
 		QString text = qim0->text();
 		QString name = qim1->text();
 		QString sql = "Delete from Equipment";
 
-		if (name.indexOf(QString::fromLocal8Bit("¶àÐý")) >= 0)
+		if (name.indexOf(QStringLiteral("\u591a\u65cb")) >= 0)
 			sql += "A";
-		if (name.indexOf(QString::fromLocal8Bit("¹Ì¶¨")) >= 0 || name.indexOf(QString::fromLocal8Bit("¸´ºÏ")) >= 0)
+		else
 			sql += "B";
 
-		sql+=" where id = " +text; 
+		sql+=" where id = " +text;
 		QSqlQuery query(g_sqliteDbase);
 		bool b = query.exec(sql);
 		refreshA();
 		refreshB();
 		ui.labelImage->clear();
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("É¾³ýÒ»¸ö×°±¸ Íê³É £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u5220\u9664\u88c5\u5907\u6210\u529f"), QMessageBox::StandardButton::Yes);
 	}
 }
 
-//ÍË³ö
+//ï¿½Ë³ï¿½
 void DlgEquipment::on_exitBtn_click()
 {
 	MainWindow *pDlg = (MainWindow*)this->parentWidget();
 }
 
-//È«²¿É¾³ý×°±¸
+//È«ï¿½ï¿½É¾ï¿½ï¿½×°ï¿½ï¿½
 void DlgEquipment::on_AllDeleteBtn_click()
 {
-	//ui.mAirTable->sortItems(1, Qt::AscendingOrder);//°´À×´ïÉè±¸idÅÅÐò		
-	QMessageBox::StandardButton id = QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("ÄúÈ·ÊµÏëÉ¾³ýÈ«²¿ ×°±¸Âð£¿£¿"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
+	//ui.mAirTable->sortItems(1, Qt::AscendingOrder);//ï¿½ï¿½ï¿½×´ï¿½ï¿½è±¸idï¿½ï¿½ï¿½ï¿½		
+	QMessageBox::StandardButton id = QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u786e\u5b9e\u8981\u5220\u9664\u5168\u90e8\u88c5\u5907\u5417\uff1f"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No);
 	if (id == QMessageBox::StandardButton::Yes)
 	{
 	loop1:
@@ -290,6 +282,6 @@ void DlgEquipment::on_AllDeleteBtn_click()
 		refreshA();
 		refreshB();
 		ui.labelImage->clear();
-		QMessageBox::information(this, QString::fromLocal8Bit("ÌáÊ¾"), QString::fromLocal8Bit("É¾³ý È«²¿×°±¸ Íê³É £¡£¡"), QMessageBox::StandardButton::Yes);
+		QMessageBox::information(this, QStringLiteral("\u63d0\u793a"), QStringLiteral("\u5220\u9664\u5168\u90e8\u88c5\u5907\u6210\u529f"), QMessageBox::StandardButton::Yes);
 	}
 }

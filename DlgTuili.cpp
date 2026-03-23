@@ -13,8 +13,8 @@ DlgTuili::DlgTuili(QWidget *parent): QDialog(parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.ok_Button, &QAbstractButton::clicked, this, &DlgTuili::on_queryBtn_click);	//É¸Ñ¡ÃüÁî°´Å¥
-	//connect(ui.pushExitBtn, &QAbstractButton::clicked, this, &DlgTuili::on_exitBtn_click);	//¶¨Î»ÃüÁî°´Å¥
+	connect(ui.ok_Button, &QAbstractButton::clicked, this, &DlgTuili::on_queryBtn_click);	//É¸Ñ¡ï¿½ï¿½ï¿½î°´Å¥
+	//connect(ui.pushExitBtn, &QAbstractButton::clicked, this, &DlgTuili::on_exitBtn_click);	//ï¿½ï¿½Î»ï¿½ï¿½ï¿½î°´Å¥
 	//this->setWindowFlags(Qt::Dialog | Qt::WindowMinimizeButtonHint);
 	//central->addWidget(ui.mAirTable, 2, 0, 1, 1, Qt::AlignBottom);
 	//MainWindow *pDlg = (MainWindow*)this->parentWidget();
@@ -25,32 +25,23 @@ DlgTuili::DlgTuili(QWidget *parent): QDialog(parent)
 	m_timer = new QTimer(this);
 	connect(m_timer, &QTimer::timeout, this, &DlgTuili::UpdateInterface);
 	
-	//ÉèÖÃÎŞÈË»ú±í¸ñ¿Ø¼ş
+	// åˆå§‹åŒ–æ¨ç†è¡¨æ ¼æ§ä»¶
 	int i = 0;
-	ui.mAirTable->setColumnCount(9);	
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("·É»úID")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("¾­¶È")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Î³¶È")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Ïà¶Ô¸ß¶È")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("º£°Î¸ß¶È")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Pitch")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Roll")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("Yaw")));
-	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QString::fromLocal8Bit("×´Ì¬")));
+	ui.mAirTable->setColumnCount(9);
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u98de\u673aID")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u7ecf\u5ea6")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u7eac\u5ea6")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u76ee\u5bf9\u9ad8\u5ea6")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u6d77\u62d4\u9ad8\u5ea6")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("Pitch")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("Roll")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("Yaw")));
+	ui.mAirTable->setHorizontalHeaderItem(i++, new QTableWidgetItem(QStringLiteral("\u72b6\u6001")));
 
-	ui.mAirTable->setColumnWidth(0, 50);
-	ui.mAirTable->setColumnWidth(1, 90);
-	ui.mAirTable->setColumnWidth(2, 90);
-	ui.mAirTable->setColumnWidth(3, 90);
-	ui.mAirTable->setColumnWidth(4, 90);
-	ui.mAirTable->setColumnWidth(5, 70);
-	ui.mAirTable->setColumnWidth(6, 70);
-	ui.mAirTable->setColumnWidth(7, 70);
-	ui.mAirTable->setColumnWidth(8, 90);
-	
+	ui.mAirTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	ui.mAirTable->verticalHeader()->setVisible(false);
-	ui.mAirTable->setSelectionBehavior(QAbstractItemView::SelectRows);	//ÉèÖÃÑ¡ÔñĞĞÎª£¬ÒÔĞĞÎªµ¥Î»
-	ui.mAirTable->setSelectionMode(QAbstractItemView::SingleSelection); //ÉèÖÃÑ¡ÔñÄ£Ê½£¬Ñ¡Ôñµ¥ĞĞ
+	ui.mAirTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+	ui.mAirTable->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 DlgTuili::~DlgTuili()
@@ -60,16 +51,16 @@ void DlgTuili::on_queryBtn_click()
 {
 	if (m_pTuiliThread->m_isRun)
 	{
-		ui.ok_Button->setText(QString::fromLocal8Bit("¿ªÊ¼ÍÆÀí"));
-		ui.label->setText(QString::fromLocal8Bit("Í£Ö¹ÍÆÀíÁË..."));
+		ui.ok_Button->setText(QStringLiteral("\u5f00\u59cb\u63a8\u7406"));
+		ui.label->setText(QStringLiteral("\u5df2\u505c\u6b62\u63a8\u7406"));
 		m_pTuiliThread->m_isRun = false;
 		m_timer->stop();
 		//ui.label_2->setText("");
 	}
 	else
 	{
-		ui.ok_Button->setText(QString::fromLocal8Bit("Í£Ö¹ÍÆÀí"));
-		ui.label->setText(QString::fromLocal8Bit("ÕıÔÚÍÆÀíÖĞ....."));
+		ui.ok_Button->setText(QStringLiteral("\u505c\u6b62\u63a8\u7406"));
+		ui.label->setText(QStringLiteral("\u6b63\u5728\u63a8\u7406\u4e2d."));
 		m_pTuiliThread->start();
 		m_pTuiliThread->m_isRun = true;
 		m_timer->start(1000);
@@ -85,21 +76,21 @@ void DlgTuili::UpdateInterface()
 		ui.label->setText(s);
 	}
 	else
-		ui.label->setText(QString::fromLocal8Bit("ÕıÔÚÍÆÀíÖĞ"));
+		ui.label->setText(QStringLiteral("\u6b63\u5728\u63a8\u7406\u4e2d"));
 	
 }
 
-//Ìí¼ÓÎŞÈË»úµ½±í¸ñ¿Ø¼şÖĞ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½
 void DlgTuili::insertToTable(tag_PlaneMessage* p)
 {
 	int c = 2;
 	int row = ui.mAirTable->rowCount();
 	ui.mAirTable->insertRow(row);
 
-	ui.mAirTable->setItem(row, 0, new QTableWidgetItem(p->ID));//IDºÅ
+	ui.mAirTable->setItem(row, 0, new QTableWidgetItem(p->ID));//IDï¿½ï¿½
 	ui.mAirTable->item(row, 0)->setTextAlignment(Qt::AlignTop);
 
-	//¾­¶È£¬Î³¶È£¬Ïà¶Ô¸ß¶È£¬º£°Î¸ß¶È
+	//ï¿½ï¿½ï¿½È£ï¿½Î³ï¿½È£ï¿½ï¿½ï¿½Ô¸ß¶È£ï¿½ï¿½ï¿½ï¿½Î¸ß¶ï¿½
 	QString s = QString("%1").arg(QString::number(p->planeX.toDouble(), 'f', 5));
 	ui.mAirTable->setItem(row, 1, new QTableWidgetItem(s));
 
@@ -124,7 +115,7 @@ void DlgTuili::insertToTable(tag_PlaneMessage* p)
 	s = QString("%1").arg(QString::number(p->airSpeed.toDouble(), 'f', 2));
 	ui.mAirTable->setItem(row, c++, new QTableWidgetItem(s));	
 }
-//ÊµÊ±ĞŞ¸Ä±í¸ñÎŞÈË»úÊı¾İ
+//ÊµÊ±ï¿½Ş¸Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½
 void DlgTuili::ModifyTable(tag_PlaneMessage* p)
 {
 	int row = ui.mAirTable->rowCount();
@@ -133,7 +124,7 @@ void DlgTuili::ModifyTable(tag_PlaneMessage* p)
 	{
 		if (p->ID == ui.mAirTable->item(i, 0)->text())
 		{
-			//¾­¶È£¬Î³¶È£¬Ïà¶Ô¸ß¶È£¬º£°Î¸ß¶È
+			//ï¿½ï¿½ï¿½È£ï¿½Î³ï¿½È£ï¿½ï¿½ï¿½Ô¸ß¶È£ï¿½ï¿½ï¿½ï¿½Î¸ß¶ï¿½
 			QString s = QString("%1").arg(QString::number(p->planeX.toDouble(), 'f', 5));
 			ui.mAirTable->setItem(i, 1, new QTableWidgetItem(s));
 
@@ -158,35 +149,35 @@ void DlgTuili::ModifyTable(tag_PlaneMessage* p)
 			s = "";
 			if (m_pTuiliThread->m_iJQactive == 1)
 			{
-				s = QString::fromLocal8Bit("Æğ·É");
-				auto end = steady_clock::now(); // »ñÈ¡½áÊøÊ±¼äµã
-				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ¼ÆËã³ÖĞøÊ±¼äÃë
+				s = QStringLiteral("\u653b\u51fb\u4e2d");
+				auto end = steady_clock::now(); // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
+				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 
 				if(dur>11)
-					s= QString::fromLocal8Bit("ÓÕ¶üÆÛÆ­");
+					s= QStringLiteral("\u6b3a\u9a97");
 			}
 
 			if (m_pTuiliThread->m_iJQactive == 2)
 			{
-				s = QString::fromLocal8Bit("¿ÕÖĞ¼¯½á");
-				auto end = steady_clock::now(); // »ñÈ¡½áÊøÊ±¼äµã
-				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ¼ÆËã³ÖĞøÊ±¼äÃë
+				s = QStringLiteral("\u8fdb\u884c\u653b\u51fb");
+				auto end = steady_clock::now(); // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
+				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 
 				if (dur > 11)
-					s = QString::fromLocal8Bit("ÓÕ¶üÆÛÆ­");
+					s = QStringLiteral("\u6b3a\u9a97");
 			}
 
 			if (m_pTuiliThread->m_iJQactive == 3)
-				s = QString::fromLocal8Bit("ÓÕ¶üÆÛÆ­");
+				s = QStringLiteral("\u6b3a\u9a97");
 			
 			if (m_pTuiliThread->m_iJQactive == 4)
 			{
-				s = QString::fromLocal8Bit("µÍ¿ÕÍ»·À");
-				auto end = steady_clock::now(); // »ñÈ¡½áÊøÊ±¼äµã
-				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ¼ÆËã³ÖĞøÊ±¼äÃë
+				s = QStringLiteral("\u951f\u9175\u5321\u62f7\u7a81\u951f\u65a4\u62f7");
+				auto end = steady_clock::now(); // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½
+				int dur = duration_cast<seconds>(end - m_pTuiliThread->m_activeTime).count(); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 
 				if (dur > 11)
-					s = QString::fromLocal8Bit("ÓÕ¶üÆÛÆ­");
+					s = QStringLiteral("\u6b3a\u9a97");
 			}
 			
 			ui.mAirTable->setItem(i, 8, new QTableWidgetItem(s));
@@ -194,7 +185,7 @@ void DlgTuili::ModifyTable(tag_PlaneMessage* p)
 		}
 	}
 
-	//¸üĞÂÎŞÈË»úÊı¾İ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½
 	m_pTuiliThread->m_Mutex.lock();
 	for (int i = 0; i < m_pTuiliThread->m_planeVec.size(); i++)
 	{

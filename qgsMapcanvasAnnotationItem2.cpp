@@ -13,6 +13,7 @@
 #include "qgsproject.h"
 #include "qgsannotationmanager.h"
 #include "qgssvgannotation.h"
+#include <QTimer>
 #include "jpgAnnotation.h"
 #include <QPainter>
 #include <QDebug>
@@ -42,12 +43,19 @@ QgsMapCanvasAnnotationItem2::QgsMapCanvasAnnotationItem2(QgsAnnotation2 *annotat
 
 void QgsMapCanvasAnnotationItem2::updatePosition()
 {
-	if (!mAnnotation)
+	if (!mAnnotation || !mMapCanvas)
 		return;
+
+	// canvas 渲染线程持有共享 QVector 副本时，toCanvasCoordinates() 触发 isDetached() 崩溃
+	if (mMapCanvas->isDrawing())
+	{
+		QTimer::singleShot(50, this, &QgsMapCanvasAnnotationItem2::updatePosition);
+		return;
+	}
 
 	QgsCoordinateTransform t(mAnnotation->mapPositionCrs(), mMapCanvas->mapSettings().destinationCrs(), QgsProject::instance());
 
-	QgsPointXY coord;// = mAnnotation->m_Position;
+	QgsPointXY coord;
 	try
 	{
 		coord = t.transform(coord);
@@ -56,7 +64,6 @@ void QgsMapCanvasAnnotationItem2::updatePosition()
 	{
 	}
 	QPointF qfp = toCanvasCoordinates(coord);
-	//setPos(qfp);
 }
 
 QRectF QgsMapCanvasAnnotationItem2::boundingRect() const

@@ -73,10 +73,9 @@ public:
     QAction *actionRadarGo;
     QAction *mActionSelectRadarLayer;
     QAction *mActionSelectRadarDev;
-    QAction *mActionMoveRadarDev;
     QAction *mActionDelRadarDev;
     QAction *mActionFixRadar;
-    QAction *mActionOutfitMove;
+    QAction *mActionMoveRadarDev;
     QAction *mActionAddTaskRect;
     QAction *mActionRadarTestAirList;
     QAction *mActionSelTaskArea;
@@ -210,16 +209,14 @@ public:
         mActionSelectRadarLayer->setObjectName(QString::fromUtf8("mActionSelectRadarLayer"));
         mActionSelectRadarDev = new QAction(MainWindow);
         mActionSelectRadarDev->setObjectName(QString::fromUtf8("mActionSelectRadarDev"));
-        mActionMoveRadarDev = new QAction(MainWindow);
-        mActionMoveRadarDev->setObjectName(QString::fromUtf8("mActionMoveRadarDev"));
-        mActionMoveRadarDev->setCheckable(true);
-        mActionMoveRadarDev->setChecked(false);
         mActionDelRadarDev = new QAction(MainWindow);
         mActionDelRadarDev->setObjectName(QString::fromUtf8("mActionDelRadarDev"));
         mActionFixRadar = new QAction(MainWindow);
         mActionFixRadar->setObjectName(QString::fromUtf8("mActionFixRadar"));
-        mActionOutfitMove = new QAction(MainWindow);
-        mActionOutfitMove->setObjectName(QString::fromUtf8("mActionOutfitMove"));
+        mActionMoveRadarDev = new QAction(MainWindow);
+        mActionMoveRadarDev->setObjectName(QString::fromUtf8("mActionMoveRadarDev"));
+        mActionMoveRadarDev->setCheckable(true);
+        mActionMoveRadarDev->setChecked(false);
         mActionAddTaskRect = new QAction(MainWindow);
         mActionAddTaskRect->setObjectName(QString::fromUtf8("mActionAddTaskRect"));
         mActionRadarTestAirList = new QAction(MainWindow);
@@ -340,7 +337,6 @@ public:
         toolBar_3->addAction(mActionMoveRadarDev);
         toolBar_3->addAction(mActionDelRadarDev);
         toolBar_3->addAction(mActionFixRadar);
-        toolBar_3->addAction(mActionOutfitMove);
         toolBar_3->addAction(mActionRadarTestAirList);
         toolBar_4->addAction(mActionSelTaskLayer);
         toolBar_4->addAction(mActionSelTaskArea);
@@ -358,7 +354,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "\346\227\217\347\276\244\344\273\273\345\212\241\346\214\207\346\216\247\347\263\273\347\273\237", nullptr));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "\346\200\201\345\212\277\346\230\276\347\244\272\350\257\204\344\274\260\347\263\273\347\273\237", nullptr));
         mActionLoadShp->setText(QApplication::translate("MainWindow", "\345\212\240\350\275\275Shp", nullptr));
         mActionLoadRaster->setText(QApplication::translate("MainWindow", "\345\212\240\350\275\275Raster", nullptr));
         mActionDrawPoint->setText(QApplication::translate("MainWindow", "\346\267\273\345\212\240\344\277\256\346\224\271\347\233\256\346\240\207\347\202\271", nullptr));
@@ -459,10 +455,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         mActionSelectRadarDev->setToolTip(QApplication::translate("MainWindow", "\351\200\211\344\270\255\351\233\267\350\276\276", nullptr));
 #endif // QT_NO_TOOLTIP
-        mActionMoveRadarDev->setText(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
-#ifndef QT_NO_TOOLTIP
-        mActionMoveRadarDev->setToolTip(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
-#endif // QT_NO_TOOLTIP
         mActionDelRadarDev->setText(QApplication::translate("MainWindow", "\345\210\240\351\231\244\350\243\205\345\244\207", nullptr));
 #ifndef QT_NO_TOOLTIP
         mActionDelRadarDev->setToolTip(QApplication::translate("MainWindow", "\345\210\240\351\231\244\350\243\205\345\244\207\350\256\276\345\244\207", nullptr));
@@ -471,9 +463,9 @@ public:
 #ifndef QT_NO_TOOLTIP
         mActionFixRadar->setToolTip(QApplication::translate("MainWindow", "\344\277\256\346\224\271\350\243\205\345\244\207\345\217\202\346\225\260", nullptr));
 #endif // QT_NO_TOOLTIP
-        mActionOutfitMove->setText(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
+        mActionMoveRadarDev->setText(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
 #ifndef QT_NO_TOOLTIP
-        mActionOutfitMove->setToolTip(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
+        mActionMoveRadarDev->setToolTip(QApplication::translate("MainWindow", "\347\247\273\345\212\250\350\243\205\345\244\207", nullptr));
 #endif // QT_NO_TOOLTIP
         mActionAddTaskRect->setText(QApplication::translate("MainWindow", "\346\267\273\345\212\240\344\273\273\345\212\241\345\214\272\345\237\237", nullptr));
 #ifndef QT_NO_TOOLTIP
